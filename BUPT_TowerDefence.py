@@ -53,9 +53,9 @@ class BG(cocos.layer.Layer):
         self.add(background)
 
 
-class main_pic_menu(cocos.menu.Menu):
+class button(cocos.menu.Menu):      #button父类  传入图片 位置
     def __init__(self):
-        super(main_pic_menu, self).__init__()
+        super(button, self).__init__()
  
         # 也可以改变图片项的大小
         # 改变字体
@@ -67,28 +67,46 @@ class main_pic_menu(cocos.menu.Menu):
         # 选中时
         self.font_item_selected['color'] = (25,255,255,255)
  
-        menu_start=cocos.menu.ImageMenuItem('img/start.png',self.menu_start_callback)
-        menu_setting= cocos.menu.ImageMenuItem('img/setting.png', self.menu_setting_callback)
-        help_setting = cocos.menu.ImageMenuItem('img/help.png', self.menu_help_callback)
+class menu_button(button):      #button下的子类 专门写自己的回调函数
+    def __init__(self,pic_1,pic_2,pic_3,poi):
+        super(button, self).__init__()
+        pic_1=cocos.menu.ImageMenuItem(pic_1,self.pic_1_callback)
+        pic_2= cocos.menu.ImageMenuItem(pic_2, self.pic_2_callback)
+        pic_3 = cocos.menu.ImageMenuItem(pic_3, self.pic_3_callback)
         #创建菜单（添加项的列表，自定义布局位置）
-        self.create_menu([menu_start,menu_setting,help_setting],
-                         layout_strategy=cocos.menu.fixedPositionMenuLayout([(900,339),(900,220),(900,100)]),   #三个按钮的位置
+        self.create_menu([pic_1,pic_2,pic_3],
+                         layout_strategy=cocos.menu.fixedPositionMenuLayout(poi),   #三个按钮的位置
                          selected_effect=cocos.menu.zoom_in(),
                          unselected_effect=cocos.menu.zoom_out())
- 
- 
-    def menu_start_callback(self):
+    def pic_1_callback(self):
         print("start")
-        # mainmenu=main_menu()
-        # main_scence=cocos.scene.Scene(mainmenu)
-        # cocos.director.director.run(main_scence)
         game_map=BG(bg_name="img/game_map.png")
-        cocos.director.director.run(game_map)
-    def menu_help_callback(self):
+        game_map_scence=cocos.scene.Scene(game_map)
+        mapbutton=map_button(pic_1='img/level_1.jpg',pic_2='img/level_2.jpg',poi=[(800,339),(800,220)])
+        game_map_scence.add(mapbutton)
+        cocos.director.director.run(game_map_scence)
+    def pic_3_callback(self):
         print("help")
-    def menu_setting_callback(self):
+    def pic_2_callback(self):
         print("setting")
 
+
+class map_button(button):      #button下的子类 专门写自己的回调函数
+    def __init__(self,pic_1,pic_2,poi):
+        super(button, self).__init__()
+        pic_1=cocos.menu.ImageMenuItem(pic_1,self.pic_1_callback)
+        pic_2= cocos.menu.ImageMenuItem(pic_2, self.pic_2_callback)
+        #创建菜单（添加项的列表，自定义布局位置）
+        self.create_menu([pic_1,pic_2],
+                         layout_strategy=cocos.menu.fixedPositionMenuLayout(poi),   #三个按钮的位置
+                         selected_effect=cocos.menu.zoom_in(),
+                         unselected_effect=cocos.menu.zoom_out())
+    def pic_1_callback(self):
+        print("第一关")
+    def pic_2_callback(self):
+        print("第二关")
+
+        
 if __name__=='__main__':
     #初始化导演
     cocos.director.director.init(width=1011,height=598,caption="BUPT Tower Defence")
@@ -97,12 +115,9 @@ if __name__=='__main__':
     #创建场景   添加层进来
     # main_scence=cocos.scene.Scene(layer)
 
-    start_bg=BG(bg_name="img/start.jpeg")
-    main_pic_scence=cocos.scene.Scene(start_bg)
-    mainpicmenu=main_pic_menu()
-    main_pic_scence.add(mainpicmenu)
-
-    # mainmenu=main_menu()
-    # main_scence=cocos.scene.Scene(mainmenu)
+    start_bg=BG(bg_name="img/start.jpeg")           #1.获取背景图片路径
+    main_pic_scence=cocos.scene.Scene(start_bg)     #2.把背景图片生成scene
+    mainpicmenu=menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(900,339),(900,220),(900,100)])    #3.生成按钮
+    main_pic_scence.add(mainpicmenu)                #4.把按钮加入到scene
     #启动场景
-    cocos.director.director.run(main_pic_scence)
+    cocos.director.director.run(main_pic_scence)    #5.启动场景
