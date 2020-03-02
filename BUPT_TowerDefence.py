@@ -123,7 +123,7 @@ class menu_button(button):      #button下的子类 专门写自己的回调函�
         game_map_scence=cocos.scene.Scene(game_map)
         mapbutton=map_button(pic_1='img/level_1_icon.jpg',pic_2='img/level_2_icon.jpg',poi=[(800,339),(800,220)])
         game_map_scence.add(mapbutton)
-        director.run(game_map_scence)
+        director.replace(game_map_scence)
     def pic_3_callback(self):
         print("help")
     def pic_2_callback(self):
@@ -145,7 +145,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         #这次创建的窗口带调整大小的功能
         level_1 = BG(bg_name="img/level_1.jpg")
         main_scene = cocos.scene.Scene( KeyDisplay(), MouseDisplay(),level_1)
-        director.run(main_scene)
+        director.replace(main_scene)
     def pic_2_callback(self):
         print("第二关")
 
