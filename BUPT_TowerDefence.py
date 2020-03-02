@@ -55,7 +55,6 @@ class MouseDisplay(cocos.layer.Layer):
         print(director.get_virtual_coordinates(x, y))
 
  
- 
 class main_menu(cocos.menu.Menu):
     def __init__(self):
         super(main_menu, self).__init__()
@@ -149,7 +148,36 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def pic_2_callback(self):
         print("第二关")
 
-        
+class Player(cocos.sprite.Sprite):
+    def __init__(self, ):
+        super(player, self).__init__('img/player.png')
+        self.x = 200
+        self.y = 200
+        self.add(background)
+        self.a = 0
+        self.v = 1
+#人物转身
+    def rotate(self, x0, y0):
+        tann = abs(y0-self.y)/(x0-self.x)
+        radian = math.atan(tann)
+        angle = radian*180/math.pi   #角度制的角
+        if x0 < self.x and y0 < self.y:
+            angle = angle+180
+        if x0 < self.x and y0 > self.y:
+            angle = 180-angle
+        if x0 > self.x and y0 < self.y:
+            angle = -angle
+        duration = abs(angle)/200.0
+        action = RotateTo(angle,duration)
+        self.do(action)
+#人物移动
+    def move(self, x0, y0):
+        duration = sqrt((x0 - self.x)^2 + (y0 - self.y)^2)/self.v
+        action = MoveTo((x0, y0), duration)
+        sprite.do(action)
+        self.x = x0
+        self.y = y0
+
 if __name__=='__main__':
     #初始化导演
     director.init(width=1011,height=598,caption="BUPT Tower Defence")
