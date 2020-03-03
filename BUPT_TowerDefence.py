@@ -1,6 +1,10 @@
 import cocos
-from cocos.director import director
 import pyglet
+import math
+from cocos.director import director
+from cocos.layer import ScrollingManager, ScrollableLayer
+from cocos.sprite import Sprite
+from cocos import scenes
 
 
 class KeyDisplay(cocos.layer.Layer):
@@ -55,7 +59,6 @@ class MouseDisplay(cocos.layer.Layer):
         print(director.get_virtual_coordinates(x, y))
 
  
- 
 class main_menu(cocos.menu.Menu):
     def __init__(self):
         super(main_menu, self).__init__()
@@ -83,7 +86,7 @@ class main_menu(cocos.menu.Menu):
         print('item2')
 
 class BG(cocos.layer.Layer):
-    def __init__(self,bg_name,):
+    def __init__(self,bg_name):
         super(BG,self).__init__()
         d_width, d_height = director.get_window_size()
         # 创建背景精灵
@@ -119,15 +122,31 @@ class menu_button(button):      #button下的子类 专门写自己的回调函�
                          unselected_effect=cocos.menu.zoom_out())
     def pic_1_callback(self):
         print("start")
-        game_map=BG(bg_name="img/game_map.png")
+        game_map = BG(bg_name="img/game_map.png")
         game_map_scence=cocos.scene.Scene(game_map)
         mapbutton=map_button(pic_1='img/level_1_icon.jpg',pic_2='img/level_2_icon.jpg',poi=[(800,339),(800,220)])
         game_map_scence.add(mapbutton)
-        director.run(game_map_scence)
+        director.replace(scenes.transitions.SlideInBTransition(game_map_scence, duration=1))
     def pic_3_callback(self):
         print("help")
     def pic_2_callback(self):
         print("setting")
+
+
+class setting_button(button):
+    def __init__(self,pic_1,poi,setting = 1):
+        self.setting = setting
+        super(button, self).__init__()
+        pic_setting = BG(bg_name = "img/return.png")
+        pic_1 = cocos.menu.ImageMenuItem(pic_1, self.pic_1_callback)
+        self.create_menu([pic_1],
+                    layout_strategy=cocos.menu.fixedPositionMenuLayout(poi))
+    def pic_1_callback(self):
+        if self.setting:
+            print('show setting')
+        else:
+            print('hide setting')
+        self.setting = 1-self.setting       #取反
 
 
 class map_button(button):      #button下的子类 专门写自己的回调函数
@@ -144,17 +163,50 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         print("第一关")
         #这次创建的窗口带调整大小的功能
         level_1 = BG(bg_name="img/level_1.jpg")
-        main_scene = cocos.scene.Scene( KeyDisplay(), MouseDisplay(),level_1)
-        director.run(main_scene)
+        # scroller = ScrollingManager()
+        # scroller.add(KeyDisplay(), MouseDisplay(), level_1,Player(name='img/player.png'))
+        # scene = cocos.scene.Scene(scroller)
+        # director.replace(scene)
+        main_scene = cocos.scene.Scene(KeyDisplay(), MouseDisplay(), level_1, setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        director.replace(scenes.transitions.SlideInBTransition(main_scene, duration=1 ))
     def pic_2_callback(self):
         print("第二关")
 
-        
+class Player(cocos.sprite.Sprite):
+    def __init__(self,name):
+        super(Sprite, self).__init__()
+        self.sprite = Sprite(name)
+        self.x = 200
+        self.y = 200
+        self.a = 0
+        self.v = 1
+#人物转身
+    # def rotate(self, x0, y0):
+    #     tann = abs(y0-self.y)/(x0-self.x)
+    #     radian = math.atan(tann)
+    #     angle = radian*180/math.pi   #角度制的角
+    #     if x0 < self.x and y0 < self.y:
+    #         angle = angle+180
+    #     if x0 < self.x and y0 > self.y:
+    #         angle = 180-angle
+    #     if x0 > self.x and y0 < self.y:
+    #         angle = -angle
+    #     duration = abs(angle)/200.0
+    #     action = cocos.RotateTo(angle,duration)
+    #     self.do(action)
+#人物移动
+    def move(self, x0, y0):
+        duration = math.sqrt((x0 - self.x)^2 + (y0 - self.y)^2)/self.v
+        action = cocos.actions.MoveTo((x0, y0), duration)
+        self.do(action)
+        self.x = x0
+        self.y = y0
+
 if __name__=='__main__':
     #初始化导演
     director.init(width=1011,height=598,caption="BUPT Tower Defence")
-    start_bg=BG(bg_name="img/start.jpeg")           #1.获取背景图片路径
+    start_bg = BG(bg_name="img/start.jpeg")           #1.获取背景图片路径
     main_pic_scence=cocos.scene.Scene(start_bg)     #2.把背景图片生成scene
-    mainpicmenu=menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(900,339),(900,220),(900,100)])    #3.生成按钮
+    mainpicmenu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(900,339),(900,220),(900,100)])    #3.生成按钮
     main_pic_scence.add(mainpicmenu)                #4.把按钮加入到scene
     director.run(main_pic_scence)    #5.启动场景
