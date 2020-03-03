@@ -4,6 +4,7 @@ import math
 from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
 from cocos.sprite import Sprite
+from cocos import scenes
 
 
 class KeyDisplay(cocos.layer.Layer):
@@ -125,11 +126,27 @@ class menu_button(button):      #button下的子类 专门写自己的回调函�
         game_map_scence=cocos.scene.Scene(game_map)
         mapbutton=map_button(pic_1='img/level_1_icon.jpg',pic_2='img/level_2_icon.jpg',poi=[(800,339),(800,220)])
         game_map_scence.add(mapbutton)
-        director.replace(game_map_scence)
+        director.replace(scenes.transitions.SlideInBTransition(game_map_scence, duration=1))
     def pic_3_callback(self):
         print("help")
     def pic_2_callback(self):
         print("setting")
+
+
+class setting_button(button):
+    def __init__(self,pic_1,poi,setting = 1):
+        self.setting = setting
+        super(button, self).__init__()
+        pic_setting = BG(bg_name = "img/return.png")
+        pic_1 = cocos.menu.ImageMenuItem(pic_1, self.pic_1_callback)
+        self.create_menu([pic_1],
+                    layout_strategy=cocos.menu.fixedPositionMenuLayout(poi))
+    def pic_1_callback(self):
+        if self.setting:
+            print('show setting')
+        else:
+            print('hide setting')
+        self.setting = 1-self.setting       #取反
 
 
 class map_button(button):      #button下的子类 专门写自己的回调函数
@@ -150,8 +167,8 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         # scroller.add(KeyDisplay(), MouseDisplay(), level_1,Player(name='img/player.png'))
         # scene = cocos.scene.Scene(scroller)
         # director.replace(scene)
-        main_scene = cocos.scene.Scene(KeyDisplay(), MouseDisplay(), level_1)
-        director.replace(main_scene)
+        main_scene = cocos.scene.Scene(KeyDisplay(), MouseDisplay(), level_1, setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        director.replace(scenes.transitions.SlideInBTransition(main_scene, duration=1 ))
     def pic_2_callback(self):
         print("第二关")
 
