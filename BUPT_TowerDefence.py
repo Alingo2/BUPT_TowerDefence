@@ -1,10 +1,12 @@
 import cocos
 import pyglet
-import math
 from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
 from cocos.sprite import Sprite
 from cocos import scenes
+from cocos.actions import Move
+from pyglet.window import key
+from cocos import layer
 
 
 class KeyDisplay(cocos.layer.Layer):
@@ -163,10 +165,6 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         print("第一关")
         #这次创建的窗口带调整大小的功能
         level_1 = BG(bg_name="img/level_1.jpg")
-        # scroller = ScrollingManager()
-        # scroller.add(KeyDisplay(), MouseDisplay(), level_1,Player(name='img/player.png'))
-        # scene = cocos.scene.Scene(scroller)
-        # director.replace(scene)
         main_scene = cocos.scene.Scene(KeyDisplay(), MouseDisplay(), level_1, setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
         director.replace(scenes.transitions.SlideInBTransition(main_scene, duration=1 ))
     def pic_2_callback(self):
