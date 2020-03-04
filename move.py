@@ -1,5 +1,6 @@
 import cocos
 import math
+from cocos.actions import *
 from cocos.sprite import Sprite
 from cocos.actions import Driver
 from cocos.director import director
@@ -17,7 +18,9 @@ rotation = 0
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
-        self.target.rotation = math.atan((target_y-y)/(target_x-x))*180
+        #self.target.rotation = 360-math.atan((target_y-y)/(target_x-x))*180
+        #self.target.do(RotateBy(360,duration=1))
+        self.target.do(MoveTo((target_x,target_y),duration=1))
         # if (abs(math.atan((target_x-x)/(target_y-y)))*180
         #     if (x-target_x)>0:
         #         self.target.rotation += 0.5
