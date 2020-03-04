@@ -1,10 +1,11 @@
 import cocos
 import pyglet
+import math
+from cocos.actions import *
 from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
 from cocos.sprite import Sprite
 from cocos import scenes
-from cocos.actions import Move
 from pyglet.window import key
 from cocos import layer
 
@@ -58,7 +59,8 @@ class MouseDisplay(cocos.layer.Layer):
         #按下鼠标按键不仅更新鼠标位置,还改变标签的位置.这里使用director.get_virtual_coordinates(),用于保证即使窗口缩放过也能正确更新位置,如果直接用x,y会位置错乱,原因不明
         self.text.element.text = 'Mouse @ {}, {}, {}, {}'.format(x, y,buttons, modifiers)
         self.text.element.x, self.text.element.y = director.get_virtual_coordinates(x, y)
-        print(director.get_virtual_coordinates(x, y))
+        global target_x,target_y
+        target_x,target_y = director.get_virtual_coordinates(x, y)
 
  
 class main_menu(cocos.menu.Menu):
@@ -165,44 +167,53 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         print("第一关")
         #这次创建的窗口带调整大小的功能
         level_1 = BG(bg_name="img/level_1.jpg")
-        main_scene = cocos.scene.Scene(KeyDisplay(), MouseDisplay(), level_1, setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        main_scene = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        main_scene.add(level_1)
+        main_scene.add(p_layer())
         director.replace(scenes.transitions.SlideInBTransition(main_scene, duration=1 ))
     def pic_2_callback(self):
         print("第二关")
 
-class Player(cocos.sprite.Sprite):
-    def __init__(self,name):
-        super(Sprite, self).__init__()
-        self.sprite = Sprite(name)
-        self.x = 200
-        self.y = 200
-        self.a = 0
-        self.v = 1
-#人物转身
-    # def rotate(self, x0, y0):
-    #     tann = abs(y0-self.y)/(x0-self.x)
-    #     radian = math.atan(tann)
-    #     angle = radian*180/math.pi   #角度制的角
-    #     if x0 < self.x and y0 < self.y:
-    #         angle = angle+180
-    #     if x0 < self.x and y0 > self.y:
-    #         angle = 180-angle
-    #     if x0 > self.x and y0 < self.y:
-    #         angle = -angle
-    #     duration = abs(angle)/200.0
-    #     action = cocos.RotateTo(angle,duration)
-    #     self.do(action)
-#人物移动
-    def move(self, x0, y0):
-        duration = math.sqrt((x0 - self.x)^2 + (y0 - self.y)^2)/self.v
-        action = cocos.actions.MoveTo((x0, y0), duration)
-        self.do(action)
-        self.x = x0
-        self.y = y0
+class P_move(Driver):
+    def step(self,dt):
+        x,y = self.target.position
+        self.target.speed = 200
+        dx = target_x - x
+        dy = target_y - y
+        distance = math.sqrt(pow(dx,2) + pow(dy,2))
+        if dy > 0 :
+            if dx > 0:
+                self.angle = 180*math.atan(dx/dy)/math.pi
+            elif dx < 0:
+                self.angle = 360 - 180*math.atan(-dx/dy)/math.pi
+            else:
+                self.angle = self.angle
+        else:
+            if dx > 0:
+                self.angle = 180 - 180*math.atan(dx/-dy)/math.pi
+            elif dx < 0:
+                self.angle = 180 + 180*math.atan(-dx/-dy)/math.pi
+            else:
+                self.angle = self.angle
+        self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
+        super(P_move, self).step(dt)
+
+class p_layer(layer.Layer):
+    def __init__(self):
+        super(p_layer, self).__init__()
+        # Here we simply make a new Sprite out of a car image I "borrowed" from cocos
+        self.sprite = Sprite("img/car.png")
+        # We set the position (standard stuff)
+        self.sprite.position = 200, 500
+        # Then we add it
+        self.add(self.sprite)
+        # And lastly we make it do that CarDriver action we made earlier in this file (yes it was an action not a layer)
+        self.sprite.do(P_move())
 
 if __name__=='__main__':
     #初始化导演
     director.init(width=1011,height=598,caption="BUPT Tower Defence")
+    target_x,target_y = (0,0)
     start_bg = BG(bg_name="img/start.jpeg")           #1.获取背景图片路径
     main_pic_scence=cocos.scene.Scene(start_bg)     #2.把背景图片生成scene
     mainpicmenu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(900,339),(900,220),(900,100)])    #3.生成按钮
