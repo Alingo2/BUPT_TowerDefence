@@ -13,25 +13,29 @@ from pyglet.window import mouse
 director.init(width=800, height=600, autoscale=False, resizable=True)
 keyboard = key.KeyStateHandler()
 target_x,target_y = (0,0)
-rotation = 0
 
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
-        #self.target.rotation = 360-math.atan((target_y-y)/(target_x-x))*180
-        #self.target.do(RotateBy(360,duration=1))
-        self.target.do(MoveTo((target_x,target_y),duration=1))
-        # if (abs(math.atan((target_x-x)/(target_y-y)))*180
-        #     if (x-target_x)>0:
-        #         self.target.rotation += 0.5
-        #     else:
-        #         self.target.rotation -= 0.5
-        # else:
-        #     self.target.rotation = self.target.rotation
-        print(self.target.rotation)
-        self.target.speed = 100
-        # self.target.speed = (math.sqrt(pow(target_x-x,2)+pow(target_y-y,2)))/5
-        # self.target.velocity = ((target_x - x),(target_y-y))
+        self.target.speed = 200
+        dx = target_x - x
+        dy = target_y - y
+        distance = math.sqrt(pow(dx,2) + pow(dy,2))
+        if dy > 0 :
+            if dx > 0:
+                self.angle = 180*math.atan(dx/dy)/math.pi
+            elif dx < 0:
+                self.angle = 360 - 180*math.atan(-dx/dy)/math.pi
+            else:
+                self.angle = self.angle
+        else:
+            if dx > 0:
+                self.angle = 180 - 180*math.atan(dx/-dy)/math.pi
+            elif dx < 0:
+                self.angle = 180 + 180*math.atan(-dx/-dy)/math.pi
+            else:
+                self.angle = self.angle
+        self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
         super(P_move, self).step(dt)
 class MouseDisplay(cocos.layer.Layer):
 
@@ -55,9 +59,10 @@ class MouseDisplay(cocos.layer.Layer):
         #按下鼠标按键不仅更新鼠标位置,还改变标签的位置.这里使用director.get_virtual_coordinates(),用于保证即使窗口缩放过也能正确更新位置,如果直接用x,y会位置错乱,原因不明
         self.text.element.text = 'Mouse @ {}, {}, {}, {}'.format(x, y,buttons, modifiers)
         self.text.element.x, self.text.element.y = director.get_virtual_coordinates(x, y)
-        global target_x,target_y,rotation
+        global target_x,target_y
         target_x,target_y = director.get_virtual_coordinates(x, y)
-        rotation = math.atan((target_y-y)/(target_x-x))*180
+        
+        
 
 class p_layer(layer.Layer):
     def __init__(self):
@@ -78,5 +83,5 @@ class p_layer(layer.Layer):
 p= p_layer()
 main_pic_scence=cocos.scene.Scene(MouseDisplay())     #2.把背景图片生成scene
 main_pic_scence.add(p)
-director.window.push_handlers(keyboard)
+# director.window.push_handlers(keyboard)
 director.run(main_pic_scence)
