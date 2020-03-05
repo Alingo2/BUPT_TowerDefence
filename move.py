@@ -14,7 +14,6 @@ from cocos.collision_model import *
 director.init(width=800, height=600, autoscale=False, resizable=True)
 keyboard = key.KeyStateHandler()
 target_x,target_y = (0,0)
-collision_manager = CollisionManager()
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
@@ -84,6 +83,5 @@ class p_layer(layer.Layer):
 p= p_layer()
 main_pic_scence=cocos.scene.Scene(MouseDisplay())     #2.把背景图片生成scene
 main_pic_scence.add(p)
-collision_manager.add(p)
 # director.window.push_handlers(keyboard)
 director.run(main_pic_scence)
