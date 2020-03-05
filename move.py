@@ -2,6 +2,7 @@ import cocos
 import math
 from cocos.actions import *
 from cocos.sprite import Sprite
+import cocos.collision_model as cm
 from cocos.actions import Driver
 from cocos.director import director
 import pyglet
@@ -15,6 +16,36 @@ director.init(width=800, height=600, autoscale=False, resizable=True)
 keyboard = key.KeyStateHandler()
 target_x,target_y = (0,0)
 collision_manager = CollisionManager()
+class MainLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        self.player = p_layer()
+        self.enemy = Enemy()
+
+        self.add(self.player,1)
+        self.add(self.enemy,0)
+
+        self.coll_manager = cm.CollisionManagerBruteForce()
+
+    def update(self,dt):
+        self.enemy.update_()
+        print(self.coll_manager.they_collide(self.player,self.enemy))
+        if self.coll_manager.they_collide(self.player,self.enemy):
+            self.player.color = [255,0,0]
+        else:
+            self.player.color = [255,255,255]
+class Enemy(cocos.sprite.Sprite):
+    def __init__(self):
+        super().__init__("img/player.png")
+        self.position = 700,600
+
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
+
+        self.do(Repeat(MoveTo((100,500),2) + MoveTo((1000,500),2)))
+
+    def update_(self):
+        self.cshape.center = eu.Vector2(*self.position)
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
@@ -37,6 +68,8 @@ class P_move(Driver):
             else:
                 self.angle = self.angle
         self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
+        #print(eu.Vector2(*self.target.position))
+        self.target.cshape.center = eu.Vector2(*self.target.position)
         super(P_move, self).step(dt)
 class MouseDisplay(cocos.layer.Layer):
 
@@ -65,25 +98,27 @@ class MouseDisplay(cocos.layer.Layer):
         
         
 
-class p_layer(layer.Layer):
+class p_layer(cocos.sprite.Sprite):
     def __init__(self):
-        super(p_layer, self).__init__()
+        super(p_layer, self).__init__("img/car.png")
 
         # Here we simply make a new Sprite out of a car image I "borrowed" from cocos
-        self.sprite = Sprite("img/car.png")
+
 
         # We set the position (standard stuff)
-        self.sprite.position = 200, 500
-
+        self.position = 200, 500
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
+        print(self.cshape)
 
         # Then we add it
-        self.add(self.sprite)
 
         # And lastly we make it do that CarDriver action we made earlier in this file (yes it was an action not a layer)
-        self.sprite.do(P_move())
-p= p_layer()
-main_pic_scence=cocos.scene.Scene(MouseDisplay())     #2.把背景图片生成scene
-main_pic_scence.add(p)
-collision_manager.add(p)
+        self.do(P_move())
+m_layer= MainLayer()
+main_scene = cocos.scene.Scene()
+
+main_scene.schedule_interval(m_layer.update, 1 / 60)
+main_scene.add(m_layer)
+main_scene.add(MouseDisplay())
 # director.window.push_handlers(keyboard)
-director.run(main_pic_scence)
+director.run(main_scene)
