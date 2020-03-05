@@ -32,9 +32,9 @@ class MainLayer(cocos.layer.Layer):
 
     def update(self,dt):
         self.enemy.update_()
-        print(self.coll_manager.they_collide(self.player,self.enemy))
         if self.coll_manager.they_collide(self.player,self.enemy):
             self.player.color = [255,0,0]
+            self.player.stop()
         else:
             self.player.color = [255,255,255]
 class Enemy(cocos.sprite.Sprite):
@@ -70,7 +70,6 @@ class P_move(Driver):
             else:
                 self.angle = self.angle
         self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
-        #print(eu.Vector2(*self.target.position))
         self.target.cshape.center = eu.Vector2(*self.target.position)
         super(P_move, self).step(dt)
 class MouseDisplay(cocos.layer.Layer):
@@ -110,12 +109,14 @@ class p_layer(cocos.sprite.Sprite):
         # We set the position (standard stuff)
         self.position = 200, 500
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
-        print(self.cshape)
 
         # Then we add it
 
         # And lastly we make it do that CarDriver action we made earlier in this file (yes it was an action not a layer)
         self.do(P_move())
+    def stop(self):
+        global target_x,target_y
+        target_x,target_y= self.position
 m_layer= MainLayer()
 main_scene = cocos.scene.Scene()
 
