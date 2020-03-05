@@ -17,6 +17,7 @@ class Mover(cocos.actions.Move):
 class Player(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/car.png")
+        bar=cocos.Canvas.
         self.position = 200, 200
         self.velocity = (0,0)
 
@@ -26,12 +27,12 @@ class Player(cocos.sprite.Sprite):
 
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
-        super().__init__("img/player.png")
+        super().__init__("img/level_1_road.png")
         self.position = 700,600
 
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
 
-        self.do(Repeat(MoveTo((100,500),2) + MoveTo((1000,500),2)))
+        #self.do(Repeat(MoveTo((100,500),2) + MoveTo((1000,500),2)))
 
     def update_(self):
         self.cshape.center = eu.Vector2(*self.position)
@@ -59,11 +60,12 @@ if __name__ == '__main__':
 
     keyboard = key.KeyStateHandler()
     director.window.push_handlers(keyboard)
-
+    bar=p_bar()
     main_scene = cocos.scene.Scene()
     game_layer = MainLayer()
     
     main_scene.schedule_interval(game_layer.update,1/60)
     main_scene.add(game_layer)
+    main_scene.add(bar)
 
     director.run(main_scene)
