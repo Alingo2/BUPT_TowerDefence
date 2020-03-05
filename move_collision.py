@@ -50,6 +50,7 @@ class MainLayer(cocos.layer.Layer):
 
     def update(self,dt):
         self.enemy.update_()
+        print(self.coll_manager.they_collide(self.player,self.enemy))
         if self.coll_manager.they_collide(self.player,self.enemy):
             self.player.color = [255,0,0]
         else:
