@@ -17,7 +17,6 @@ class Mover(cocos.actions.Move):
 class Player(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/car.png")
-        bar=cocos.Canvas.
         self.position = 200, 200
         self.velocity = (0,0)
 
@@ -50,7 +49,6 @@ class MainLayer(cocos.layer.Layer):
 
     def update(self,dt):
         self.enemy.update_()
-        print(self.coll_manager.they_collide(self.player,self.enemy))
         if self.coll_manager.they_collide(self.player,self.enemy):
             self.player.color = [255,0,0]
         else:
@@ -60,12 +58,9 @@ if __name__ == '__main__':
 
     keyboard = key.KeyStateHandler()
     director.window.push_handlers(keyboard)
-    bar=p_bar()
     main_scene = cocos.scene.Scene()
     game_layer = MainLayer()
     
     main_scene.schedule_interval(game_layer.update,1/60)
     main_scene.add(game_layer)
-    main_scene.add(bar)
-
     director.run(main_scene)

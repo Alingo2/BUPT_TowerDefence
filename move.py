@@ -16,6 +16,7 @@ director.init(width=800, height=600, autoscale=False, resizable=True)
 keyboard = key.KeyStateHandler()
 colli= False
 target_x,target_y = (0,0)
+enemy_x,enemy_y = 0,0
 collision_manager = CollisionManager()
 
 class MainLayer(cocos.layer.Layer):
@@ -24,14 +25,15 @@ class MainLayer(cocos.layer.Layer):
 
         self.player = p_layer()
         self.enemy = Enemy()
-
+        self.life_bar = life(50,15)
         self.add(self.player,1)
         self.add(self.enemy,0)
-
+        self.add(self.life_bar,2)
         self.coll_manager = cm.CollisionManagerBruteForce()
 
     def update(self,dt):
         self.enemy.update_()
+        self.life_bar.position = (enemy_x-30,enemy_y+30)
         if self.coll_manager.they_collide(self.player,self.enemy):
             self.player.color = [255,0,0]
             self.player.stop()
@@ -48,6 +50,8 @@ class Enemy(cocos.sprite.Sprite):
 
     def update_(self):
         self.cshape.center = eu.Vector2(*self.position)
+        global enemy_x,enemy_y
+        enemy_x,enemy_y = self.cshape.center
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
@@ -97,7 +101,9 @@ class MouseDisplay(cocos.layer.Layer):
         global target_x,target_y
         target_x,target_y = director.get_virtual_coordinates(x, y)
         
-        
+class life(cocos.layer.util_layers.ColorLayer):
+    def __init__(self,w,h):
+        super().__init__(255, 0,0,255,width =w,height=h)
 
 class p_layer(cocos.sprite.Sprite):
     def __init__(self):
