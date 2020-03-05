@@ -35,7 +35,6 @@ class Enemy(cocos.sprite.Sprite):
 
     def update_(self):
         self.cshape.center = eu.Vector2(*self.position)
-
 class MainLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
