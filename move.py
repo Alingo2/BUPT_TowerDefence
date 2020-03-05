@@ -14,8 +14,10 @@ from cocos.collision_model import *
 
 director.init(width=800, height=600, autoscale=False, resizable=True)
 keyboard = key.KeyStateHandler()
+colli= False
 target_x,target_y = (0,0)
 collision_manager = CollisionManager()
+
 class MainLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
