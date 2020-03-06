@@ -25,23 +25,31 @@ class MainLayer(cocos.layer.Layer):
 
         self.player = p_layer()
         self.enemy = Enemy()
-        self.life_bar=life_bra()
-       # self.life_bar = life(50,15)
+        self.life_bar=life_bar()
+        self.enemy_num = 1
         self.add(self.player,1)
         self.add(self.enemy,0)
         self.add(self.life_bar,2)
         self.coll_manager = cm.CollisionManagerBruteForce()
 
     def update(self,dt):
-        self.enemy.life-=0.2
-        self.enemy.update_()
-        self.life_bar.position = (enemy_x,enemy_y+30)
-        self.life_bar.scale_x=self.enemy.life/100
-        if self.coll_manager.they_collide(self.player,self.enemy):
-            self.player.color = [255,0,0]
-            self.player.stop()
-        else:
-            self.player.color = [255,255,255]
+        if self.enemy_num>0:
+            if self.enemy.life>=0 :
+                self.enemy.update_()
+                self.life_bar.position = (enemy_x,enemy_y+30)
+                self.life_bar.scale_x=self.enemy.life/100
+                self.enemy.life-=0.2
+                if self.coll_manager.they_collide(self.player,self.enemy):
+                    self.player.color = [255,0,0]
+                    self.player.stop()
+                else:
+                    self.player.color = [255,255,255]
+            else:
+                self.enemy_num -= 1
+                self.remove(self.enemy)
+                self.remove(self.life_bar)
+                del self.enemy
+                del self.life_bar
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/player.png")
@@ -104,30 +112,21 @@ class MouseDisplay(cocos.layer.Layer):
         global target_x,target_y
         target_x,target_y = director.get_virtual_coordinates(x, y)
         
-class life(cocos.layer.util_layers.ColorLayer):
+class draw_rec(cocos.layer.util_layers.ColorLayer):
     def __init__(self,w,h):
         super().__init__(255, 0,0,255,width =w,height=h)
         
-class life_bra(cocos.sprite.Sprite):
+class life_bar(cocos.sprite.Sprite):
     def __init__(self):
-        super(life_bra, self).__init__("img/yellow_bar.png")
+        super(life_bar, self).__init__("img/yellow_bar.png")
         self.position = 700,610
 
 
 class p_layer(cocos.sprite.Sprite):
     def __init__(self):
         super(p_layer, self).__init__("img/car.png")
-
-        # Here we simply make a new Sprite out of a car image I "borrowed" from cocos
-
-
-        # We set the position (standard stuff)
         self.position = 200, 500
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
-
-        # Then we add it
-
-        # And lastly we make it do that CarDriver action we made earlier in this file (yes it was an action not a layer)
         self.do(P_move())
     def stop(self):
         global target_x,target_y
@@ -135,7 +134,7 @@ class p_layer(cocos.sprite.Sprite):
 m_layer= MainLayer()
 main_scene = cocos.scene.Scene()
 
-main_scene.schedule_interval(m_layer.update, 1 / 60)
+main_scene.schedule_interval(m_layer.update, 1 / 70)
 main_scene.add(m_layer)
 main_scene.add(MouseDisplay())
 # director.window.push_handlers(keyboard)
