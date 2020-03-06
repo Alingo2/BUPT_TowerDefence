@@ -25,15 +25,18 @@ class MainLayer(cocos.layer.Layer):
 
         self.player = p_layer()
         self.enemy = Enemy()
-        self.life_bar = life(50,15)
+        self.life_bar=life_bra()
+       # self.life_bar = life(50,15)
         self.add(self.player,1)
         self.add(self.enemy,0)
         self.add(self.life_bar,2)
         self.coll_manager = cm.CollisionManagerBruteForce()
 
     def update(self,dt):
+        self.enemy.life-=0.2
         self.enemy.update_()
-        self.life_bar.position = (enemy_x-30,enemy_y+30)
+        self.life_bar.position = (enemy_x,enemy_y+30)
+        self.life_bar.scale_x=self.enemy.life/100
         if self.coll_manager.they_collide(self.player,self.enemy):
             self.player.color = [255,0,0]
             self.player.stop()
@@ -43,10 +46,10 @@ class Enemy(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/player.png")
         self.position = 700,600
-
+        self.life=100
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
 
-        self.do(Repeat(MoveTo((100,500),2) + MoveTo((1000,500),2)))
+        self.do(Repeat(MoveTo((100,500),4) + MoveTo((1000,500),4)))
 
     def update_(self):
         self.cshape.center = eu.Vector2(*self.position)
@@ -104,6 +107,12 @@ class MouseDisplay(cocos.layer.Layer):
 class life(cocos.layer.util_layers.ColorLayer):
     def __init__(self,w,h):
         super().__init__(255, 0,0,255,width =w,height=h)
+        
+class life_bra(cocos.sprite.Sprite):
+    def __init__(self):
+        super(life_bra, self).__init__("img/yellow_bar.png")
+        self.position = 700,610
+
 
 class p_layer(cocos.sprite.Sprite):
     def __init__(self):
