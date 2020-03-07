@@ -5,9 +5,7 @@ import cocos.collision_model as cm
 import cocos.euclid  as eu
 from cocos.actions import MoveTo, Repeat
 
-barrier_area=([64,64,542,163],[448,282,808,349],[548,220,607,282],[733,349,785,396],[723,454,953,517],[852,517,930,546
-],[331,455,567,513],[335,513,419,546],[469,513,543,541],[739,517,808,543],[739,62,1135,168],[64,270,316,375],[64,375,
-181,785],[181,612,563,785],[725,628,1104,785],[963,288,1130,385],[731,73,1135,169])
+barrier_area=([65,1135,167,267],[65,1135,385,485])
 
 
 class Mover(cocos.actions.Move):
@@ -50,25 +48,20 @@ class MainLayer(cocos.layer.Layer):
         self.add(self.enemy,0)
 
         # self.coll_manager = cm.CollisionManagerBruteForce()
-        self.coll_manager = cm.CollisionManagerGrid(0,1280,0,720,50,50)
+        self.coll_manager = cm.CollisionManagerGrid(0,1280,0,720,70,70)
         self.coll_manager.add(self.player)
 
 
     def update(self,dt):
         self.enemy.update_()
+        self.tag = False
         for barrier in barrier_area:
-            print(barrier[0], barrier[2], barrier[1], barrier[3])
-            #if self.coll_manager.objs_into_box(200, 640, 230, 500):
-            if self.coll_manager.objs_into_box(barrier[0],barrier[2],barrier[1],barrier[3]):
-                self.player.color = [255, 0, 0]
-                print(11111111,barrier[0], barrier[2], barrier[1], barrier[3])
-                #print(self.coll_manager.objs_into_box(200, 640, 230, 500))
+            if self.coll_manager.objs_into_box(barrier[0],barrier[1],barrier[2],barrier[3]):
+                self.tag = True
                 break
-        #print(self.coll_manager.objs_into_box(200,640,230,500))
-        #if self.coll_manager.objs_into_box(200,640,230,500):
-        # if self.coll_manager.they_collide(self.player,self.enemy):
-            #self.player.color = [255,0,0]
-            else:
+        if self.tag:
+            self.player.color = [255, 0, 0]
+        else:
                 self.player.color = [255,255,255]
 class MouseDisplay(cocos.layer.Layer):
 
@@ -103,7 +96,7 @@ if __name__ == '__main__':
     main_scene = cocos.scene.Scene()
     game_layer = MainLayer()
     
-    main_scene.schedule_interval(game_layer.update,1/60)
+    main_scene.schedule_interval(game_layer.update,1/70)
     main_scene.add(game_layer)
     main_scene.add(MouseDisplay())
     director.run(main_scene)
