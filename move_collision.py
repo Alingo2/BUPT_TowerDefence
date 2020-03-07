@@ -5,6 +5,10 @@ import cocos.collision_model as cm
 import cocos.euclid  as eu
 from cocos.actions import MoveTo, Repeat
 
+barrier_area=([64,64,542,163],[448,282,808,349],[548,220,607,282],[733,349,785,396],[723,454,953,517],[852,517,930,546
+],[331,455,567,513],[335,513,419,546],[469,513,543,541],[739,517,808,543],[739,62,1135,168],[64,270,316,375],[64,375,
+181,785],[181,612,563,785],[725,628,1104,785],[963,288,1130,385],[731,73,1135,169])
+
 
 class Mover(cocos.actions.Move):
     def step(self, dt):
@@ -27,7 +31,7 @@ class Player(cocos.sprite.Sprite):
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/level_1_road.png")
-        self.position = 700,600
+        self.position = 600,400
 
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
 
@@ -52,12 +56,20 @@ class MainLayer(cocos.layer.Layer):
 
     def update(self,dt):
         self.enemy.update_()
-        print(self.coll_manager.objs_into_box(200,640,230,500))
-        if self.coll_manager.objs_into_box(200,640,230,500):
+        for barrier in barrier_area:
+            print(barrier[0], barrier[2], barrier[1], barrier[3])
+            #if self.coll_manager.objs_into_box(200, 640, 230, 500):
+            if self.coll_manager.objs_into_box(barrier[0],barrier[2],barrier[1],barrier[3]):
+                self.player.color = [255, 0, 0]
+                print(11111111,barrier[0], barrier[2], barrier[1], barrier[3])
+                #print(self.coll_manager.objs_into_box(200, 640, 230, 500))
+                break
+        #print(self.coll_manager.objs_into_box(200,640,230,500))
+        #if self.coll_manager.objs_into_box(200,640,230,500):
         # if self.coll_manager.they_collide(self.player,self.enemy):
-            self.player.color = [255,0,0]
-        else:
-            self.player.color = [255,255,255]
+            #self.player.color = [255,0,0]
+            else:
+                self.player.color = [255,255,255]
 class MouseDisplay(cocos.layer.Layer):
 
     is_event_handler = True
