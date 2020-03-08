@@ -1,0 +1,20 @@
+
+HOWTO modify the documentation
+------------------------------
+
+ 1. To modify the API ref, just modify the docstrings in the code
+ 2. To modify the Programing guide, modify the files located in docgen/programming_guide
+ 3. See some hints in the documentation, in the section Dev
+
+Bezier path builder
+-------------------
+
+Run:
+ $ python path_draw.py foo.py
+ 
+ press '0','1','2' + ENTER you can switch to different paths.
+
+ press 'n' to create a new path
+ press 's' to save your changes to the foo.py file
+
+...

@@ -2,6 +2,11 @@ import cocos
 from cocos.director import director
 import pyglet
 from pyglet.window import key
+from cocos.skeleton import Bone, Skeleton
+from cocos import skeleton
+import root_bone
+import root_skin
+
 
 class Mover(cocos.actions.Move):
     def step(self, dt):
@@ -41,6 +46,17 @@ class PeopleLayer(cocos.layer.Layer):
         spr.do(Mover())
         self.add(spr)
 
+class bone(cocos.layer.Layer):
+    def __init__(self):
+        super(bone,self).__init__()
+
+        x,y = director.get_window_size()
+
+        self.skin = cocos.skeleton.BitmapSkin(root_bone.skeleton,root_skin.skin)
+
+        self.add(self.skin)
+        x,y = director.get_window_size()
+        self.skin.position = x/2,y/2
 
 if __name__ == "__main__":
     director.init(width=1280, height=720)
@@ -49,12 +65,15 @@ if __name__ == "__main__":
     keyboard = key.KeyStateHandler()
     director.window.push_handlers(keyboard)
 
+
     spr1_layer = Sprite1()
     people_layer = PeopleLayer()
+    bones = bone()
 
     test_scene = cocos.scene.Scene()
 
     test_scene.add(spr1_layer,0)
     test_scene.add(people_layer,1)
+    test_scene.add(bones,2)
 
     director.run(test_scene)
