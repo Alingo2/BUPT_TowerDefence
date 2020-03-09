@@ -188,15 +188,15 @@ if __name__ == "__main__":
 
 
     (options, args) = parser.parse_args()
+    print(parser.parse_args())
 
-
-    if len(args) not in [2]:
-        print("\n *** Error: incorrect number of arguments")
-        parser.print_usage()
-        sys.exit()
+    #if len(args) not in [2]:
+      #  print("\n *** Error: incorrect number of arguments")
+      #  parser.print_usage()
+      #  sys.exit()
         
 
-    animator = cocos.scene.Scene(SkeletonEditorUI(args[0], args[1]))
+    animator = cocos.scene.Scene(SkeletonEditorUI('./root_bone.py', './root_bone.py'))
     if options.background:
         background = cocos.sprite.Sprite(options.background)
         x,y = director.get_window_size()
