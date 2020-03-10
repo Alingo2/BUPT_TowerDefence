@@ -87,7 +87,7 @@ array = [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1,\
 
 
 if __name__ == '__main__':
-    image = cv2.imread(r'D:\MyCode\MyPython\BUPT_TowerDefence\img\cxk.png', 0)
+    image = cv2.imread(r'D:\CSHE\BUPT_TowerDefence\img\cxk.png', 0)
     ret, binary = cv2.threshold(image, 70, 255, cv2.THRESH_BINARY)
     cv2.imshow('image', image)
     cv2.imshow('binary', binary)

@@ -63,6 +63,7 @@ class MainLayer(cocos.layer.Layer):
             self.player.color = [255, 0, 0]
         else:
                 self.player.color = [255,255,255]
+
 class MouseDisplay(cocos.layer.Layer):
 
     is_event_handler = True
