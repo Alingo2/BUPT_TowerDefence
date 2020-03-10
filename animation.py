@@ -6,8 +6,8 @@ from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
 import root_bone
 import root_skin
-import sample_skeleton
-import sample_skin
+import my_sample_skeleton
+import my_sample_skin
 import _pickle as cPickle
 
 class Mover(cocos.actions.Move):
@@ -21,8 +21,8 @@ class Sprite1(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
         img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
 
 
@@ -37,8 +37,8 @@ class PeopleLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
 
         img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
 
@@ -57,11 +57,12 @@ class Moving_man(cocos.layer.Layer):
         super( Moving_man, self ).__init__()
 
         x,y = director.get_window_size()
-        self.skin = skeleton.BitmapSkin(sample_skeleton.skeleton, sample_skin.skin)
+        self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
         self.add( self.skin )
         x, y = director.get_window_size()
         self.skin.position = x/2, y/2
-        fp = open(r"D:/CSHE/BUPT_TowerDefence/SAMPLE.anim","rb+")
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 

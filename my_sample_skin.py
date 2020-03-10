@@ -15,6 +15,6 @@ from __future__ import division, print_function, unicode_literals
 #   ]
 
 skin = [
-    ('torso', (25, 91), 'gil-cuerpo.png', True, True, 0.5),
-    ('cabeza', (16, 18), 'gil-cara.png', True, True, 0.5),
+    ('torso', (45, 70), 'body.png', True, True, 0.5),
+    ('cabeza', (16, -5), 'gil-cara.png', True, True, 0.5),
   ]

@@ -11,9 +11,14 @@ from pyglet.window import key
 from cocos import layer
 from pyglet.window import mouse
 from cocos.collision_model import *
+from cocos.skeleton import Bone, Skeleton
+from cocos import skeleton
+import root_bone
+import root_skin
+import my_sample_skeleton
+import my_sample_skin
+import _pickle as cPickle
 
-director.init(width=800, height=600, autoscale=False, resizable=True)
-keyboard = key.KeyStateHandler()
 colli= False
 target_x,target_y = (0,0)
 enemy_x,enemy_y = 0,0
@@ -50,6 +55,8 @@ class MainLayer(cocos.layer.Layer):
                 self.remove(self.life_bar)
                 del self.enemy
                 del self.life_bar
+
+
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
         super().__init__("img/player.png")
@@ -87,6 +94,8 @@ class P_move(Driver):
         self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
         self.target.cshape.center = eu.Vector2(*self.target.position)
         super(P_move, self).step(dt)
+
+
 class MouseDisplay(cocos.layer.Layer):
 
     is_event_handler = True
@@ -112,10 +121,12 @@ class MouseDisplay(cocos.layer.Layer):
         global target_x,target_y
         target_x,target_y = director.get_virtual_coordinates(x, y)
         
+
 class draw_rec(cocos.layer.util_layers.ColorLayer):
     def __init__(self,w,h):
         super().__init__(255, 0,0,255,width =w,height=h)
         
+
 class life_bar(cocos.sprite.Sprite):
     def __init__(self):
         super(life_bar, self).__init__("img/yellow_bar.png")
@@ -131,11 +142,102 @@ class p_layer(cocos.sprite.Sprite):
     def stop(self):
         global target_x,target_y
         target_x,target_y= self.position
-m_layer= MainLayer()
-main_scene = cocos.scene.Scene()
 
-main_scene.schedule_interval(m_layer.update, 1 / 70)
-main_scene.add(m_layer)
-main_scene.add(MouseDisplay())
-# director.window.push_handlers(keyboard)
-director.run(main_scene)
+
+class Mover(cocos.actions.Move):
+    def step(self, dt):
+        super().step(dt)
+        vel_x = (keyboard[key.RIGHT]-keyboard[key.LEFT])*500
+        vel_y = (keyboard[key.UP] - keyboard[key.DOWN])*500
+        self.target.velocity = (vel_x, vel_y)
+
+
+class Sprite1(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
+
+
+        anim = pyglet.image.Animation.from_image_sequence(img_grid[0:],0.2,loop = True) #define the range of the photo and the second parameter is to descibe the period
+
+        spr = cocos.sprite.Sprite(anim)
+        spr.position = 200,500
+        self.add(spr)
+
+
+class PeopleLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+
+        img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
+
+        anim = pyglet.image.Animation.from_image_sequence(img_grid,0.1,loop = True)
+
+        spr = cocos.sprite.Sprite(anim)
+        spr.position = 640,500
+        spr.velocity = (0,0)
+
+        spr.do(Mover())
+        self.add(spr)
+
+        
+class Moving_man(cocos.layer.Layer):
+    def __init__(self):
+        super( Moving_man, self ).__init__()
+
+        x,y = director.get_window_size()
+        self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
+        self.add( self.skin )
+        x, y = director.get_window_size()
+        self.skin.position = x/2, y/2
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        anim = cPickle.load(fp)
+        self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
+
+
+class bone(cocos.layer.Layer):
+    def __init__(self):
+        super(bone,self).__init__()
+
+        x,y = director.get_window_size()
+
+        self.skin = cocos.skeleton.BitmapSkin(root_bone.skeleton,root_skin.skin)
+
+        self.add(self.skin)
+        x,y = director.get_window_size()
+        self.skin.position = 300,500
+
+
+
+if __name__ == "__main__":
+    director.init(width=1280, height=720)
+    director.window.pop_handlers()
+
+    keyboard = key.KeyStateHandler()
+    director.window.push_handlers(keyboard)
+
+
+    spr1_layer = Sprite1()
+    people_layer = PeopleLayer()
+    bones = bone()
+    moving_man = Moving_man()
+
+    m_layer= MainLayer()
+    main_scene = cocos.scene.Scene()
+    main_scene.schedule_interval(m_layer.update, 1 / 70)
+    main_scene.add(m_layer)
+
+    main_scene.add(people_layer,1)
+    main_scene.add(spr1_layer,0)
+    main_scene.add(bones,2)
+    main_scene.add(moving_man,3)
+    main_scene.add(MouseDisplay())
+
+    director.run(main_scene)
