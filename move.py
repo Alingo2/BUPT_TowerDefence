@@ -19,10 +19,6 @@ import my_sample_skeleton
 import my_sample_skin
 import _pickle as cPickle
 
-colli= False
-target_x,target_y = (0,0)
-enemy_x,enemy_y = 0,0
-collision_manager = CollisionManager()
 
 class MainLayer(cocos.layer.Layer):
     def __init__(self):
@@ -70,6 +66,8 @@ class Enemy(cocos.sprite.Sprite):
         self.cshape.center = eu.Vector2(*self.position)
         global enemy_x,enemy_y
         enemy_x,enemy_y = self.cshape.center
+
+        
 class P_move(Driver):
     def step(self,dt):
         x,y = self.target.position
@@ -217,6 +215,13 @@ class bone(cocos.layer.Layer):
 
 
 if __name__ == "__main__":
+
+    colli= False
+    target_x,target_y = (0,0)
+    enemy_x,enemy_y = 0,0
+    collision_manager = CollisionManager()
+
+
     director.init(width=1280, height=720)
     director.window.pop_handlers()
 

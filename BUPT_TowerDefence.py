@@ -8,33 +8,18 @@ from cocos.sprite import Sprite
 from cocos import scenes
 from pyglet.window import key
 from cocos import layer
-
-
-class KeyDisplay(cocos.layer.Layer):
-
-    is_event_handler = True
-
-    def __init__(self):
-        super(KeyDisplay,self).__init__()
-
-        self.text = cocos.text.Label('Keys: ', font_size=18, x=100, y=280)
-        self.add(self.text)
-
-        self.keys_pressed = set()
-
-    def update_text(self):
-        key_names = [pyglet.window.key.symbol_string(k) for k in self.keys_pressed]
-        self.text.element.text = 'Keys: ' + ','.join(key_names)
-
-    def on_key_press(self, key, modifiers):
-        #按下按键自动触发本方法
-        self.keys_pressed.add(key)
-        self.update_text()
-
-    def on_key_release(self, key, modifiers):
-        #松开按键自动触发本方法
-        self.keys_pressed.remove(key)
-        self.update_text()
+import cocos.collision_model as cm
+from cocos.actions import Driver
+from cocos.actions import Move
+from pyglet.window import mouse
+from cocos.collision_model import *
+from cocos.skeleton import Bone, Skeleton
+from cocos import skeleton
+import root_bone
+import root_skin
+import my_sample_skeleton
+import my_sample_skin
+import _pickle as cPickle
 
 
 class MouseDisplay(cocos.layer.Layer):
@@ -89,7 +74,40 @@ class main_menu(cocos.menu.Menu):
     def item2_callback(self,value):
         print('item2')
 
-class BG(cocos.layer.Layer):
+class MainLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        self.player = p_layer()
+        self.enemy = Enemy()
+        self.life_bar=life_bar()
+        self.enemy_num = 1
+        self.add(self.player,1)
+        self.add(self.enemy,0)
+        self.add(self.life_bar,2)
+        self.coll_manager = cm.CollisionManagerBruteForce()
+
+    def update(self,dt):
+        if self.enemy_num>0:
+            if self.enemy.life>=0 :
+                self.enemy.update_()
+                self.life_bar.position = (enemy_x,enemy_y+30)
+                self.life_bar.scale_x=self.enemy.life/100
+                self.enemy.life-=0.2
+                if self.coll_manager.they_collide(self.player,self.enemy):
+                    self.player.color = [255,0,0]
+                    self.player.stop()
+                else:
+                    self.player.color = [255,255,255]
+            else:
+                self.enemy_num -= 1
+                self.remove(self.enemy)
+                self.remove(self.life_bar)
+                del self.enemy
+                del self.life_bar
+
+
+class BG(cocos.layer.Layer):        #看是否需要传入background.position
     def __init__(self,bg_name):
         super(BG,self).__init__()
         d_width, d_height = director.get_window_size()
@@ -126,11 +144,11 @@ class menu_button(button):      #button下的子类 专门写自己的回调函�
                          unselected_effect=cocos.menu.zoom_out())
     def pic_1_callback(self):
         print("start")
-        game_map = BG(bg_name="img/game_map.png")
-        game_map_scence=cocos.scene.Scene(game_map)
-        mapbutton=map_button(pic_1='img/level_1_icon.jpg',pic_2='img/level_2_icon.jpg',poi=[(800,339),(800,220)])
-        game_map_scence.add(mapbutton)
-        director.replace(scenes.transitions.SlideInBTransition(game_map_scence, duration=1))
+        bg_2 = BG(bg_name="img/bg_2.png")
+        scence_2=cocos.scene.Scene(bg_2)
+        mapbutton=map_button(pic_1='img/level_1_icon.png',pic_2='img/level_2_icon.png',poi=[(600,270),(800,270)])
+        scence_2.add(mapbutton)
+        director.replace(scenes.transitions.SlideInBTransition(scence_2, duration=1))
     def pic_3_callback(self):
         print("help")
     def pic_2_callback(self):
@@ -166,13 +184,44 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def pic_1_callback(self):
         print("第一关")
         #这次创建的窗口带调整大小的功能
-        level_1 = BG(bg_name="img/level_1.jpg")
-        main_scene = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
-        main_scene.add(level_1)
-        main_scene.add(p_layer())
-        director.replace(scenes.transitions.SlideInBTransition(main_scene, duration=1 ))
+        bg_3 = BG(bg_name="img/bg_3.jpg")
+        scene_3 = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        scene_3.add(bg_3)
+
+        spr1_layer = Sprite1()
+        people_layer = PeopleLayer()
+        bones = bone()
+        moving_man = Moving_man()
+
+        m_layer= MainLayer()
+        scene_3.schedule_interval(m_layer.update, 1 / 70)
+        scene_3.add(m_layer)
+
+        scene_3.add(people_layer,1)
+        scene_3.add(spr1_layer,0)
+        scene_3.add(bones,2)
+        scene_3.add(moving_man,3)
+        scene_3.add(MouseDisplay())
+
+
+        director.replace(scenes.transitions.SlideInBTransition(scene_3, duration=1))
     def pic_2_callback(self):
         print("第二关")
+
+class Enemy(cocos.sprite.Sprite):
+    def __init__(self):
+        super().__init__("img/player.png")
+        self.position = 700,600
+        self.life=100
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
+
+        self.do(Repeat(MoveTo((100,500),4) + MoveTo((1000,500),4)))
+
+    def update_(self):
+        self.cshape.center = eu.Vector2(*self.position)
+        global enemy_x,enemy_y
+        enemy_x,enemy_y = self.cshape.center
+
 
 class P_move(Driver):
     def step(self,dt):
@@ -198,24 +247,111 @@ class P_move(Driver):
         self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
         super(P_move, self).step(dt)
 
-class p_layer(layer.Layer):
+class p_layer(cocos.sprite.Sprite):
     def __init__(self):
-        super(p_layer, self).__init__()
-        # Here we simply make a new Sprite out of a car image I "borrowed" from cocos
-        self.sprite = Sprite("img/car.png")
-        # We set the position (standard stuff)
-        self.sprite.position = 200, 500
-        # Then we add it
-        self.add(self.sprite)
-        # And lastly we make it do that CarDriver action we made earlier in this file (yes it was an action not a layer)
-        self.sprite.do(P_move())
+        super(p_layer, self).__init__("img/car.png")
+        self.position = 200, 500
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
+        self.do(P_move())
+    def stop(self):
+        global target_x,target_y
+        target_x,target_y= self.position
+
+class draw_rec(cocos.layer.util_layers.ColorLayer):
+    def __init__(self,w,h):
+        super().__init__(255, 0,0,255,width =w,height=h)
+        
+
+class life_bar(cocos.sprite.Sprite):
+    def __init__(self):
+        super(life_bar, self).__init__("img/yellow_bar.png")
+        self.position = 700,610
+
+class Mover(cocos.actions.Move):
+    def step(self, dt):
+        super().step(dt)
+        vel_x = (keyboard[key.RIGHT]-keyboard[key.LEFT])*500
+        vel_y = (keyboard[key.UP] - keyboard[key.DOWN])*500
+        self.target.velocity = (vel_x, vel_y)
+
+class Sprite1(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
+
+
+        anim = pyglet.image.Animation.from_image_sequence(img_grid[0:],0.2,loop = True) #define the range of the photo and the second parameter is to descibe the period
+
+        spr = cocos.sprite.Sprite(anim)
+        spr.position = 200,500
+        self.add(spr)
+
+
+class PeopleLayer(cocos.layer.Layer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+
+        img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
+
+        anim = pyglet.image.Animation.from_image_sequence(img_grid,0.1,loop = True)
+
+        spr = cocos.sprite.Sprite(anim)
+        spr.position = 640,500
+        spr.velocity = (0,0)
+
+        spr.do(Mover())
+        self.add(spr)
+
+        
+class Moving_man(cocos.layer.Layer):
+    def __init__(self):
+        super( Moving_man, self ).__init__()
+
+        x,y = director.get_window_size()
+        self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
+        self.add( self.skin )
+        x, y = director.get_window_size()
+        self.skin.position = x/2, y/2
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        anim = cPickle.load(fp)
+        self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
+
+
+class bone(cocos.layer.Layer):
+    def __init__(self):
+        super(bone,self).__init__()
+
+        x,y = director.get_window_size()
+
+        self.skin = cocos.skeleton.BitmapSkin(root_bone.skeleton,root_skin.skin)
+
+        self.add(self.skin)
+        x,y = director.get_window_size()
+        self.skin.position = 300,500
+
 
 if __name__=='__main__':
-    #初始化导演
-    director.init(width=1011,height=598,caption="BUPT Tower Defence")
+    #全局变量
+    colli= False
     target_x,target_y = (0,0)
-    start_bg = BG(bg_name="img/start.jpeg")           #1.获取背景图片路径
-    main_pic_scence=cocos.scene.Scene(start_bg)     #2.把背景图片生成scene
-    mainpicmenu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(900,339),(900,220),(900,100)])    #3.生成按钮
-    main_pic_scence.add(mainpicmenu)                #4.把按钮加入到scene
-    director.run(main_pic_scence)    #5.启动场景
+    enemy_x,enemy_y = 0,0
+    collision_manager = CollisionManager()
+    #初始化导演
+    director.init(width=1201,height=686,caption="BUPT Tower Defence")
+    director.window.pop_handlers()
+    #键盘
+    keyboard = key.KeyStateHandler()
+    director.window.push_handlers(keyboard)
+
+    bg_1 = BG(bg_name="img/start_bg.png")           #1.获取背景图片路径
+    scene_1=cocos.scene.Scene(bg_1)     #2.把背景图片生成scene
+    scene_1_menu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(1100,339),(1100,220),(1100,100)])    #3.生成按钮
+    scene_1.add(scene_1_menu)                #4.把按钮加入到scene
+    director.run(scene_1)    #5.启动场景
