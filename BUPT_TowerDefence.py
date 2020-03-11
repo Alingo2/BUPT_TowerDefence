@@ -190,8 +190,8 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
         spr1_layer = Sprite1()
         people_layer = PeopleLayer()
-        bones = bone()
-        moving_man = Moving_man()
+        #bones = bone()
+        #moving_man = Moving_man()
 
         m_layer= MainLayer()
         scene_3.schedule_interval(m_layer.update, 1 / 70)
@@ -199,8 +199,8 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
         scene_3.add(people_layer,1)
         scene_3.add(spr1_layer,0)
-        scene_3.add(bones,2)
-        scene_3.add(moving_man,3)
+        #scene_3.add(bones,2)
+        #scene_3.add(moving_man,3)
         scene_3.add(MouseDisplay())
 
 
@@ -270,16 +270,16 @@ class life_bar(cocos.sprite.Sprite):
 class Mover(cocos.actions.Move):
     def step(self, dt):
         super().step(dt)
-        vel_x = (keyboard[key.RIGHT]-keyboard[key.LEFT])*500
-        vel_y = (keyboard[key.UP] - keyboard[key.DOWN])*500
+        vel_x = (keyboard[key.D] - keyboard[key.A])*500
+        vel_y = (keyboard[key.W] - keyboard[key.S])*500
         self.target.velocity = (vel_x, vel_y)
 
 class Sprite1(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
-        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
         img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
 
 
@@ -294,8 +294,8 @@ class PeopleLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
-        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
 
         img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
 
@@ -318,8 +318,8 @@ class Moving_man(cocos.layer.Layer):
         self.add( self.skin )
         x, y = director.get_window_size()
         self.skin.position = x/2, y/2
-        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
-        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
