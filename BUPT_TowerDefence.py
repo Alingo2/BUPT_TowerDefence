@@ -19,6 +19,8 @@ import root_bone
 import root_skin
 import my_sample_skeleton
 import my_sample_skin
+import model1_skeleton
+import model1_skin
 import _pickle as cPickle
 
 
@@ -91,7 +93,7 @@ class MainLayer(cocos.layer.Layer):
         if self.enemy_num>0:
             if self.enemy.life>=0 :
                 self.enemy.update_()
-                self.life_bar.position = (enemy_x,enemy_y+30)
+                self.life_bar.position = (enemy_x,enemy_y+50)
                 self.life_bar.scale_x=self.enemy.life/100
                 self.enemy.life-=0.2
                 if self.coll_manager.they_collide(self.player,self.enemy):
@@ -190,8 +192,9 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
         spr1_layer = Sprite1()
         people_layer = PeopleLayer()
-        #bones = bone()
-        #moving_man = Moving_man()
+        bones = bone()
+        moving_man = Moving_man()
+        mr_cai = Mr_cai()
 
         m_layer= MainLayer()
         scene_3.schedule_interval(m_layer.update, 1 / 70)
@@ -199,8 +202,9 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
         scene_3.add(people_layer,1)
         scene_3.add(spr1_layer,0)
-        #scene_3.add(bones,2)
-        #scene_3.add(moving_man,3)
+        scene_3.add(bones,2)
+        scene_3.add(moving_man,3)
+        scene_3.add(mr_cai,4)
         scene_3.add(MouseDisplay())
 
 
@@ -210,7 +214,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
-        super().__init__("img/player.png")
+        super().__init__("img/sanjiguan.png")
         self.position = 700,600
         self.life=100
         self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
@@ -265,7 +269,7 @@ class draw_rec(cocos.layer.util_layers.ColorLayer):
 class life_bar(cocos.sprite.Sprite):
     def __init__(self):
         super(life_bar, self).__init__("img/yellow_bar.png")
-        self.position = 700,610
+
 
 class Mover(cocos.actions.Move):
     def step(self, dt):
@@ -278,8 +282,8 @@ class Sprite1(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
         img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
 
 
@@ -294,8 +298,8 @@ class PeopleLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
 
         img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
 
@@ -317,9 +321,25 @@ class Moving_man(cocos.layer.Layer):
         self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
         self.add( self.skin )
         x, y = director.get_window_size()
-        self.skin.position = x/2, y/2
-        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
-        fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        self.skin.position = 100, 120
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        anim = cPickle.load(fp)
+        self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
+        self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))
+
+
+class Mr_cai(cocos.layer.Layer):
+    def __init__(self):
+        super( Mr_cai, self ).__init__()
+
+        x,y = director.get_window_size()
+        self.skin = skeleton.BitmapSkin(model1_skeleton.skeleton, model1_skin.skin)
+        self.add( self.skin )
+        x, y = director.get_window_size()
+        self.skin.position = 300, 300
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/Mr_cai.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/Mr_cai.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 

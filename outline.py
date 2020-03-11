@@ -1,6 +1,6 @@
 import cv2
 
-img_origin = cv2.imread('1.png')
+img_origin = cv2.imread("img/cxk.png")
 # cv2.imshow('origin', img_origin)
 
 img_gray = cv2.cvtColor(img_origin, cv2.COLOR_BGR2GRAY)
@@ -24,6 +24,8 @@ img_opening = cv2.bitwise_not(cv2.morphologyEx(cv2.bitwise_not(img_threshold2), 
 
 img_opening_blurred = cv2.GaussianBlur(img_opening, (3, 3), 0)
 cv2.imshow('img_opening_blurred', img_opening_blurred)
+
+cv2.imwrite('MR_cai.png',img_opening_blurred)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

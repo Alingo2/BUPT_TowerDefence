@@ -21,8 +21,8 @@ class Sprite1(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
         img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
 
 
@@ -37,8 +37,8 @@ class PeopleLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
-        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
 
         img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
 
@@ -61,8 +61,8 @@ class Moving_man(cocos.layer.Layer):
         self.add( self.skin )
         x, y = director.get_window_size()
         self.skin.position = x/2, y/2
-        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
-        fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
