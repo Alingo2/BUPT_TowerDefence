@@ -195,7 +195,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         bones = bone()
         moving_man = Moving_man()
         mr_cai = Mr_cai()
-
+        walk=Mooooove()
         m_layer= MainLayer()
         scene_3.schedule_interval(m_layer.update, 1 / 70)
         scene_3.add(m_layer)
@@ -205,6 +205,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         scene_3.add(bones,2)
         scene_3.add(moving_man,3)
         scene_3.add(mr_cai,4)
+        scene_3.add(walk,5)
         scene_3.add(MouseDisplay())
 
 
@@ -282,8 +283,8 @@ class Sprite1(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
-        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
+        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\man.png")
+        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\man.png")
         img_grid = pyglet.image.ImageGrid(img,1,4,item_width=100,item_height = 100)     #1row 4col each one is 100*100
 
 
@@ -298,8 +299,8 @@ class PeopleLayer(cocos.layer.Layer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
-        # img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
+        #img = pyglet.image.load(r"D:\MyCode\MyPython\BUPT_TowerDefence\img\girl.png")
+        img = pyglet.image.load(r"D:\CSHE\BUPT_TowerDefence\img\girl.png")
 
         img_grid = pyglet.image.ImageGrid(img,4,8,item_width = 120,item_height=150)
 
@@ -322,8 +323,8 @@ class Moving_man(cocos.layer.Layer):
         self.add( self.skin )
         x, y = director.get_window_size()
         self.skin.position = 100, 120
-        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
-        # fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
+        fp = open(r"D:/CSHE/BUPT_TowerDefence/my_SAMPLE.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
         self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))
@@ -335,14 +336,30 @@ class Mr_cai(cocos.layer.Layer):
 
         x,y = director.get_window_size()
         self.skin = skeleton.BitmapSkin(model1_skeleton.skeleton, model1_skin.skin)
+        #self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
         self.add( self.skin )
         x, y = director.get_window_size()
-        self.skin.position = 300, 300
-        fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/Mr_cai.anim","rb+")
-        # fp = open(r"D:/CSHE/BUPT_TowerDefence/Mr_cai.anim","rb+")
+        self.skin.position = 300, 150
+        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/Mr_cai.anim","rb+")
+        fp = open(r"D:/CSHE/BUPT_TowerDefence/Mr_cai.anim", "rb+")
+        #fp = open(r"D:/CSHE/BUPT_TowerDefence/MOOOOVE.anim","rb+")
         anim = cPickle.load(fp)
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
+class Mooooove(cocos.layer.Layer):
+    def __init__(self):
+        super( Mooooove, self ).__init__()
+
+        x,y = director.get_window_size()
+        #self.skin = skeleton.BitmapSkin(model1_skeleton.skeleton, model1_skin.skin)
+        self.skin = skeleton.BitmapSkin(my_sample_skeleton.skeleton, my_sample_skin.skin)
+        self.add( self.skin )
+        x, y = director.get_window_size()
+        self.skin.position = 300, 300
+        #fp = open(r"D:/MyCode/MyPython/BUPT_TowerDefence/Mr_cai.anim","rb+")
+        fp = open(r"D:/CSHE/BUPT_TowerDefence/MOOOOVE.anim","rb+")
+        anim = cPickle.load(fp)
+        self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
 class bone(cocos.layer.Layer):
     def __init__(self):
@@ -361,6 +378,7 @@ if __name__=='__main__':
     #全局变量
     colli= False
     target_x,target_y = (0,0)
+
     enemy_x,enemy_y = 0,0
     collision_manager = CollisionManager()
     #初始化导演
