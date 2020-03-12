@@ -1,6 +1,6 @@
 import cv2
 
-img_origin = cv2.imread("img/cxk.png")
+img_origin = cv2.imread("D:/MyCode/MyPython/BUPT_TowerDefence/img/your_img.png")
 # cv2.imshow('origin', img_origin)
 
 img_gray = cv2.cvtColor(img_origin, cv2.COLOR_BGR2GRAY)
