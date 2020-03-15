@@ -23,10 +23,10 @@ import animation.model1_skeleton
 import animation.model1_skin
 import _pickle as cPickle
 
-address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
-address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-#address_2 = "D:\CSHE\BUPT_TowerDefence"
+#address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
+#address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 
 class MouseDisplay(cocos.layer.Layer):
 
@@ -337,6 +337,7 @@ class Moving_man(cocos.layer.Layer):
     def __init__(self):
         super( Moving_man, self ).__init__()
         x,y = director.get_window_size()
+        self.de=True
         self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))
         self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
         self.add( self.skin )
@@ -351,8 +352,16 @@ class Moving_man(cocos.layer.Layer):
         self.attack = cPickle.load(fp_2)
 
     def update(self,dt):
-        if (keyboard[key.J]):
+        print(dt)
+        print(self.skin.)
+        if keyboard[key.J] and self.skin.do( cocos.actions.Repeat( skeleton.Animate(self.walk) ) ):
             self.skin.do( skeleton.Animate(self.attack))
+            self.de=False
+            #print(dt)
+        else:
+            self.de=True
+
+
 
 
 class bone(cocos.layer.Layer):
