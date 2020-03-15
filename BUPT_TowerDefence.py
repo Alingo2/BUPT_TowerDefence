@@ -23,10 +23,10 @@ import animation.model1_skeleton
 import animation.model1_skin
 import _pickle as cPickle
 
-#address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
-#address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
+address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 
 class MouseDisplay(cocos.layer.Layer):
 
@@ -189,9 +189,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def pic_1_callback(self):
         print("第一关")
         #这次创建的窗口带调整大小的功能
-        bg_3 = BG(bg_name="img/bg_3.jpg")
         scene_3 = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
-        scene_3.add(bg_3)
 
         spr1_layer = Sprite1()
         people_layer = PeopleLayer()
@@ -199,13 +197,20 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
         mr_cai = Mr_cai()
         moving_man = Moving_man()
-
         m_layer= MainLayer()
+
+        bg_3 = BackgroundLayer()
+        global scroller
+        scroller = cocos.layer.ScrollingManager()
+        scroller.add(people_layer,1)
+        scroller.add(bg_3)
+
         scene_3.schedule_interval(m_layer.update, 1 / 70)
         scene_3.schedule_interval(moving_man.update, 1 / 20)
 
+        scene_3.add(scroller)       #it must be added at first or it will reload other layer
         scene_3.add(m_layer)
-        scene_3.add(people_layer,1)
+        # scene_3.add(people_layer,1)
         scene_3.add(spr1_layer,0)
         scene_3.add(bones,2)
         scene_3.add(mr_cai,3)
@@ -247,13 +252,15 @@ class P_move(Driver):
                 self.angle = 360 - 180*math.atan(-dx/dy)/math.pi
             else:
                 self.angle = self.angle
-        else:
+        elif dy <0:
             if dx > 0:
                 self.angle = 180 - 180*math.atan(dx/-dy)/math.pi
             elif dx < 0:
                 self.angle = 180 + 180*math.atan(-dx/-dy)/math.pi
             else:
                 self.angle = self.angle
+        else:
+            self.angle = self.angle
         self.target.do(MoveTo((target_x,target_y),duration = distance/self.target.speed)| RotateTo(self.angle,0))
         super(P_move, self).step(dt)
 
@@ -277,12 +284,16 @@ class life_bar(cocos.sprite.Sprite):
         super(life_bar, self).__init__("img/yellow_bar.png")
 
 
-class Mover(cocos.actions.Move):
+class Mover(cocos.actions.BoundedMove):
+    def __init__(self):
+        super().__init__(2100,1430)     #it should be bigger than the size of the picture
     def step(self, dt):
         super().step(dt)
         vel_x = (keyboard[key.D] - keyboard[key.A])*500
         vel_y = (keyboard[key.W] - keyboard[key.S])*500
         self.target.velocity = (vel_x, vel_y)
+        scroller.set_focus(self.target.x,self.target.y)
+
 
 class Sprite1(cocos.layer.Layer):
     def __init__(self):
@@ -299,7 +310,7 @@ class Sprite1(cocos.layer.Layer):
         self.add(spr)
 
 
-class PeopleLayer(cocos.layer.Layer):
+class PeopleLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
 
@@ -337,29 +348,34 @@ class Moving_man(cocos.layer.Layer):
     def __init__(self):
         super( Moving_man, self ).__init__()
         x,y = director.get_window_size()
-        self.de=True
         self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))
         self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
-        self.add( self.skin )
+        self.add(self.skin)
         x, y = director.get_window_size()
         self.skin.position = 100, 120
 
+        self.count = 0
+        self.flag = True
         fp_1 = open((address_2+"/animation/MOOOOVE.anim"),"rb+")
         self.walk = cPickle.load(fp_1)
+
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(self.walk) ) )
 
         fp_2= open((address_2+"/animation/attack.anim"),"rb+")
         self.attack = cPickle.load(fp_2)
-
+        
     def update(self,dt):
-        print(dt)
-        print(self.skin.)
-        if keyboard[key.J] and self.skin.do( cocos.actions.Repeat( skeleton.Animate(self.walk) ) ):
-            self.skin.do( skeleton.Animate(self.attack))
-            self.de=False
-            #print(dt)
-        else:
-            self.de=True
+        if (self.flag == False):
+            if self.count >= 20 :           #define by the time
+                self.flag = True
+                self.count = 0
+                if  len(self.skin.actions)>1:
+                    self.skin.remove_action(self.skin.actions[1])
+            else:
+                self.count += 1
+        if (keyboard[key.J] and self.flag == True):
+            self.skin.do(skeleton.Animate(self.attack))
+            self.flag = False
 
 
 
@@ -375,6 +391,20 @@ class bone(cocos.layer.Layer):
         self.add(self.skin)
         x,y = director.get_window_size()
         self.skin.position = 300,500
+
+
+class BackgroundLayer(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super().__init__()
+
+        bg = cocos.sprite.Sprite("img/bg_3.jpg")
+
+        bg.position = bg.width//2,bg.height//2
+
+        self.px_width = bg.width
+        self.px_height = bg.height
+
+        self.add(bg)
 
 
 if __name__=='__main__':
