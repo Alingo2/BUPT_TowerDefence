@@ -217,7 +217,7 @@ class BoneUILayer(ui.UILayer):
                 self.animation.move_position( -self.tick_delta )
             elif k == key.RIGHT:
                 self.animation.move_position( self.tick_delta )
-            elif k in (key.PLUS, key.NUM_ADD):
+            elif k in (key.PLUS, key.NUM_ADD,key.P):
                 self.animation.insert_keyframe()
             elif k in (key.MINUS, key.NUM_SUBTRACT):
                 self.animation.remove_keyframe()
