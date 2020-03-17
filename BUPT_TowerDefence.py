@@ -32,8 +32,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 
 class MouseDisplay(cocos.layer.Layer):          #现在有bug 超出虚拟屏幕移动就有问题
 
@@ -215,18 +215,16 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         scroller.add(spr1_layer,1)
         scroller.add(m_layer,1)
         scroller.add(bg_3,0)
-        turn_man=turn_Moving_man()
-        turn_gunman=turn_Moving_man2()
+
+
+
         scene_3.schedule_interval(m_layer.update, 1 / 70)
         scene_3.schedule_interval(moving_man.update, 1 / 20)
-        scene_3.schedule_interval(pistal_man.update, 1 / 20)
-        scene_3.schedule_interval(turn_man.update, 1 / 20)
-        scene_3.schedule_interval(turn_gunman.update,1/20)
+        scene_3.schedule_interval(pistal_man.status_detect, 1 / 30)
+        scene_3.schedule_interval(pistal_man.action_update, 1 / 30)
         scene_3.add(scroller,0)       #it must be added at first or it will reload other layer
-        scene_3.add(pistal_man,5)
-        scene_3.add(turn_man)
+        scene_3.add(pistal_man,1)
 
-        scene_3.add(turn_gunman)
         scene_3.add(MouseDisplay())
 
 
@@ -301,7 +299,8 @@ class Mover(cocos.actions.BoundedMove):
     def step(self, dt):
         super().step(dt)
         vel_x = (keyboard[key.D] - keyboard[key.A])*500
-        vel_y = (keyboard[key.W] - keyboard[key.S])*500
+        vel_y = 0
+        # vel_y = (keyboard[key.W] - keyboard[key.S])*500
         self.target.velocity = (vel_x, vel_y)
         scroller.set_focus(self.target.x,self.target.y)
 
@@ -352,37 +351,6 @@ class Mr_cai(cocos.layer.ScrollableLayer):
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
 
-class turn_Moving_man(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super(turn_Moving_man, self).__init__()
-        x, y = director.get_window_size()
-        # self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))   #there will be a bug
-        self.skin = skeleton.BitmapSkin(animation.turn_my_walk_skeleton.skeleton, animation.turn_my_walk_skin.skin)
-        self.add(self.skin)
-        x, y = director.get_window_size()
-        self.skin.position = 400, 120
-        self.count = 0
-        self.flag = True
-        fp_1 = open((address_2 + "/animation/turn_MOOOOVE.anim"), "rb+")
-        self.walk = cPickle.load(fp_1)
-
-        self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-
-        fp_2 = open((address_2 + "/animation/attack.anim"), "rb+")
-        self.attack = cPickle.load(fp_2)
-
-    def update(self, dt):
-        if (self.flag == False):
-            if self.count >= 20:  # define by the time
-                self.flag = True
-                self.count = 0
-                if len(self.skin.actions) > 1:
-                    self.skin.remove_action(self.skin.actions[1])
-            else:
-                self.count += 1
-        if (keyboard[key.J] and self.flag == True):
-            self.skin.do(skeleton.Animate(self.attack))
-            self.flag = False
 class Moving_man(cocos.layer.ScrollableLayer):
     def __init__(self):
         super( Moving_man, self ).__init__()
@@ -425,6 +393,7 @@ class Moving_man2(cocos.layer.ScrollableLayer):
         x, y = director.get_window_size()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
+
         self.add(self.skin)
 
         self.width,self.height = 0,0        #可能有bug
@@ -434,96 +403,89 @@ class Moving_man2(cocos.layer.ScrollableLayer):
         x, y = director.get_window_size()
         self.skin.position = 100, 100
 
-        self.count = 0
-        self.attack_flag = True #means it can attack now
-        self.walk_flag = True
-        fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
-        self.walk = cPickle.load(fp_1)
+        self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
+        self.change = False
+        self.rebuild = False #rebuild the skin
 
-        # self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
+
+        fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
+        self.walk_r = cPickle.load(fp_1)
 
         fp_2 = open((address_2 + "/animation/gun_shot.anim"), "rb+")
         self.attack = cPickle.load(fp_2)
 
-    def update(self, dt):
-        if (self.attack_flag == False):            #we must ensure that the acitons list only exsit one action
-            if self.count >= 10:  # define by the time
-                self.attack_flag = True
-                self.count = 0
-                self.remove_all()
-            else:
-                self.count += 1
-        if (keyboard[key.K] and self.attack_flag == True):
-            self.remove_all()
-            self.skin.do(skeleton.Animate(self.attack))
-            self.attack_flag = False
-        if (keyboard[key.D]):      #key right and not attack
-            if self.attack_flag and self.walk_flag:
-                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-                self.walk_flag = False
-        else:
-            if self.attack_flag == True:
-                self.remove_all()
-            self.walk_flag = True
-
-
+        fp_3 = open((address_2 + "/animation/turn_MOOOOVE.anim"), "rb+")
+        self.walk_l = cPickle.load(fp_3)
+        
     def remove_all(self):
         if len(self.skin.actions) > 0:
             for i in range(0,len((self.skin.actions))):          
                 self.skin.remove_action(self.skin.actions[0])
 
-class turn_Moving_man2(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super(turn_Moving_man2, self).__init__()
-        x, y = director.get_window_size()
-        # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
-        self.skin = skeleton.BitmapSkin(animation.turn_my_gunwalk_skeleton.skeleton, animation.turn_my_gunwalk_skin.skin)
-        self.add(self.skin)
-
-        self.width,self.height = 0,0        #可能有bug
-        self.velocity = (0,0)
-        self.do(Mover())
-
-        x, y = director.get_window_size()
-        self.skin.position = 400, 300
-
-        self.count = 0
-        self.attack_flag = True #means it can attack now
-        self.walk_flag = True
-        fp_1 = open((address_2 + "/animation/turn_MOOOOVE1.anim"), "rb+")
-        self.walk = cPickle.load(fp_1)
-
-        # self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-
-        fp_2 = open((address_2 + "/animation/gun_shot.anim"), "rb+")
-        self.attack = cPickle.load(fp_2)
-
-    def update(self, dt):
-        if (self.attack_flag == False):            #we must ensure that the acitons list only exsit one action
-            if self.count >= 10:  # define by the time
-                self.attack_flag = True
-                self.count = 0
+    def status_detect(self, dt):
+        if (keyboard[key.K]):
+            if self.status != 4:
                 self.remove_all()
+                if self.status == 1:
+                    self.rebuild = True
+                self.status = 4
+                self.change = True
             else:
-                self.count += 1
-        if (keyboard[key.K] and self.attack_flag == True):
-            self.remove_all()
-            self.skin.do(skeleton.Animate(self.attack))
-            self.attack_flag = False
-        if (keyboard[key.A]):      #key right and not attack
-            if self.attack_flag and self.walk_flag:
-                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-                self.walk_flag = False
-        else:
-            if self.attack_flag == True:
+                self.rebuild = False
+                self.change = False
+        elif (keyboard[key.D]):      #key right and not attack
+            if self.status != 2:
                 self.remove_all()
-            self.walk_flag = True
+                if self.status == 1:
+                    self.rebuild = True
+                self.status = 2
+                self.change = True
+            else:
+                self.change = False
+        elif (keyboard[key.A]):      #key right and not attack
+            if self.status != 1:
+                self.remove_all()
+                self.rebuild = True
+                self.status = 1
+                self.change = True
+            else:
+                self.change = False
+        else:
+            self.remove_all()
+            if self.status != 3:
+                if self.status == 1:
+                    self.rebuild = True
+                self.status = 3
+                self.change = True
+            else:
+                self.change = False
+
+    def action_update(self, dt):
+        if self.change:
+            if self.status == 1:
+                self.remove(self.skin)
+                del self.skin
+                self.skin = skeleton.BitmapSkin(animation.turn_my_gunwalk_skeleton.skeleton, animation.turn_my_gunwalk_skin.skin)
+                self.add(self.skin)
+                self.skin.position = 100, 100
+                self.rebuild = False
+                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk_l)))
+            else:
+                if self.rebuild:
+                    self.remove(self.skin)
+                    del self.skin
+                    self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)     #可以优化 !!避免多次加载
+                    self.add(self.skin)
+                    self.skin.position = 100, 100
+                    self.rebuild = False
+                if self.status == 2:
+                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk_r)))
+                elif self.status == 4:
+                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
 
 
-    def remove_all(self):
-        if len(self.skin.actions) > 0:
-            for i in range(0,len((self.skin.actions))):
-                self.skin.remove_action(self.skin.actions[0])
+
+
 class bone(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(bone,self).__init__()
