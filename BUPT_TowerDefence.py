@@ -32,6 +32,7 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+block = False
 # address = "D:\CSHE\BUPT_TowerDefence\img"
 # address_2 = "D:\CSHE\BUPT_TowerDefence"
 
@@ -218,7 +219,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
 
 
-        scene_3.schedule_interval(m_layer.update, 1 / 70)
+        scene_3.schedule_interval(m_layer.update, 1 / 60)
         scene_3.schedule_interval(moving_man.update, 1 / 20)
         scene_3.schedule_interval(pistal_man.status_detect, 1 / 30)
         scene_3.schedule_interval(pistal_man.action_update, 1 / 30)
@@ -295,14 +296,15 @@ class life_bar(cocos.sprite.Sprite):
 
 class Mover(cocos.actions.BoundedMove):
     def __init__(self):
-        super().__init__(2100,1430)     #it should be bigger than the size of the picture
-    def step(self, dt):
-        super().step(dt)
-        vel_x = (keyboard[key.D] - keyboard[key.A])*500
-        vel_y = 0
-        # vel_y = (keyboard[key.W] - keyboard[key.S])*500
-        self.target.velocity = (vel_x, vel_y)
-        scroller.set_focus(self.target.x,self.target.y)
+        super().__init__(2100,1430)     #it should be bigger than the size of the picture  
+    def step(self, dt):         #add block
+        if not block:
+            super().step(dt)
+            vel_x = (keyboard[key.D] - keyboard[key.A])*400
+            vel_y = 0
+            # vel_y = (keyboard[key.W] - keyboard[key.S])*500
+            self.target.velocity = (vel_x, vel_y)
+            scroller.set_focus(self.target.x,self.target.y)
 
 
 class Sprite1(cocos.layer.ScrollableLayer):
@@ -390,7 +392,6 @@ class Moving_man(cocos.layer.ScrollableLayer):
 class Moving_man2(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Moving_man2, self).__init__()
-        x, y = director.get_window_size()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
 
@@ -398,90 +399,96 @@ class Moving_man2(cocos.layer.ScrollableLayer):
 
         self.width,self.height = 0,0        #可能有bug
         self.velocity = (0,0)
-        self.do(Mover())
-
-        x, y = director.get_window_size()
         self.skin.position = 100, 100
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
         self.change = False
-        self.rebuild = False #rebuild the skin
-
+        self.block = False #True means the character is having a continuous movement
+        self.count = 0
+        global block
+        self.do(Mover())
 
         fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
-        self.walk_r = cPickle.load(fp_1)
+        self.walk = cPickle.load(fp_1)
 
         fp_2 = open((address_2 + "/animation/gun_shot.anim"), "rb+")
         self.attack = cPickle.load(fp_2)
 
-        fp_3 = open((address_2 + "/animation/turn_MOOOOVE.anim"), "rb+")
-        self.walk_l = cPickle.load(fp_3)
         
     def remove_all(self):
         if len(self.skin.actions) > 0:
             for i in range(0,len((self.skin.actions))):          
                 self.skin.remove_action(self.skin.actions[0])
 
+    def fire(self):             #有个bug
+        self.bullet = cocos.sprite.Sprite("img/bullet.png")
+
+        x,y = self.skin.position
+        self.bullet.position = x+110, y+70
+
+        self.add(self.bullet)
+
     def status_detect(self, dt):
-        if (keyboard[key.K]):
-            if self.status != 4:
-                self.remove_all()
-                if self.status == 1:
-                    self.rebuild = True
-                self.status = 4
-                self.change = True
+        if self.block:
+            if self.count <= 4:
+                self.count += 1
+                x,y = self.bullet.position
+                self.bullet.position = x+40, y
             else:
-                self.rebuild = False
-                self.change = False
-        elif (keyboard[key.D]):      #key right and not attack
-            if self.status != 2:
-                self.remove_all()
-                if self.status == 1:
-                    self.rebuild = True
-                self.status = 2
-                self.change = True
-            else:
-                self.change = False
-        elif (keyboard[key.A]):      #key right and not attack
-            if self.status != 1:
-                self.remove_all()
-                self.rebuild = True
-                self.status = 1
-                self.change = True
-            else:
-                self.change = False
+                self.count = 0
+                self.remove(self.bullet)
+                del self.bullet
+                self.block = False
+                global block
+                block = self.block
         else:
-            self.remove_all()
-            if self.status != 3:
-                if self.status == 1:
-                    self.rebuild = True
-                self.status = 3
-                self.change = True
+            if (keyboard[key.K]):
+                if self.status != 4:
+                    self.remove_all()
+                    self.status = 4
+                    self.change = True
+                else:
+                    self.change = False
+                    self.fire()
+                    self.block = True
+                    # global block
+                    block = self.block
+            elif (keyboard[key.D]):      #key right and not attack
+                if self.status != 2 and self.status != 1:
+                    self.remove_all()
+                    self.status = 2
+                    self.change = True
+                else:
+                    self.change = False
+            elif (keyboard[key.A]):      #key right and not attack
+                if self.status != 1:
+                    self.remove_all()
+                    self.status = 1
+                    self.change = True
+                else:
+                    self.change = False
             else:
-                self.change = False
+                self.remove_all()
+                if self.status != 3:
+                    self.status = 3
+                    self.change = True
+                else:
+                    self.change = False
 
     def action_update(self, dt):
         if self.change:
             if self.status == 1:
-                self.remove(self.skin)
-                del self.skin
-                self.skin = skeleton.BitmapSkin(animation.turn_my_gunwalk_skeleton.skeleton, animation.turn_my_gunwalk_skin.skin)
-                self.add(self.skin)
-                self.skin.position = 100, 100
-                self.rebuild = False
-                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk_l)))
+                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
             else:
-                if self.rebuild:
-                    self.remove(self.skin)
-                    del self.skin
-                    self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)     #可以优化 !!避免多次加载
-                    self.add(self.skin)
-                    self.skin.position = 100, 100
-                    self.rebuild = False
                 if self.status == 2:
-                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk_r)))
+                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
                 elif self.status == 4:
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
+                    self.fire()
+                    self.block = True
+                    global block
+                    block = self.block
+            self.change = False
 
 
 
