@@ -32,9 +32,11 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+#address = "D:\CSHE\BUPT_TowerDefence\img"
+#address_2 = "D:\CSHE\BUPT_TowerDefence"
+#address = "*****\BUPT_TowerDefence\img"
+#address_2 = "***\BUPT_TowerDefence"
 block = False
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
 
 class MouseDisplay(cocos.layer.Layer):          #现在有bug 超出虚拟屏幕移动就有问题
 
