@@ -474,8 +474,6 @@ class Moving_man2(cocos.layer.ScrollableLayer):
                     self.change = True
                 else:
                     self.change = False
-
-    def action_update(self, dt):
         if self.change:
             if self.status == 1:
                 self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
@@ -486,9 +484,12 @@ class Moving_man2(cocos.layer.ScrollableLayer):
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
                     self.fire()
                     self.block = True
-                    global block
                     block = self.block
             self.change = False
+    def action_update(self, dt):
+
+        return
+
 
 
 
