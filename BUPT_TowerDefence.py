@@ -32,11 +32,11 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-#address = "D:\CSHE\BUPT_TowerDefence\img"
-#address_2 = "D:\CSHE\BUPT_TowerDefence"
+block = False
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
-block = False
 
 class MouseDisplay(cocos.layer.Layer):          #现在有bug 超出虚拟屏幕移动就有问题
 
@@ -207,7 +207,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         bones = bone()
         moving_man = Moving_man()
         m_layer= MainLayer()
-        pistal_man=Moving_man2()
+        pistal_man = Main_character()
         
         bg_3 = BackgroundLayer()
         global scroller
@@ -224,7 +224,6 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         scene_3.schedule_interval(m_layer.update, 1 / 60)
         scene_3.schedule_interval(moving_man.update, 1 / 20)
         scene_3.schedule_interval(pistal_man.status_detect, 1 / 30)
-        scene_3.schedule_interval(pistal_man.action_update, 1 / 30)
         scene_3.add(scroller,0)       #it must be added at first or it will reload other layer
         scene_3.add(pistal_man,1)
 
@@ -391,9 +390,9 @@ class Moving_man(cocos.layer.ScrollableLayer):
             self.flag = False
 
 
-class Moving_man2(cocos.layer.ScrollableLayer):
+class Main_character(cocos.layer.ScrollableLayer):
     def __init__(self):
-        super(Moving_man2, self).__init__()
+        super(Main_character, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
 
@@ -476,8 +475,6 @@ class Moving_man2(cocos.layer.ScrollableLayer):
                     self.change = True
                 else:
                     self.change = False
-
-    def action_update(self, dt):
         if self.change:
             if self.status == 1:
                 self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
@@ -488,9 +485,9 @@ class Moving_man2(cocos.layer.ScrollableLayer):
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
                     self.fire()
                     self.block = True
-                    global block
                     block = self.block
             self.change = False
+
 
 
 
@@ -518,6 +515,7 @@ class BackgroundLayer(cocos.layer.ScrollableLayer):
 
         self.px_width = bg.width
         self.px_height = bg.height
+
 
         self.add(bg)
 

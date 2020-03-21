@@ -1,8 +1,0 @@
-
- *** Error: incorrect number of arguments
-Usage: 
-    python animator.py [options] skeleton.py animation_file.anim
-
-More info: see the section skeleton in the cocos programming guide
-
-
