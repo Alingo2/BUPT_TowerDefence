@@ -1,7 +1,7 @@
 from __future__ import division, print_function, unicode_literals
 
 skin = [
-    ('brazo izq', (10, 49), 'gil-mano2.png', False, False, 0.5),
+    ('brazo izq', (10, 10), 'gil-mano2.png', False, False, 0.5),
     ('antebrazo izq', (20, 22), 'pistal.png', False, False, 0.4),
     ('muslo izq', (10, 70), 'gil-bota2.png', False, False, 0.5),
     #('pierna izq', (10, 75), 'gil-bota2.png', False, False, 0.5),
