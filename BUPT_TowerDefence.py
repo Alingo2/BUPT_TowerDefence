@@ -32,7 +32,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-block = False
+block_1 = False
+block_2 = False
 # address = "D:\CSHE\BUPT_TowerDefence\img"
 # address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
@@ -205,16 +206,16 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         spr1_layer = Sprite1()
         people_layer = PeopleLayer()
         bones = bone()
-        moving_man = Moving_man()
         m_layer= MainLayer()
-        pistal_man = Main_character()
+        player_1 = Player_1()
+        player_2 = Player_2()
         
         bg_3 = BackgroundLayer()
         global scroller
         scroller = cocos.layer.ScrollingManager()
         scroller.add(people_layer,1)
         scroller.add(bones,1)
-        scroller.add(moving_man,1)
+        # scroller.add(player_2,1)
         scroller.add(spr1_layer,1)
         scroller.add(m_layer,1)
         scroller.add(bg_3,0)
@@ -222,11 +223,11 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
 
 
         scene_3.schedule_interval(m_layer.update, 1 / 60)
-        scene_3.schedule_interval(moving_man.update, 1 / 20)
-        scene_3.schedule_interval(pistal_man.status_detect, 1 / 30)
+        scene_3.schedule_interval(player_1.status_detect, 1 / 30)
+        scene_3.schedule_interval(player_2.status_detect, 1 / 30)
         scene_3.add(scroller,0)       #it must be added at first or it will reload other layer
-        scene_3.add(pistal_man,1)
-
+        scene_3.add(player_1,1)
+        scene_3.add(player_2,1)
         scene_3.add(MouseDisplay())
 
 
@@ -295,15 +296,27 @@ class life_bar(cocos.sprite.Sprite):
         super(life_bar, self).__init__("img/yellow_bar.png")
 
 
-class Mover(cocos.actions.BoundedMove):
+class Mover_1(cocos.actions.BoundedMove):
     def __init__(self):
         super().__init__(2100,1430)     #it should be bigger than the size of the picture  
     def step(self, dt):         #add block
-        if not block:
+        if not block_1:
             super().step(dt)
             vel_x = (keyboard[key.D] - keyboard[key.A])*400
             vel_y = 0
             # vel_y = (keyboard[key.W] - keyboard[key.S])*500
+            self.target.velocity = (vel_x, vel_y)
+            scroller.set_focus(self.target.x,self.target.y)
+
+
+class Mover_2(cocos.actions.BoundedMove):
+    def __init__(self):
+        super().__init__(2100,1430)     #it should be bigger than the size of the picture  
+    def step(self, dt):         #add block
+        if not block_2:
+            super().step(dt)
+            vel_x = (keyboard[key.RIGHT] - keyboard[key.LEFT])*400
+            vel_y = 0
             self.target.velocity = (vel_x, vel_y)
             scroller.set_focus(self.target.x,self.target.y)
 
@@ -354,45 +367,11 @@ class Mr_cai(cocos.layer.ScrollableLayer):
         self.skin.do( cocos.actions.Repeat( skeleton.Animate(anim) ) )
 
 
-class Moving_man(cocos.layer.ScrollableLayer):
+
+            
+class Player_1(cocos.layer.ScrollableLayer):
     def __init__(self):
-        super( Moving_man, self ).__init__()
-        x,y = director.get_window_size()
-
-        # self.do(Repeat(MoveTo((800,0),5)+MoveTo((100,0),5)))   #there will be a bug
-
-        self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
-        self.add(self.skin)
-        x, y = director.get_window_size()
-        self.skin.position = 100, 120
-
-        self.count = 0
-        self.flag = True
-        fp_1 = open((address_2+"/animation/MOOOOVE.anim"),"rb+")
-        self.walk = cPickle.load(fp_1)
-
-        self.skin.do( cocos.actions.Repeat( skeleton.Animate(self.walk) ) )
-
-        fp_2= open((address_2+"/animation/attack.anim"),"rb+")
-        self.attack = cPickle.load(fp_2)
-
-    def update(self,dt):
-        if (self.flag == False):
-            if self.count >= 20 :           #define by the time
-                self.flag = True
-                self.count = 0
-                if  len(self.skin.actions)>1:
-                    self.skin.remove_action(self.skin.actions[1])
-            else:
-                self.count += 1
-        if (keyboard[key.J] and self.flag == True):
-            self.skin.do(skeleton.Animate(self.attack))
-            self.flag = False
-
-
-class Main_character(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super(Main_character, self).__init__()
+        super(Player_1, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
 
@@ -406,8 +385,8 @@ class Main_character(cocos.layer.ScrollableLayer):
         self.change = False
         self.block = False #True means the character is having a continuous movement
         self.count = 0
-        global block
-        self.do(Mover())
+        global block_1
+        self.do(Mover_1())
 
         fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -440,10 +419,10 @@ class Main_character(cocos.layer.ScrollableLayer):
                 self.remove(self.bullet)
                 del self.bullet
                 self.block = False
-                global block
-                block = self.block
+                global block_1
+                block_1 = self.block
         else:
-            if (keyboard[key.K]):
+            if (keyboard[key.J]):
                 if self.status != 4:
                     self.remove_all()
                     self.status = 4
@@ -453,7 +432,7 @@ class Main_character(cocos.layer.ScrollableLayer):
                     self.fire()
                     self.block = True
                     # global block
-                    block = self.block
+                    block_1 = self.block
             elif (keyboard[key.D]):      #key right and not attack
                 if self.status != 2 and self.status != 1:
                     self.remove_all()
@@ -485,11 +464,94 @@ class Main_character(cocos.layer.ScrollableLayer):
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
                     self.fire()
                     self.block = True
-                    block = self.block
+                    block_1 = self.block
             self.change = False
 
 
+class Player_2(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super(Player_2, self).__init__()
+        # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
+        self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
 
+        self.add(self.skin)
+
+        self.width,self.height = 0,0        #可能有bug
+        self.velocity = (0,0)
+        self.skin.position = 100, 300
+
+        self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
+        self.change = False
+        self.block = False #True means the character is having a continuous movement
+        self.count = 0
+        global block
+        self.do(Mover_2())
+
+        fp_1 = open((address_2 + "/animation/MOOOOVE.anim"), "rb+")
+        self.walk = cPickle.load(fp_1)
+
+        fp_2= open((address_2+"/animation/attack.anim"),"rb+")
+        self.attack = cPickle.load(fp_2)
+
+        
+    def remove_all(self):
+        if len(self.skin.actions) > 0:
+            for i in range(0,len((self.skin.actions))):          
+                self.skin.remove_action(self.skin.actions[0])
+
+
+    def status_detect(self, dt):
+        if self.block:
+            if self.count <= 4:
+                self.count += 1
+            else:
+                self.count = 0
+                self.block = False
+                global block_2
+                block_2 = self.block
+        else:
+            if (keyboard[key.NUM_1]):
+                if self.status != 4:
+                    self.remove_all()
+                    self.status = 4
+                    self.change = True
+                else:
+                    self.change = False
+                    self.block = True
+                    # global block
+                    block_2 = self.block
+            elif (keyboard[key.RIGHT]):      #key right and not attack
+                if self.status != 2 and self.status != 1:
+                    self.remove_all()
+                    self.status = 2
+                    self.change = True
+                else:
+                    self.change = False
+            elif (keyboard[key.LEFT]):      #key right and not attack
+                if self.status != 1:
+                    self.remove_all()
+                    self.status = 1
+                    self.change = True
+                else:
+                    self.change = False
+            else:
+                self.remove_all()
+                if self.status != 3:
+                    self.status = 3
+                    self.change = True
+                else:
+                    self.change = False
+        if self.change:
+            if self.status == 1:
+                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
+            else:
+                if self.status == 2:
+                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
+                elif self.status == 4:
+                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
+                    self.block = True
+                    block_2 = self.block
+            self.change = False
 
 
 class bone(cocos.layer.ScrollableLayer):
