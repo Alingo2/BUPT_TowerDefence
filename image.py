@@ -2,8 +2,8 @@ from skimage import io,color,measure,morphology
 import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
-img0=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\img\\15.png'))
-img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\img\\15.png',as_gray='True'))
+img0=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png'))
+img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png',as_gray='True'))
 img2=img
 rows=img0.shape[0]
 cols=img0.shape[1]
@@ -22,8 +22,8 @@ for i in range(rows):
         if dst[i][j]==1:
             I.append(i)
             J.append(j)
-
-
+print("I:",min(I),max(I))
+print("J:",min(J),max(J))
 center_i=sum(I)/len(I)
 max_i=max(I)
 min_i=min(I)
@@ -52,34 +52,47 @@ for i in enumerate(contours):
     for j in i[1]:
         img2[int(j[0])][int(j[1])]=1
         dots.append([int(j[0]),int(j[1])])
-
-for i in range(min(I),max(I)):
-    for j in range(min(J),max(J)):
+print("len(dots):",len(dots))
+dots_different=[]
+for dot in dots:
+    if(dot not in dots_different):
+        dots_different.append(dot)
+dots = dots_different
+dots_zip=[]
+for i in range(0,len(dots),2):
+    dots_zip.append(dots[i])
+dots=dots_zip
+print("len(dots):",len(dots))
+print("len(dots_nosame):",len(dots_different))
+for i in range(min(I),max(I),3):
+    for j in range(min(J),max(J),3):
         Pro=P1=P2=P3=P4=P5=P6=P7=P8= 0
-        for dot in dots[0:8000]:
-
-            if (dot[0] == i  and dot[1] - j > 0):
+        for dot in dots:
+            if (abs(dot[0] - i )<=2  and dot[1] - j > 0):
                 P3 = 1
-            if (dot[0] == i  and dot[1] - j < 0):
+            if (abs(dot[0] - i )<=2  and dot[1] - j < 0):
                 P4 = 1
-            if (dot[1] == j and dot[0] - i > 0):
+            if (abs(dot[1] - j )<=2 and dot[0] - i > 0):
                 P5 = 1
-            if (dot[1] == j and dot[0] - i < 0):
+            if (abs(dot[1] - j )<=2 and dot[0] - i < 0):
                 P6 = 1
-            if (dot[0] - i == -dot[1] + j and dot[0] - i > 0):
+            if (abs(dot[0] - i -( -dot[1] + j))<= 2 and dot[0] - i > 0):
                 P7 = 1
-            if (dot[0] - i == -dot[1] + j and dot[0]-i<0):
+            if (abs(dot[0] - i -( -dot[1] + j ))<=2and dot[0]-i<0):
                 P8 = 1
-            if (dot[0] - i == dot[1] - j and dot[0] - i > 0):
+            if (abs(dot[0] - i -( dot[1] - j))<=2 and dot[0] - i > 0):
                 P1 = 1
-            if (dot[0] - i == dot[1] - j and dot[0]-i<0):
+            if (abs(dot[0] - i -( dot[1] - j))<=2 and dot[0]-i<0):
                 p2 = 1
         Pro=P1+P2+P3+P4+P5+P6+P7+P8
-        if(Pro>=6):
+        if(Pro>=7):
             img_full[i][j]=1
         else:
             img_full[i][j]=0
-
+for i in range(min(I),max(I),3):
+    for j in range(min(J),max(J),3):
+        if img_full[i][j]==1:
+            img_full[i-1][j-1]=img_full[i-1][j]=img_full[i-1][j+1]=img_full[i][j-1]=img_full[i][j+1]=img_full[i+1][j-1]=img_full[i+1][j]=img_full[i+1][j+1]=1
 plt.figure('morphology',figsize=(12,8))
 plt.subplot(2,3,1)
 plt.title('origin image')
@@ -113,6 +126,7 @@ plt.subplot(2,3,6)
 plt.title('skeleton')
 plt.imshow(skeleton,plt.cm.gray)
 plt.axis('off')
+
 plt.show()
 
 
