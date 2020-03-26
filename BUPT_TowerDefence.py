@@ -32,8 +32,6 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-block_1 = False
-block_2 = False
 # address = "D:\CSHE\BUPT_TowerDefence\img"
 # address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
@@ -94,15 +92,32 @@ class main_menu(cocos.menu.Menu):
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
+
+        bg = cocos.sprite.Sprite("img/bg_3.jpg")
+        bg.position = bg.width//2,bg.height//2
+
+        self.px_width = bg.width
+        self.px_height = bg.height
+
         self.mr_cai = Mr_cai()
         self.player = p_layer()
         self.enemy = Enemy()
         self.life_bar=life_bar()
         self.enemy_num = 1
-        self.add(self.mr_cai,3)
+
+        self.spr1_layer = Sprite1()
+        self.people_layer = PeopleLayer()
+        self.bones = bone()
+
+        self.add(bg,0)
+        self.add(self.mr_cai,1)
         self.add(self.player,1)
-        self.add(self.enemy,0)
+        self.add(self.enemy,1)
         self.add(self.life_bar,2)
+        self.add(self.spr1_layer,1)
+        self.add(self.people_layer,1)
+        self.add(self.bones,1)
+
         self.coll_manager = cm.CollisionManagerBruteForce()
 
     def update(self,dt):
@@ -203,37 +218,46 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         #这次创建的窗口带调整大小的功能
         scene_3 = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
 
-        spr1_layer = Sprite1()
-        people_layer = PeopleLayer()
-        bones = bone()
-        m_layer= MainLayer()
-        player_1 = Player_1()
-        player_2 = Player_2()
-        
-        bg_3 = BackgroundLayer()
         global scroller
         scroller = cocos.layer.ScrollingManager()
-        scroller.add(people_layer,1)
-        scroller.add(bones,1)
-        # scroller.add(player_2,1)
-        scroller.add(spr1_layer,1)
-        scroller.add(m_layer,1)
-        scroller.add(bg_3,0)
 
+        self.m_layer = MainLayer()
+        self.player_1 = Player_1()
+        self.player_2 = Player_2()
+        
 
+        self.coll_manager = cm.CollisionManagerBruteForce()
+        self.coll_manager.add(self.player_1)
+        self.coll_manager.add(self.player_2)
 
-        scene_3.schedule_interval(m_layer.update, 1 / 60)
-        scene_3.schedule_interval(player_1.status_detect, 1 / 30)
-        scene_3.schedule_interval(player_2.status_detect, 1 / 30)
-        scene_3.add(scroller,0)       #it must be added at first or it will reload other layer
-        scene_3.add(player_1,1)
-        scene_3.add(player_2,1)
+        scroller.add(self.m_layer)
+        scroller.add(self.player_2)
+        scroller.add(self.player_1)
+
+        scene_3.schedule_interval(self.m_layer.update, 1 / 30)
+        scene_3.schedule_interval(self.player_1.status_detect, 1 / 30)
+        scene_3.schedule_interval(self.player_2.status_detect, 1 / 30)
+        scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
+        scene_3.schedule_interval(self.player_2.update_position, 1 / 80)
+        scene_3.schedule_interval(self.update, 1 / 30)
+       
+        # scene_3.add(self.player_1,1)
+        # scene_3.add(self.player_2,1)
+        scene_3.add(scroller,0)
         scene_3.add(MouseDisplay())
 
-
         director.replace(scenes.transitions.SlideInBTransition(scene_3, duration=1))
+
     def pic_2_callback(self):
         print("第二关")
+
+    def update(self,dt):
+        if self.coll_manager.they_collide(self.player_1,self.player_2):
+            self.player_1.skin.color = [255, 0, 0]
+            print("they collide")
+        else:
+            self.player_1.skin.color = [255,255,255]
+
 
 class Enemy(cocos.sprite.Sprite):
     def __init__(self):
@@ -304,8 +328,8 @@ class Mover_1(cocos.actions.BoundedMove):
             super().step(dt)
             vel_x = (keyboard[key.D] - keyboard[key.A])*400
             vel_y = 0
-            # vel_y = (keyboard[key.W] - keyboard[key.S])*500
             self.target.velocity = (vel_x, vel_y)
+            global scroller
             scroller.set_focus(self.target.x,self.target.y)
 
 
@@ -318,8 +342,9 @@ class Mover_2(cocos.actions.BoundedMove):
             vel_x = (keyboard[key.RIGHT] - keyboard[key.LEFT])*400
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
+            global scroller
             scroller.set_focus(self.target.x,self.target.y)
-
+            
 
 class Sprite1(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -348,6 +373,7 @@ class PeopleLayer(cocos.layer.ScrollableLayer):
 
         spr = cocos.sprite.Sprite(anim)
         spr.position = 640,500
+
         self.add(spr)
 
         
@@ -374,19 +400,26 @@ class Player_1(cocos.layer.ScrollableLayer):
         super(Player_1, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
-
         self.add(self.skin)
 
-        self.width,self.height = 0,0        #可能有bug
-        self.velocity = (0,0)
+        # self.width,self.height = 0,0        #可能有bug
+        self.position = 100,100
         self.skin.position = 100, 100
+
+        img = pyglet.image.load(address+"\dot.png")
+        self.spr = cocos.sprite.Sprite(img)
+        self.spr.position = 100,100
+        self.spr.velocity = (0,0)
+        self.spr.do(Mover_1())
+        self.add(self.spr)
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
         self.change = False
         self.block = False #True means the character is having a continuous movement
         self.count = 0
+
+
         global block_1
-        self.do(Mover_1())
 
         fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -394,11 +427,19 @@ class Player_1(cocos.layer.ScrollableLayer):
         fp_2 = open((address_2 + "/animation/gun_shot.anim"), "rb+")
         self.attack = cPickle.load(fp_2)
 
-        
+        # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),65,136)
+
+
     def remove_all(self):
         if len(self.skin.actions) > 0:
             for i in range(0,len((self.skin.actions))):          
                 self.skin.remove_action(self.skin.actions[0])
+
+
+    def update_position(self,dt):
+        if not block_1:
+            self.skin.position = self.spr.position  #!!!!!!! self.position = -(self.skin.position-600) 
 
     def fire(self):             #有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
@@ -409,6 +450,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.add(self.bullet)
 
     def status_detect(self, dt):
+        self.cshape.center = eu.Vector2(*self.position)
         if self.block:
             if self.count <= 4:
                 self.count += 1
@@ -473,19 +515,26 @@ class Player_2(cocos.layer.ScrollableLayer):
         super(Player_2, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
-
         self.add(self.skin)
 
-        self.width,self.height = 0,0        #可能有bug
-        self.velocity = (0,0)
-        self.skin.position = 100, 300
+
+        # self.width,self.height = 0,0        #可能有bug
+        self.skin.position = 500, 100
+        self.position = 500,100
+
+        img = pyglet.image.load(address+"\dot.png")
+        self.spr = cocos.sprite.Sprite(img)
+        self.spr.position = 500,100
+        self.spr.velocity = (0,0)
+        # self.spr.do(Mover_2())
+        self.add(self.spr)
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
         self.change = False
         self.block = False #True means the character is having a continuous movement
         self.count = 0
-        global block
-        self.do(Mover_2())
+
+        self.cshape = cm.AARectShape(eu.Vector2(*self.position),65,136)
 
         fp_1 = open((address_2 + "/animation/MOOOOVE.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -499,8 +548,11 @@ class Player_2(cocos.layer.ScrollableLayer):
             for i in range(0,len((self.skin.actions))):          
                 self.skin.remove_action(self.skin.actions[0])
 
-
+    def update_position(self,dt):
+        if not block_2:
+            self.skin.position = self.spr.position
     def status_detect(self, dt):
+        self.cshape.center = eu.Vector2(*self.position)         #优化其放置位置
         if self.block:
             if self.count <= 4:
                 self.count += 1
@@ -584,11 +636,10 @@ class BackgroundLayer(cocos.layer.ScrollableLayer):
 
 if __name__=='__main__':
     #全局变量
-    colli= False
     target_x,target_y = (0,0)
-
+    block_1 = False
+    block_2 = False
     enemy_x,enemy_y = 0,0
-    collision_manager = CollisionManager()
     #初始化导演
     director.init(width=1201,height=686,caption="BUPT Tower Defence")
     director.window.pop_handlers()
