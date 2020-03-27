@@ -30,10 +30,10 @@ import animation.turn_my_gunwalk_skeleton
 import animation.turn_my_gunwalk_skin
 import _pickle as cPickle
 
-address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
-address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+#address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
+#address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -252,9 +252,10 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         print("第二关")
 
     def update(self,dt):
-        if self.coll_manager.they_collide(self.player_1,self.player_2):
+        print(self.coll_manager.they_collide(self.player_1,self.player_2))
+        if not self.coll_manager.they_collide(self.player_1,self.player_2):
             self.player_1.skin.color = [255, 0, 0]
-            print("they collide")
+            #print("they collide")
         else:
             self.player_1.skin.color = [255,255,255]
 
@@ -428,7 +429,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.attack = cPickle.load(fp_2)
 
         # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
-        self.cshape = cm.AARectShape(eu.Vector2(*self.position),65,136)
+        self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)
 
 
     def remove_all(self):
@@ -439,8 +440,9 @@ class Player_1(cocos.layer.ScrollableLayer):
 
     def update_position(self,dt):
         if not block_1:
-            self.skin.position = self.spr.position  #!!!!!!! self.position = -(self.skin.position-600) 
-
+            self.skin.position = self.spr.position  #!!!!!!! self.position = -(self.skin.position-600)
+            self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
+            print(self.skin.position)
     def fire(self):             #有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
 
@@ -534,7 +536,7 @@ class Player_2(cocos.layer.ScrollableLayer):
         self.block = False #True means the character is having a continuous movement
         self.count = 0
 
-        self.cshape = cm.AARectShape(eu.Vector2(*self.position),65,136)
+        self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)
 
         fp_1 = open((address_2 + "/animation/MOOOOVE.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -551,6 +553,7 @@ class Player_2(cocos.layer.ScrollableLayer):
     def update_position(self,dt):
         if not block_2:
             self.skin.position = self.spr.position
+            print(self.skin.position)
     def status_detect(self, dt):
         self.cshape.center = eu.Vector2(*self.position)         #优化其放置位置
         if self.block:

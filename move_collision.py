@@ -62,7 +62,7 @@ class MainLayer(cocos.layer.Layer):
         if self.tag:
             self.player.color = [255, 0, 0]
         else:
-                self.player.color = [255,255,255]
+            self.player.color = [255,255,255]
 
 class MouseDisplay(cocos.layer.Layer):
 
