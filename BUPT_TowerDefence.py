@@ -30,10 +30,10 @@ import animation.turn_my_gunwalk_skeleton
 import animation.turn_my_gunwalk_skin
 import _pickle as cPickle
 
-address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
-address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+#address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
+#address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -213,6 +213,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
                          layout_strategy=cocos.menu.fixedPositionMenuLayout(poi),   #三个按钮的位置
                          selected_effect=cocos.menu.zoom_in(),
                          unselected_effect=cocos.menu.zoom_out())
+        self.count=0
     def pic_1_callback(self):
         print("第一关")
         #这次创建的窗口带调整大小的功能
@@ -255,11 +256,24 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def update(self,dt):
         if self.coll_manager.they_collide(self.player_1,self.player_2):
             self.player_1.skin.color = [255, 0, 0]
-            print("they collide")
+            #print("they collide")
+        print(self.count)
+        if self.count!=0:
+            self.count+=1
+        if self.count>=7:
+            self.count=0
         if self.coll_manager.they_collide(self.player_1.bullet,self.player_2):
-            print("hit")
-        else:
-            print(self.player_1.bullet.position,self.player_2.skin.position)
+            if self.count==0:
+                print("hit")
+                self.count+=1
+                self.player_1.count=5
+                if self.player_2.life<=20:
+                    self.player_2.life=0
+                else:
+                    self.player_2.life=self.player_2.life-20
+        #else:
+
+            #print(self.player_1.bullet.position,self.player_2.skin.position)
         # else:
         #     self.player_1.skin.color = [255,255,255]
 
@@ -454,6 +468,7 @@ class Player_1(cocos.layer.ScrollableLayer):
             x,y = self.skin.position
             self.life_bar.position = (x, y+160)
             self.life_bar.scale_x = self.life/100
+            self.cshape.center = eu.Vector2(*self.skin.position)
             # self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
     def fire(self):             #有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
@@ -464,7 +479,8 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.add(self.bullet)
 
     def status_detect(self, dt):
-        self.cshape.center = eu.Vector2(*self.skin.position)
+        self.bullet.cshape.center =self.bullet.position
+        print(self.count,self.block,self.bullet.position)
         if self.block:
             if self.count <= 4:
                 self.count += 1
