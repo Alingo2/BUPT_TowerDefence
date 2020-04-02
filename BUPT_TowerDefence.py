@@ -30,10 +30,10 @@ import animation.turn_my_gunwalk_skeleton
 import animation.turn_my_gunwalk_skin
 import _pickle as cPickle
 
-#address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
-#address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
+address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -125,7 +125,7 @@ class MainLayer(cocos.layer.ScrollableLayer):
             if self.enemy.life>=0 :
                 self.enemy.update_()
                 self.life_bar.position = (enemy_x,enemy_y+50)
-                self.life_bar.scale_x=self.enemy.life/100
+                self.life_bar.scale_x = self.enemy.life/100
                 self.enemy.life-=0.2
                 if self.coll_manager.they_collide(self.player,self.enemy):
                     self.player.color = [255,0,0]
@@ -229,6 +229,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
         self.coll_manager.add(self.player_2)
+        self.coll_manager.add(self.player_1.bullet)
 
         scroller.add(self.m_layer)
         scroller.add(self.player_2)
@@ -239,7 +240,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         scene_3.schedule_interval(self.player_2.status_detect, 1 / 30)
         scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
         scene_3.schedule_interval(self.player_2.update_position, 1 / 80)
-        scene_3.schedule_interval(self.update, 1 / 30)
+        scene_3.schedule_interval(self.update, 1 / 80)
        
         # scene_3.add(self.player_1,1)
         # scene_3.add(self.player_2,1)
@@ -252,12 +253,15 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         print("第二关")
 
     def update(self,dt):
-        print(self.coll_manager.they_collide(self.player_1,self.player_2))
-        if not self.coll_manager.they_collide(self.player_1,self.player_2):
+        if self.coll_manager.they_collide(self.player_1,self.player_2):
             self.player_1.skin.color = [255, 0, 0]
-            #print("they collide")
+            print("they collide")
+        if self.coll_manager.they_collide(self.player_1.bullet,self.player_2):
+            print("hit")
         else:
-            self.player_1.skin.color = [255,255,255]
+            print(self.player_1.bullet.position,self.player_2.skin.position)
+        # else:
+        #     self.player_1.skin.color = [255,255,255]
 
 
 class Enemy(cocos.sprite.Sprite):
@@ -406,6 +410,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         # self.width,self.height = 0,0        #可能有bug
         self.position = 100,100
         self.skin.position = 100, 100
+        self.life = 100
 
         img = pyglet.image.load(address+"\dot.png")
         self.spr = cocos.sprite.Sprite(img)
@@ -413,6 +418,8 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.spr.velocity = (0,0)
         self.spr.do(Mover_1())
         self.add(self.spr)
+        self.life_bar = life_bar()
+        self.add(self.life_bar)
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
         self.change = False
@@ -431,6 +438,9 @@ class Player_1(cocos.layer.ScrollableLayer):
         # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)
 
+        self.fire()
+        self.bullet.cshape = cm.AARectShape(eu.Vector2(*self.bullet.position),self.bullet.width/2,self.bullet.height/2)
+
 
     def remove_all(self):
         if len(self.skin.actions) > 0:
@@ -441,18 +451,20 @@ class Player_1(cocos.layer.ScrollableLayer):
     def update_position(self,dt):
         if not block_1:
             self.skin.position = self.spr.position  #!!!!!!! self.position = -(self.skin.position-600)
-            self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
-            print(self.skin.position)
+            x,y = self.skin.position
+            self.life_bar.position = (x, y+160)
+            self.life_bar.scale_x = self.life/100
+            # self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
     def fire(self):             #有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
 
-        x,y = self.skin.position
-        self.bullet.position = x+110, y+70
+        # x,y = self.skin.position
+        self.bullet.position = -100, -100   #初始在屏幕外
 
         self.add(self.bullet)
 
     def status_detect(self, dt):
-        self.cshape.center = eu.Vector2(*self.position)
+        self.cshape.center = eu.Vector2(*self.skin.position)
         if self.block:
             if self.count <= 4:
                 self.count += 1
@@ -460,8 +472,9 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.bullet.position = x+40, y
             else:
                 self.count = 0
-                self.remove(self.bullet)
-                del self.bullet
+                # self.remove(self.bullet)
+                # del self.bullet
+                self.bullet.position = -100,-100
                 self.block = False
                 global block_1
                 block_1 = self.block
@@ -473,7 +486,9 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.change = True
                 else:
                     self.change = False
-                    self.fire()
+                    x,y = self.skin.position
+                    self.bullet.position = x+110, y+70
+                    # self.fire()
                     self.block = True
                     # global block
                     block_1 = self.block
@@ -506,7 +521,9 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
                 elif self.status == 4:
                     self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))           #there is a bug:return attack
-                    self.fire()
+                    x,y = self.skin.position
+                    self.bullet.position = x,y+70   #并没有重复
+                    # self.fire()
                     self.block = True
                     block_1 = self.block
             self.change = False
@@ -523,20 +540,24 @@ class Player_2(cocos.layer.ScrollableLayer):
         # self.width,self.height = 0,0        #可能有bug
         self.skin.position = 500, 100
         self.position = 500,100
+        self.life = 100
 
         img = pyglet.image.load(address+"\dot.png")
         self.spr = cocos.sprite.Sprite(img)
         self.spr.position = 500,100
         self.spr.velocity = (0,0)
         # self.spr.do(Mover_2())
+        self.life_bar = life_bar()
+
         self.add(self.spr)
+        self.add(self.life_bar)
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
         self.change = False
         self.block = False #True means the character is having a continuous movement
         self.count = 0
 
-        self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)
+        self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)#136不够
 
         fp_1 = open((address_2 + "/animation/MOOOOVE.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -553,9 +574,12 @@ class Player_2(cocos.layer.ScrollableLayer):
     def update_position(self,dt):
         if not block_2:
             self.skin.position = self.spr.position
-            print(self.skin.position)
+            x,y = self.skin.position
+            self.life_bar.position = (x, y+160)
+            self.life_bar.scale_x = self.life/100
+            # self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
     def status_detect(self, dt):
-        self.cshape.center = eu.Vector2(*self.position)         #优化其放置位置
+        self.cshape.center = eu.Vector2(*self.skin.position)         #优化其放置位置
         if self.block:
             if self.count <= 4:
                 self.count += 1
