@@ -10,7 +10,7 @@ def Point2(*args): return args
 #     Bone('cabeza', 20, -9.90592089762, Point2(2.00, -94.00))
 #  )
 root_bone = Bone('torso', 70, -180.0, Point2(0.00, 0.00)).add(
-    Bone('brazo der', 40, 152.308491558, Point2(34.00, -67.00))    .add(
+    Bone('brazo der', 40, 152.308491558, Point2(34.00, -64.00))    .add(
         Bone('antebrazo der', 40, 121.203546669, Point2(-4.00, -36.00))
 )
 ).add(

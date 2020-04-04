@@ -32,8 +32,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -674,10 +674,10 @@ class Enemy_1(cocos.layer.ScrollableLayer):
 
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position),65,136)#136不够
 
-        fp_1 = open((address_2 + "/animation/t.anim"), "rb+")
+        fp_1 = open((address_2 + "/animation/2t.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
 
-        fp_2= open((address_2+"/animation/attack.anim"),"rb+")
+        fp_2= open((address_2+"/animation/E_attack.anim"),"rb+")
         self.attack = cPickle.load(fp_2)
 
         
