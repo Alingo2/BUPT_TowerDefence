@@ -2,6 +2,7 @@ import cocos
 import pyglet
 import math
 from cocos.actions import *
+from cocos.particle_systems import *
 from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
 from cocos.sprite import Sprite
@@ -32,8 +33,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -63,31 +64,36 @@ class MouseDisplay(cocos.layer.Layer):          #现在有bug 超出虚拟屏幕
         target_x,target_y = director.get_virtual_coordinates(x, y)
 
  
-class main_menu(cocos.menu.Menu):
+class Main_menu(cocos.menu.Menu):
     def __init__(self):
-        super(main_menu, self).__init__()
-        #文本菜单项  （文字，回掉函数）
-        item1=cocos.menu.MenuItem('开始',self.item1_callback)
-        # 开关菜单项  （文字，回掉函数，状态）
-        item2 = cocos.menu.ToggleMenuItem('音效', self.item2_callback,False)
-        #创建菜单（添加项的列表，选中效果，未选中效果）
-        self.create_menu([item1,item2],
-                            selected_effect=cocos.menu.shake(),
-                            unselected_effect=cocos.menu.shake_back(),
-                                    )
+        super(Main_menu, self).__init__()
 
-        #改变字体
-        self.font_item['font_size']=22
-        #选中时
-        self.font_item_selected['font_size']=33
+        items = []
+
+        items.append(cocos.menu.ImageMenuItem('img/start.png',self.on_start))
+        items.append(cocos.menu.ImageMenuItem('img/setting.png',self.on_setting))
+        items.append(cocos.menu.ImageMenuItem('img/help.png',self.on_help))
+
+        for i in items:
+            i.x = 550
+
+        self.create_menu(items,cocos.menu.shake(),cocos.menu.shake_back())
 
 
-    def item1_callback(self):
-        print('item1')
-        main_scence=cocos.scene.Scene(layer)
-        director.run(main_scence)
-    def item2_callback(self,value):
-        print('item2')
+
+    def on_start(self):
+        print("start")
+        bg_2 = BG(bg_name="img/bg_2.png")
+        scence_2=cocos.scene.Scene(bg_2)
+        mapbutton=map_button(pic_1='img/level_1_icon.png',pic_2='img/level_2_icon.png',poi=[(600,270),(800,270)])
+        scence_2.add(mapbutton)
+        director.replace(scenes.transitions.SlideInBTransition(scence_2, duration=1))
+
+    def on_setting(self):
+        print('setting')
+
+    def on_help(self):
+        print('help')
 
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -107,16 +113,18 @@ class MainLayer(cocos.layer.ScrollableLayer):
         self.spr1_layer = Sprite1()
         self.people_layer = PeopleLayer()
         self.bones = bone()
+        fire = Fire()        #ParticleSystem
+        fire.auto_remove_on_finish = True
+        fire.position = (800,100)
 
         self.add(bg,0)
+        self.add(fire,1)
         self.add(self.mr_cai,1)
         self.add(self.player,1)
         self.add(self.life_bar,2)
         self.add(self.spr1_layer,1)
         self.add(self.people_layer,1)
         self.add(self.bones,1)
-
-
 
 
 class BG(cocos.layer.Layer):        #看是否需要传入background.position
@@ -142,44 +150,36 @@ class button(cocos.menu.Menu):      #button父类  传入图片 位置
         # 选中时
         self.font_item_selected['color'] = (25,255,255,255)
  
-class menu_button(button):      #button下的子类 专门写自己的回调函数
-    def __init__(self,pic_1,pic_2,pic_3,poi):
-        super(button, self).__init__()
-        pic_1=cocos.menu.ImageMenuItem(pic_1,self.pic_1_callback)
-        pic_2= cocos.menu.ImageMenuItem(pic_2, self.pic_2_callback)
-        pic_3 = cocos.menu.ImageMenuItem(pic_3, self.pic_3_callback)
-        #创建菜单（添加项的列表，自定义布局位置）
-        self.create_menu([pic_1,pic_2,pic_3],
-                         layout_strategy=cocos.menu.fixedPositionMenuLayout(poi),   #三个按钮的位置
-                         selected_effect=cocos.menu.zoom_in(),
-                         unselected_effect=cocos.menu.zoom_out())
-    def pic_1_callback(self):
-        print("start")
+
+class Game_menu(cocos.menu.Menu):
+    def __init__(self):
+        super(Game_menu, self).__init__()
+
+        items = []
+
+        items.append(cocos.menu.ImageMenuItem('img/return.png',self.on_back))
+        items.append(cocos.menu.ToggleMenuItem('Show FPS: ',self.on_show_fps,director.show_FPS))
+        items.append(cocos.menu.ImageMenuItem('img/quit.png',self.on_quit))
+        
+        items[0].position = 250,-390
+        items[1].position = -400,300
+        items[2].position = 350,-300
+
+        self.create_menu(items,cocos.menu.shake(),cocos.menu.shake_back())
+
+    def on_back(self):         #有点Bug
+        print("back")
         bg_2 = BG(bg_name="img/bg_2.png")
         scence_2=cocos.scene.Scene(bg_2)
         mapbutton=map_button(pic_1='img/level_1_icon.png',pic_2='img/level_2_icon.png',poi=[(600,270),(800,270)])
         scence_2.add(mapbutton)
         director.replace(scenes.transitions.SlideInBTransition(scence_2, duration=1))
-    def pic_3_callback(self):
-        print("help")
-    def pic_2_callback(self):
-        print("setting")
 
+    def on_quit(self):
+        director.window.close()
 
-class setting_button(button):
-    def __init__(self,pic_1,poi,setting = 1):
-        self.setting = setting
-        super(button, self).__init__()
-        pic_setting = BG(bg_name = "img/return.png")
-        pic_1 = cocos.menu.ImageMenuItem(pic_1, self.pic_1_callback)
-        self.create_menu([pic_1],
-                    layout_strategy=cocos.menu.fixedPositionMenuLayout(poi))
-    def pic_1_callback(self):
-        if self.setting:
-            print('show setting')
-        else:
-            print('hide setting')
-        self.setting = 1-self.setting       #取反
+    def on_show_fps(self,show_fps):
+        director.show_FPS = show_fps
 
 
 class map_button(button):      #button下的子类 专门写自己的回调函数
@@ -196,7 +196,7 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def pic_1_callback(self):
         print("第一关")
         #这次创建的窗口带调整大小的功能
-        scene_3 = cocos.scene.Scene(MouseDisplay(),setting_button(pic_1 = "img/setting.png", poi=[(964,30)]))
+        scene_3 = cocos.scene.Scene(MouseDisplay(),Game_menu())
 
         global scroller
         scroller = cocos.layer.ScrollingManager()
@@ -206,7 +206,6 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
         # self.player_2 = Player_2()
         self.enemy_1 = Enemy_1()
         self.enemy_1_dead = False
-        
 
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
@@ -240,17 +239,21 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
     def update(self,dt):
         if not self.enemy_1_dead:
             if self.coll_manager.they_collide(self.player_1,self.enemy_1):
-                global block_1, block_3
-                block_1 = True
+                global block_1, block_3,block_1_R
+                block_1_R = True
                 self.enemy_1.auto_attack = True
-                if self.enemy_1.near_attack == True:
+                if self.enemy_1.near_attack:
+                    block_1 = True
                     if self.player_1.life < 2:
                         self.player_1.life = 0
                     else:
                         self.player_1.life -= 1
                         self.player_1.beheat = True
-            # else:
-            #     block_1 = False
+                else:
+                    block_1 = False
+            else:
+                block_1_R = False
+                block_1 = False
             if self.count!=0:
                 self.count+=1
             if self.count>=7:
@@ -268,6 +271,9 @@ class map_button(button):      #button下的子类 专门写自己的回调函�
                         self.enemy_1.life = self.enemy_1.life-20
                         self.enemy_1.beheat = True
             # self.player_1.skin.color = [255,255,255]
+        else:
+            block_1_R = False
+            block_1 = False
 
 
 
@@ -324,6 +330,8 @@ class Mover_1(cocos.actions.BoundedMove):
         if not block_1:
             super().step(dt)
             vel_x = (keyboard[key.D] - keyboard[key.A])*400
+            if block_1_R and vel_x > 0:
+                vel_x = 0
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
             global scroller
@@ -408,7 +416,6 @@ class Player_1(cocos.layer.ScrollableLayer):
         super(Player_1, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
-        animation.test_skeleton.skeleton, animation.test_skin.skin
         self.add(self.skin)
 
         # self.width,self.height = 0,0        #可能有bug
@@ -461,6 +468,7 @@ class Player_1(cocos.layer.ScrollableLayer):
             self.life_bar.scale_x = self.life/100
             self.cshape.center = eu.Vector2(*self.skin.position)
             self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
+
     def fire(self):             #有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
 
@@ -502,7 +510,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.change = True
                 else:
                     self.change = False
-            elif (keyboard[key.A]):      #key right and not attack
+            elif (keyboard[key.A] and not block_1_R):      #key right and not attack
                 if self.status != 1:
                     self.remove_all()
                     self.status = 1
@@ -649,7 +657,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.skin = skeleton.BitmapSkin(animation.test_skeleton.skeleton, animation.test_skin.skin)
         self.add(self.skin)
 
-        self.skin.position = 700, 100
+        self.skin.position = 700, 60
         self.position = self.skin.position
         self.life = 100
 
@@ -698,12 +706,17 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         if self.life > 0:
             self.cshape.center = eu.Vector2(*self.skin.position)         #优化其放置位置
             if self.block:
-                if self.count <= 4:
+                if self.count <= 8:
                     self.count += 1
                     self.near_attack = True
+                elif self.count > 8 and self.count <= 15:           #砍完的延迟
+                    self.count += 1
+                    self.near_attack = False
+                    self.status = 3
+                    self.remove_all()
                 else:
                     self.count = 0
-                    self.near_attack = False
+                    # self.near_attack = False
                     self.block = False
                     global block_3
                     block_3 = self.block
@@ -778,6 +791,7 @@ if __name__=='__main__':
     #全局变量
     target_x,target_y = (0,0)
     block_1 = False
+    block_1_R = False
     block_2 = False
     block_3 = False
     # enemy_x,enemy_y = 0,0
@@ -790,6 +804,7 @@ if __name__=='__main__':
 
     bg_1 = BG(bg_name="img/start_bg.png")           #1.获取背景图片路径
     scene_1=cocos.scene.Scene(bg_1)     #2.把背景图片生成scene
-    scene_1_menu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(1100,339),(1100,220),(1100,100)])    #3.生成按钮
+    scene_1_menu = Main_menu()
+    # scene_1_menu = menu_button(pic_1='img/start.png',pic_2='img/setting.png' ,pic_3='img/help.png',poi=[(1100,339),(1100,220),(1100,100)])    #3.生成按钮
     scene_1.add(scene_1_menu)                #4.把按钮加入到scene
     director.run(scene_1)    #5.启动场景
