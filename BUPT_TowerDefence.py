@@ -33,8 +33,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -106,7 +106,6 @@ class MainLayer(cocos.layer.ScrollableLayer):
 
         self.mr_cai = Mr_cai()
         self.player = p_layer()
-        self.life_bar=life_bar()
         self.enemy_num = 1
 
         self.spr1_layer = Sprite1()
@@ -120,7 +119,6 @@ class MainLayer(cocos.layer.ScrollableLayer):
         self.add(fire,1)
         self.add(self.mr_cai,1)
         self.add(self.player,1)
-        self.add(self.life_bar,2)
         self.add(self.spr1_layer,1)
         self.add(self.people_layer,1)
         self.add(self.bones,1)
