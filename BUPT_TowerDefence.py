@@ -33,8 +33,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 =  "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 #address = "*****\BUPT_TowerDefence\img"
 #address_2 = "***\BUPT_TowerDefence"
 
@@ -94,6 +94,34 @@ class Main_menu(cocos.menu.Menu):
     def on_help(self):
         print('help')
 
+class My_base(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(address+"/base.png")
+        spr = cocos.sprite.Sprite(img)
+        spr.position = 50,100
+        self.add(spr)
+
+        life_bar = Life_bar()
+        life_bar.position = 50,220
+        self.add(life_bar)
+
+
+class Enemy_base(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super().__init__()
+
+        img = pyglet.image.load(address+"/base.png")
+        spr = cocos.sprite.Sprite(img)
+        spr.position = 2300,100
+        self.add(spr)
+
+        life_bar = Life_bar()
+        life_bar.position = 2300,220
+        self.add(life_bar)
+
+
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
@@ -111,17 +139,21 @@ class MainLayer(cocos.layer.ScrollableLayer):
         self.spr1_layer = Sprite1()
         self.people_layer = PeopleLayer()
         self.bones = bone()
+        self.my_base = My_base()
+        self.enemy_base = Enemy_base()
         fire = Fire()        #ParticleSystem
         fire.auto_remove_on_finish = True
-        fire.position = (800,100)
+        fire.position = (50,50)
 
         self.add(bg,0)
-        self.add(fire,1)
         self.add(self.mr_cai,1)
         self.add(self.player,1)
         self.add(self.spr1_layer,1)
         self.add(self.people_layer,1)
         self.add(self.bones,1)
+        self.add(fire,1)
+        self.add(self.my_base,1)
+        self.add(self.enemy_base,1)
 
 
 class BG(cocos.layer.Layer):        #看是否需要传入background.position
@@ -171,8 +203,8 @@ class Level_choose(cocos.menu.Menu):
 
         items = []
 
-        items.append(cocos.menu.ImageMenuItem('img/level_1_icon.png',self.pic_1_callback))
-        items.append(cocos.menu.ImageMenuItem('img/level_2_icon.png', self.pic_2_callback))
+        items.append(cocos.menu.ImageMenuItem('img/level_1_icon.png',self.level_1_callback))
+        items.append(cocos.menu.ImageMenuItem('img/level_2_icon.png', self.level_2_callback))
         
         items[0].position = 100,-110
         items[1].position = 300,-70
@@ -180,7 +212,7 @@ class Level_choose(cocos.menu.Menu):
         self.create_menu(items,cocos.menu.zoom_in(),cocos.menu.zoom_out())
         self.count=0
 
-    def pic_1_callback(self):
+    def level_1_callback(self):
         print("第一关")
         #这次创建的窗口带调整大小的功能
         scene_3 = cocos.scene.Scene(MouseDisplay(),Game_menu())
@@ -225,12 +257,13 @@ class Level_choose(cocos.menu.Menu):
 
         director.replace(scenes.transitions.SlideInBTransition(scene_3, duration=1))
 
-    def pic_2_callback(self):
+    def level_2_callback(self):
         print("第二关")
 
     def update(self,dt):
         if not self.enemy_1_dead:
             if self.coll_manager.they_collide(self.player_1,self.enemy_1):
+                global block_1,block_1_R
                 block_1_R = True
                 self.enemy_1.auto_attack = True
                 if self.enemy_1.near_attack:
@@ -307,9 +340,9 @@ class draw_rec(cocos.layer.util_layers.ColorLayer):
         super().__init__(255, 0,0,255,width =w,height=h)
         
 
-class life_bar(cocos.sprite.Sprite):
+class Life_bar(cocos.sprite.Sprite):
     def __init__(self):
-        super(life_bar, self).__init__("img/yellow_bar.png")
+        super(Life_bar, self).__init__("img/yellow_bar.png")
 
 
 class Mover_1(cocos.actions.BoundedMove):
@@ -414,7 +447,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.spr.velocity = (0,0)
         self.spr.do(Mover_1())
         self.add(self.spr)
-        self.life_bar = life_bar()
+        self.life_bar = Life_bar()
         self.add(self.life_bar)
 
         self.status = 3 #1:walk left 2:walk right 3:stop 4:attack
@@ -488,14 +521,14 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.bullet.position = x+110, y+70
                     self.block = True
                     block_1 = self.block
-            elif (keyboard[key.D]):      #key right and not attack
+            elif (keyboard[key.D] and not block_1_R):      #key right and not attack
                 if self.status != 2 and self.status != 1:
                     self.remove_all()
                     self.status = 2
                     self.change = True
                 else:
                     self.change = False
-            elif (keyboard[key.A] and not block_1_R):      #key right and not attack
+            elif (keyboard[key.A]):      #key right and not attack
                 if self.status != 1:
                     self.remove_all()
                     self.status = 1
@@ -507,6 +540,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.status = 3
                 self.beheat = False
                 self.block = True
+                global block_3
                 block_3 = self.block
                 self.skin.do(skeleton.Animate(self.frozen))
             else:
@@ -548,7 +582,7 @@ class Player_2(cocos.layer.ScrollableLayer):
         self.spr.position = 500,100
         self.spr.velocity = (0,0)
         self.spr.do(Mover_2())
-        self.life_bar = life_bar()
+        self.life_bar = Life_bar()
 
         self.add(self.spr)
         self.add(self.life_bar)
@@ -652,7 +686,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.spr.position = self.skin.position
         self.spr.velocity = (0,0)
         self.spr.do(Mover_3())
-        self.life_bar = life_bar()
+        self.life_bar = Life_bar()
 
         self.add(self.spr)
         self.add(self.life_bar)
