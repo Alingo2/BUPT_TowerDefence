@@ -19,3 +19,7 @@
 - 攻击时仍可以微小移动bug
 
 - beheat被击僵直 持续bug
+
+- 重写Mousedisplay()
+
+

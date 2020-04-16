@@ -2,13 +2,18 @@ from skimage import io,color,measure,morphology
 import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
-img0=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png'))
-img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png',as_gray='True'))
+
+
+# img0=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png'))
+# img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png',as_gray='True'))
+img0=color.rgb2gray(io.imread(r'D:\MyCode\MyPython\BUPT_TowerDefence\image\your_img.png'));
+img=color.rgb2gray(io.imread(r'D:\MyCode\MyPython\BUPT_TowerDefence\image\your_img.png',as_gray='True'))
 img2=img
 rows=img0.shape[0]
 cols=img0.shape[1]
 I=[]
 J=[]
+
 for i in range(rows):
     for j in range(cols):
         if img[i][j]>0.4:
