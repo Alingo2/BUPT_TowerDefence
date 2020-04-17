@@ -2,7 +2,6 @@ import cocos
 import pyglet
 import math
 from cocos.actions import *
-from cocos.layer import Layer
 from cocos.particle_systems import *
 from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
@@ -111,40 +110,19 @@ class My_base(cocos.layer.ScrollableLayer):
         self.add(life_bar)
 
 
-class Fail_Layer(Layer):
-    def __init__(self):
-        super(Fail_Layer, self).__init__()
-        self.count = 0
-        self.lable = cocos.text.Label('就这？', font_name='Times New Roman', font_size=32)
-        self.lable.position = 50, 30
-        self.add(self.lable)
 class Enemy_base(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
-        self.dead = False
+
         img = pyglet.image.load(address + "/base.png")
         spr = cocos.sprite.Sprite(img)
         spr.position = 2300, 100
         self.add(spr)
-        self.life=100
-        self.life_bar = Life_bar()
-        self.life_bar.position = 2300, 220
-        self.add(self.life_bar)
-        self.cshape = cm.AARectShape(eu.Vector2(*spr.position),spr.width/2,spr.height/2)
-    def victory(self):
-        print(7)
-        scene_fail = cocos.scene.Scene(MouseDisplay())
-        print(2)
-        f_layer=My_base()
-        print(3)
-        scene_fail.add(f_layer)
-        print(4)
-        director.replace(scenes.transitions.SlideInBTransition(scene_fail, duration=1))
-    def update_position(self, dt):
-        self.life_bar.scale_x = self.life / 100
-        if self.dead == True:
-            print(1)
-            self.victory()
+
+        life_bar = Life_bar()
+        life_bar.position = 2300, 220
+        self.add(life_bar)
+
 
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -240,7 +218,6 @@ class Level_choose(cocos.menu.Menu):
         global scroller
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
-        self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         # self.player_2 = Player_2()
@@ -250,11 +227,9 @@ class Level_choose(cocos.menu.Menu):
         self.add_e_count=0
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
-
         # self.coll_manager.add(self.player_2)
         self.coll_manager.add(self.e_list[0][0])
         self.coll_manager.add(self.player_1.bullet)
-        self.coll_manager.add(self.m_layer.enemy_base)
 
         scroller.add(self.m_layer)
         # scroller.add(self.player_2)
@@ -264,7 +239,6 @@ class Level_choose(cocos.menu.Menu):
         # scene_3.schedule_interval(self.m_layer.update, 1 / 30)
         self.scene_3.schedule_interval(self.player_1.status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
-        self.scene_3.schedule_interval(self.m_layer.enemy_base.update_position, 1 / 80)
         # scene_3.schedule_interval(self.player_2.status_detect, 1 / 30)
         # scene_3.schedule_interval(self.player_2.update_position, 1 / 80)
         if not self.e_list[0][1]:
@@ -295,24 +269,6 @@ class Level_choose(cocos.menu.Menu):
             self.add_e_count += 1
             if self.add_e_count>40:
                 self.add_e_count=0
-        if self.eb_count != 0:
-            self.eb_count += 1
-        if self.eb_count >= 7:
-            self.eb_count = 0
-        if self.coll_manager.they_collide(self.player_1.bullet, self.m_layer.enemy_base):
-            if self.eb_count == 0:
-                self.eb_count += 1
-                self.player_1.refresh()
-                if self.m_layer.enemy_base.life <= 10:
-                    self.m_layer.enemy_base.life = 0
-                    self.m_layer.enemy_base.dead = True
-                    print("win")
-                    self.m_layer.remove(self.m_layer.enemy_base)
-                    #self.coll_manager.remove_tricky(self.m_layer.enemy_base)
-                    #jself.scene_3.unschedule(self.m_layer.enemy_base.update_position)
-                else:
-                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - 5
-            print("hiit")
 
         for enemy in self.e_list:
             if not enemy[1]:
