@@ -2,18 +2,13 @@ from skimage import io,color,measure,morphology
 import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
-
-
-# img0=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png'))
-# img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\12.png',as_gray='True'))
-img0=color.rgb2gray(io.imread(r'D:\MyCode\MyPython\BUPT_TowerDefence\image\your_img.png'));
-img=color.rgb2gray(io.imread(r'D:\MyCode\MyPython\BUPT_TowerDefence\image\your_img.png',as_gray='True'))
+img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
+img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
 img2=img
 rows=img0.shape[0]
 cols=img0.shape[1]
 I=[]
 J=[]
-
 for i in range(rows):
     for j in range(cols):
         if img[i][j]>0.4:
@@ -68,7 +63,7 @@ for i in range(0,len(dots),2):
     dots_zip.append(dots[i])
 dots=dots_zip
 print("len(dots):",len(dots))
-print("len(dots_nosame):",len(dots_different))
+print("len(dots_different):",len(dots_different))
 for i in range(min(I),max(I),3):
     for j in range(min(J),max(J),3):
         Pro=P1=P2=P3=P4=P5=P6=P7=P8= 0
@@ -98,38 +93,204 @@ for i in range(min(I),max(I),3):
     for j in range(min(J),max(J),3):
         if img_full[i][j]==1:
             img_full[i-1][j-1]=img_full[i-1][j]=img_full[i-1][j+1]=img_full[i][j-1]=img_full[i][j+1]=img_full[i+1][j-1]=img_full[i+1][j]=img_full[i+1][j+1]=1
+
+skeleton =morphology.skeletonize(img_full)
+guanjies=[]
+img_skeleton=np.zeros((rows,cols))
+row=img_full.shape[0]
+col=img_full.shape[1]
+for i in range(0,row):
+    for j in range(0,col):
+        if skeleton[i][j]!=0 :
+            guanjies.append([i,j])
+            img_skeleton[i][j]=1
+
+img_judge=np.zeros((row,col))
+guanjie_judge=[]
+k=0
+guanjie_x=[]
+guanjie_y=[]
+for guanjie in guanjies:
+    temp=0
+    for i in range(guanjie[0]-1,guanjie[0]+2):
+        for j in range(guanjie[1]-1,guanjie[1]+2):
+            temp=temp+img_skeleton[i][j]
+    if temp>3:
+        img_judge[guanjie[0],guanjie[1]]=1
+        k=k+1
+        guanjie_judge.append([guanjie[0],guanjie[1]])
+        guanjie_x.append(guanjie[0])
+        guanjie_y.append(guanjie[1])
+guanjie_max_x=max(guanjie_x)
+guanjie_min_x=min(guanjie_x)
+guanjie_max_y=max(guanjie_y)
+guanjie_min_y=min(guanjie_y)
+print(k)
+middle_y=sum(guanjie_y)/len(guanjie_y)
+head_finish=guanjie_min_x
+head123=[0,0,0,0,0,0,0,0,0,0]
+for head in range(guanjie_min_x,guanjie_max_x):
+    head_counter = 0
+    for x in guanjie_x:
+        if x<head:
+            head_counter=head_counter+1
+    if k / 2.0 >= head_counter :
+        head123[0] = head
+    if k / 2.25 >= head_counter :
+        head123[1] = head
+    if k / 2.5 >= head_counter :
+        head123[2] = head
+    if k / 2.75 >= head_counter :
+        head123[3] = head
+    if k / 3 >= head_counter :
+        head123[4] = head
+    if k / 3.25 >= head_counter :
+        head123[5] = head
+    if k / 3.5 >= head_counter :
+        head123[6] = head
+    if k / 3.75 >= head_counter :
+        head123[7] = head
+    if k / 4 >= head_counter :
+        head123[8] = head
+    if k / 4 >= head_counter :
+        head123[9] = head
+
+judge_head=[0,0,0,0,0,0,0,0,0,0]
+j=-1
+for head in head123:
+    j=j+1
+    for i in range(0,cols):
+        if img_full[head][i]==1:
+            judge_head[j]=judge_head[j]+1
+print("judge_head",judge_head)
+j=judge_head.index(min(judge_head))
+head_finish=head123[j]
+print("j:",j)
+print("head123:",head123)
+
+
+leg_finish=guanjie_min_x
+leg123=[0,0,0,0,0,0,0,0,0,0]
+for leg in range(guanjie_min_x,guanjie_max_x):
+    leg_counter = 0
+    for x in guanjie_x:
+        if x<leg:
+            leg_counter=leg_counter+1
+    if k / 2.0 >= leg_counter :
+        leg123[0] = leg
+    if k / 1.9 >= leg_counter :
+        leg123[1] = leg
+    if k / 1.8 >= leg_counter :
+        leg123[2] = leg
+    if k / 1.7 >= leg_counter :
+        leg123[3] = leg
+    if k / 1.6 >= leg_counter :
+        leg123[4] = leg
+    if k / 1.5 >= leg_counter:
+        leg123[5] = leg
+    if k / 1.4 >= leg_counter :
+        leg123[6] = leg
+    if k / 1.3 >= leg_counter :
+        leg123[7] = leg
+    if k / 1.3 >= leg_counter:
+        leg123[8] = leg
+    if k / 1.3 >= leg_counter:
+        leg123[9] = leg
+
+judge_leg=[0,0,0,0,0,0,0,0,0,0]
+j=-1
+for leg in leg123:
+    j=j+1
+    for i in range(0,cols):
+        if img_full[leg][i]==1:
+            judge_leg[j]=judge_leg[j]+1
+print("judge_leg",judge_leg)
+j=judge_leg.index(max(judge_leg))
+leg_finish=leg123[j]
+change=20
+leg_finish=leg_finish+change
+print("j:",j)
+print("leg123:",leg123)
+
+
+temp_hand=np.zeros(2)
+judge=1
+for i in range(0,cols):
+    if img_full[leg_finish][i]==1 and judge==1:
+        temp_hand[0]=i
+        judge=0
+    if img_full[leg_finish][i]==0 and judge==0:
+        temp_hand[1]=i
+        judge=1
+print("temp_hand:",temp_hand)
+
+img_head=img0[0:head_finish,:,:]
+img_body=img0[head_finish:leg_finish,:,:]
+img_left_leg=img0[leg_finish:max(I),min(J):int(middle_y),:]
+img_right_leg=img0[leg_finish:max(I),int(middle_y):max(J),:]
+
 plt.figure('morphology',figsize=(12,8))
-plt.subplot(2,3,1)
+
+plt.subplot(3,4,1)
 plt.title('origin image')
 plt.imshow(img0)
 plt.axis('off')
 
-plt.subplot(2,3,2)
+plt.subplot(3,4,2)
 plt.title('gray')
 plt.imshow(img,plt.cm.gray)
 plt.axis('off')
 
-plt.subplot(2,3,3)
+plt.subplot(3,4,3)
 plt.title('morphological image')
 plt.imshow(dst,plt.cm.gray)
 plt.axis('off')
 
-plt.subplot(2,3,4)
+plt.subplot(3,4,4)
 plt.title("skelen image")
 plt.imshow(img2,plt.cm.gray)
-skeleton =morphology.skeletonize(dst)
-print("skeleton:",skeleton)
 plt.axis('off')
 
-plt.subplot(2,3,5)
+plt.subplot(3,4,5)
 plt.title('full')
 plt.imshow(img_full,plt.cm.gray)
 plt.axis('off')
 
-skeleton =morphology.skeletonize(img_full)
-plt.subplot(2,3,6)
+plt.subplot(3,4,6)
 plt.title('skeleton')
 plt.imshow(skeleton,plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(3,4,7)
+plt.title('img_left_leg')
+plt.imshow(img_left_leg,plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(3,4,8)
+plt.title('img_head')
+plt.imshow(img_head,plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(3,4,9)
+plt.title('img_body')
+plt.imshow(img_body,plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(3,4,10)
+plt.title('img_right_leg')
+plt.imshow(img_right_leg,plt.cm.gray)
+plt.axis('off')
+
+img_left_hand=img0[head_finish:leg_finish,0:int(temp_hand[0]),:]
+img_right_hand=img0[head_finish:leg_finish,int(temp_hand[1]):cols,:]
+plt.subplot(3,4,11)
+plt.title('img_left_hand')
+plt.imshow(img_left_hand,plt.cm.gray)
+plt.axis('off')
+
+plt.subplot(3,4,12)
+plt.title('img_right_hand')
+plt.imshow(img_right_hand,plt.cm.gray)
 plt.axis('off')
 
 plt.show()
