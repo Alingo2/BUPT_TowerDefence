@@ -34,8 +34,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -118,6 +118,8 @@ class Fail_Layer(Layer):
         self.lable = cocos.text.Label('就这？', font_name='Times New Roman', font_size=32)
         self.lable.position = 50, 30
         self.add(self.lable)
+
+
 class Enemy_base(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
@@ -131,20 +133,10 @@ class Enemy_base(cocos.layer.ScrollableLayer):
         self.life_bar.position = 2300, 220
         self.add(self.life_bar)
         self.cshape = cm.AARectShape(eu.Vector2(*spr.position),spr.width/2,spr.height/2)
-    def victory(self):
-        print(7)
-        scene_fail = cocos.scene.Scene(MouseDisplay())
-        print(2)
-        f_layer=My_base()
-        print(3)
-        scene_fail.add(f_layer)
-        print(4)
-        director.replace(scenes.transitions.SlideInBTransition(scene_fail, duration=1))
+
+
     def update_position(self, dt):
         self.life_bar.scale_x = self.life / 100
-        if self.dead == True:
-            print(1)
-            self.victory()
 
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -212,6 +204,50 @@ class Game_menu(cocos.menu.Menu):
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
 
+class Drag(cocos.layer.Layer):
+
+    is_event_handler = True  #to detect the mouse
+
+    def __init__(self):
+        super().__init__()
+        
+        self.spr = cocos.sprite.Sprite("img/car.png",anchor = (0,0))  #anchor means the relative center  the defalt is the center of the picture 
+
+        self.spr.position = 450,450
+
+        self.add(self.spr)
+        self.clicked = False
+
+    def mouse_on_sprite(self, x, y):
+        if x < self.spr.x + self.spr.width and x > self.spr.x and y < self.spr.y + self.spr.height and y > self.spr.y:
+            return True
+        return False
+
+
+    def on_mouse_press(self,x,y,button,modifiers):
+        if button & mouse.LEFT:         #只检测鼠标左键
+            if self.mouse_on_sprite(x,y):
+                self.clicked = True
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.clicked = False
+
+    def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
+        if self.clicked:
+            self.spr.position = (x - self.spr.width // 2, y - self.spr.height // 2)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        if self.mouse_on_sprite(x,y):
+            cursor_img = pyglet.image.load(address + '/cursor.png')
+            cursor_img.anchor_x = cursor_img.width // 2
+            cursor_img.anchor_y = cursor_img.height //2
+            cursor = pyglet.window.ImageMouseCursor(cursor_img,0,0)   #hotx hoty
+            # cursor = director.window.get_system_mouse_cursor(director.window.CURSOR_HAND)
+            director.window.set_mouse_cursor(cursor)
+        else:
+            cursor = director.window.get_system_mouse_cursor(director.window.CURSOR_DEFAULT)
+            director.window.set_mouse_cursor(cursor)
+
 
 class Level_choose(cocos.menu.Menu):
     def __init__(self):
@@ -230,7 +266,8 @@ class Level_choose(cocos.menu.Menu):
     def level_1_callback(self):
         print("第一关")
         # 这次创建的窗口带调整大小的功能
-        self.scene_3 = cocos.scene.Scene(MouseDisplay(),Game_menu())
+        self.game_menu = Game_menu()
+        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu)
 
         global block_1, block_1_R, block_2, block_3
         block_1 = False
@@ -306,13 +343,9 @@ class Level_choose(cocos.menu.Menu):
                 if self.m_layer.enemy_base.life <= 10:
                     self.m_layer.enemy_base.life = 0
                     self.m_layer.enemy_base.dead = True
-                    print("win")
-                    self.m_layer.remove(self.m_layer.enemy_base)
-                    #self.coll_manager.remove_tricky(self.m_layer.enemy_base)
-                    #jself.scene_3.unschedule(self.m_layer.enemy_base.update_position)
+
                 else:
                     self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - 5
-            print("hiit")
 
         for enemy in self.e_list:
             if not enemy[1]:
@@ -344,7 +377,7 @@ class Level_choose(cocos.menu.Menu):
                             enemy[0].life = 0
                             enemy[1] = True
                             scroller.remove(enemy[0])
-                            self.coll_manager.remove_tricky(enemy[0])
+                            # self.coll_manager.remove_tricky(enemy[0])  #加了 好像也remove不掉 还无法切场景
                             self.scene_3.unschedule(enemy[0].update_position)
                             self.scene_3.unschedule(enemy[0].status_detect)
                             self.e_list.remove(enemy)
@@ -354,6 +387,16 @@ class Level_choose(cocos.menu.Menu):
             else:
                 block_1_R = False
                 block_1 = False
+        
+        if self.m_layer.enemy_base.dead:
+            self.m_layer.enemy_base.dead = False
+
+            scene_2 = cocos.scene.Scene(Fail_Layer(),Drag())
+            director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
+            
+            # self.m_layer.remove(self.m_layer.enemy_base)
+            #self.coll_manager.remove_tricky(self.m_layer.enemy_base)
+            #self.scene_3.unschedule(self.m_layer.enemy_base.update_position)
 
 
 class P_move(Driver):
