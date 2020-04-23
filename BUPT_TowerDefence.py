@@ -34,8 +34,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -115,9 +115,12 @@ class Fail_Layer(Layer):
     def __init__(self):
         super(Fail_Layer, self).__init__()
         self.count = 0
-        self.lable = cocos.text.Label('就这？', font_name='Times New Roman', font_size=32)
-        self.lable.position = 50, 30
-        self.add(self.lable)
+        self.lable1 = cocos.text.Label('就', font_name='Times New Roman', font_size=200)
+        self.lable1.position = 10, 170
+        self.lable2 = cocos.text.Label('这', font_name='Times New Roman', font_size=200)
+        self.lable2.position = 900, 170
+        self.add(self.lable2)
+        self.add(self.lable1)
 
 
 class Enemy_base(cocos.layer.ScrollableLayer):
@@ -204,6 +207,39 @@ class Game_menu(cocos.menu.Menu):
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
 
+class Game_menu_f(cocos.menu.Menu):
+    def __init__(self):
+        super(Game_menu_f, self).__init__()
+
+        items = []
+
+        items.append(cocos.menu.ImageMenuItem('img/return.png', self.on_back))
+        items.append(cocos.menu.ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS))
+        items.append(cocos.menu.ImageMenuItem('img/quit.png', self.on_quit))
+
+        items[0].position = 50, -235
+        items[1].position = -400, 300
+        items[2].position = 350, -300
+        items[0].scale_x=3
+        items[0].scale_y = 3
+
+        self.create_menu(items, cocos.menu.shake(), cocos.menu.shake_back())
+
+    def on_back(self):  # 有点Bug
+        print("back")
+        bg_2 = BG(bg_name="img/bg_2.png")
+        scene_2 = cocos.scene.Scene(MouseDisplay(),bg_2)
+        level_choose = Level_choose()
+        car = p_layer()
+        scene_2.add(level_choose)
+        scene_2.add(car, 2)
+        director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
+
+    def on_quit(self):
+        director.window.close()
+
+    def on_show_fps(self, show_fps):
+        director.show_FPS = show_fps
 class Drag(cocos.layer.Layer):
 
     is_event_handler = True  #to detect the mouse
@@ -390,8 +426,9 @@ class Level_choose(cocos.menu.Menu):
         
         if self.m_layer.enemy_base.dead:
             self.m_layer.enemy_base.dead = False
-
-            scene_2 = cocos.scene.Scene(Fail_Layer(),Drag())
+            bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
+            self.game_menu = Game_menu_f()
+            scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), self.game_menu)
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
             
             # self.m_layer.remove(self.m_layer.enemy_base)
