@@ -2,8 +2,11 @@ from skimage import io,color,measure,morphology
 import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.image as pg
 img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
+
 img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
+img_four=pg.imread('C:\\Users\MA\Desktop\image\\15.png')
 img2=img
 rows=img0.shape[0]
 cols=img0.shape[1]
@@ -223,12 +226,16 @@ for i in range(0,cols):
         temp_hand[1]=i
         judge=1
 print("temp_hand:",temp_hand)
-
-img_head=img0[0:head_finish,:,:]
-img_body=img0[head_finish:leg_finish,:,:]
-img_left_leg=img0[leg_finish:max(I),min(J):int(middle_y),:]
-img_right_leg=img0[leg_finish:max(I),int(middle_y):max(J),:]
-
+for i in range(img_full.shape[0]):
+    for j in range(img_full.shape[1]):
+        if img_full[i][j]==0:
+            img_four[i][j][3]=0
+img_head=img_four[0:head_finish,:,:]
+img_body=img_four[head_finish:leg_finish,:,:]
+img_left_leg=img_four[leg_finish:max(I),min(J):int(middle_y),:]
+img_right_leg=img_four[leg_finish:max(I),int(middle_y):max(J),:]
+img_left_hand=img_four[head_finish:leg_finish,0:int(temp_hand[0]),:]
+img_right_hand=img_four[head_finish:leg_finish,int(temp_hand[1]):cols,:]
 plt.figure('morphology',figsize=(12,8))
 
 plt.subplot(3,4,1)
@@ -281,8 +288,7 @@ plt.title('img_right_leg')
 plt.imshow(img_right_leg,plt.cm.gray)
 plt.axis('off')
 
-img_left_hand=img0[head_finish:leg_finish,0:int(temp_hand[0]),:]
-img_right_hand=img0[head_finish:leg_finish,int(temp_hand[1]):cols,:]
+
 plt.subplot(3,4,11)
 plt.title('img_left_hand')
 plt.imshow(img_left_hand,plt.cm.gray)
@@ -293,7 +299,15 @@ plt.title('img_right_hand')
 plt.imshow(img_right_hand,plt.cm.gray)
 plt.axis('off')
 
+pg.imsave('img_right_leg.png',img_right_leg)
+pg.imsave('img_left_leg.png',img_left_leg)
+pg.imsave('img_left_hand.png',img_left_hand)
+pg.imsave('img_right_hand.png',img_right_hand)
+pg.imsave('img_head.png',img_head)
+pg.imsave('img_body.png',img_body)
+
 plt.show()
+
 
 
 
