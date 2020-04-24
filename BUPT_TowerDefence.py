@@ -34,8 +34,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -643,6 +643,8 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.bullet.position = -100, -100  # 初始在屏幕外
 
         self.add(self.bullet)
+    def __del__(self):
+        return
 
     def refresh(self):
         global block_1
@@ -717,6 +719,13 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.block = True
                     block_1 = self.block
             self.change = False
+        if self.life<=0:
+            del self
+            bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
+            game_menu = Game_menu_f()
+            scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), game_menu)
+            director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
+
 
 
 class Player_2(cocos.layer.ScrollableLayer):
@@ -759,6 +768,8 @@ class Player_2(cocos.layer.ScrollableLayer):
             for i in range(0, len((self.skin.actions))):
                 self.skin.remove_action(self.skin.actions[0])
 
+    def __del__(self):
+        return
     def update_position(self, dt):
         if not block_2:
             self.skin.position = self.spr.position
@@ -766,6 +777,7 @@ class Player_2(cocos.layer.ScrollableLayer):
             self.life_bar.position = (x, y + 160)
             self.life_bar.scale_x = self.life / 100
             self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
+
 
     def refresh(self):
         global block_2
