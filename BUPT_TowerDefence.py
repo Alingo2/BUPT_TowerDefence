@@ -34,8 +34,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -602,6 +602,11 @@ class Player_1(cocos.layer.ScrollableLayer):
 
         global block_1
 
+        # soundex.play("sound/bullet.wav")
+        # self.music = cocos.audio.pygame.music.load('sound/bullet.wav')
+        # self.music.play() # Play right now
+        # self.spr.do(self.shot.action)
+
         fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
 
@@ -662,6 +667,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.remove_all()
                     self.status = 4
                     self.change = True
+                    # self.shot.play() # Play right now
                 else:
                     self.change = False
                     x, y = self.skin.position
