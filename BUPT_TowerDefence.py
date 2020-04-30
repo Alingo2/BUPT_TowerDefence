@@ -1,4 +1,5 @@
 import cocos
+# import os
 import pyglet
 import math
 from cocos.actions import *
@@ -17,6 +18,7 @@ from pyglet.window import mouse
 from cocos.collision_model import *
 from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
+import draw
 import root_bone
 import root_skin
 import animation
@@ -34,8 +36,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -240,6 +242,19 @@ class Game_menu_f(cocos.menu.Menu):
 
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
+
+class Your_char(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super().__init__()
+        global img_name
+        img = pyglet.image.load(address + "/" + img_name + ".png")
+        self.spr = cocos.sprite.Sprite(img)
+        self.spr.position = 450,450
+        self.spr.velocity = (0,0)
+        self.spr.do(Mover_2())
+        self.add(self.spr)
+
+
 class Drag(cocos.layer.Layer):
 
     is_event_handler = True  #to detect the mouse
@@ -350,7 +365,13 @@ class Level_choose(cocos.menu.Menu):
         director.replace(scenes.transitions.SlideInBTransition(self.scene_3, duration=1))
 
     def level_2_callback(self):
-        print("第二关")
+        print("第二关  画自己的角色")
+        # os.system("python D:/MyCode/MyPython/BUPT_TowerDefence/draw.py")
+        global img_name
+        img_name = draw.Draw()
+        your_char = Your_char()
+        self.scene_4 = cocos.scene.Scene(your_char)
+        director.replace(self.scene_4)
 
     def update(self, dt):
         # print(self.add_e_count)
@@ -969,6 +990,7 @@ if __name__ == '__main__':
     block_1_R = False
     block_2 = False
     block_3 = False
+    img_name = ""
     # 初始化导演
     director.init(width=1201, height=686, caption="BUPT Tower Defence")
     director.window.pop_handlers()
