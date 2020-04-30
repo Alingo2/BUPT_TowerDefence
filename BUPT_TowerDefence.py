@@ -1,5 +1,4 @@
 import cocos
-# import os
 import pyglet
 import math
 from cocos.actions import *
@@ -18,7 +17,7 @@ from pyglet.window import mouse
 from cocos.collision_model import *
 from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
-
+from cocos.audio.pygame import mixer, music
 import draw
 import root_bone
 import root_skin
@@ -37,8 +36,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -637,6 +636,11 @@ class Player_1(cocos.layer.ScrollableLayer):
 
         fp_3 = open((address_2 + "/animation/my_frozen.anim"), "rb+")
         self.frozen = cPickle.load(fp_3)
+
+        mixer.init()
+        music.load(r'D:/MyCode/MyPython/BUPT_TowerDefence/sound/bgm.mp3'.encode())
+        music.play()
+        music.set_volume(1)
 
         # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)

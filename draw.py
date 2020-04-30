@@ -57,4 +57,3 @@ def Draw():
             return(pic_name)
         elif k==27:
             break
-Draw()
