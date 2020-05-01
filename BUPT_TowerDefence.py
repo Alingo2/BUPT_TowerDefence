@@ -18,6 +18,7 @@ from cocos.collision_model import *
 from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
 from cocos.audio.pygame import mixer, music
+from cocos.audio.effect import Effect
 import draw
 import root_bone
 import root_skin
@@ -36,8 +37,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -600,7 +601,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
         self.add(self.skin)
-
+        self.yinxiao=Effect(address_2 + r"/sound/bullet.mp3") #音效
         # self.width,self.height = 0,0        #可能有bug
         self.position = 100, 100
         self.skin.position = 100, 100
@@ -638,8 +639,9 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.frozen = cPickle.load(fp_3)
 
         mixer.init()
-        music.load(r'D:/MyCode/MyPython/BUPT_TowerDefence/sound/bgm.mp3'.encode())
-        music.play()
+        music.load((address_2 + r"/sound/bgm.mp3").encode())
+        #music.load((address_2 + r"/sound/bullet.mp3").encode())
+        #music.play()
         music.set_volume(1)
 
         # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
@@ -648,6 +650,11 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.fire()
         self.bullet.cshape = cm.AARectShape(eu.Vector2(*self.bullet.position), self.bullet.width / 2,
                                             self.bullet.height / 2)
+
+    def shoot_effect(self):
+        print(1)
+        self.yinxiao.play()
+        self.spr.do(self.yinxiao.action)
 
     def remove_all(self):
         if len(self.skin.actions) > 0:
@@ -691,6 +698,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.refresh()
         else:
             if (keyboard[key.J]):
+                self.shoot_effect()
                 if self.status != 4:
                     self.remove_all()
                     self.status = 4
