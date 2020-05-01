@@ -1,6 +1,7 @@
 import cocos
 import pyglet
 import math
+import pygame
 from cocos.actions import *
 from cocos.layer import Layer
 from cocos.particle_systems import *
@@ -37,8 +38,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -640,9 +641,8 @@ class Player_1(cocos.layer.ScrollableLayer):
 
         mixer.init()
         music.load((address_2 + r"/sound/bgm.mp3").encode())
-        #music.load((address_2 + r"/sound/bullet.mp3").encode())
-        #music.play()
-        music.set_volume(1)
+        music.play()
+        music.set_volume(0.4)
 
         # self.cshape = cm.AARectShape(eu.Vector2(*self.position),self.width/2,self.height/2)
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
@@ -651,10 +651,6 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.bullet.cshape = cm.AARectShape(eu.Vector2(*self.bullet.position), self.bullet.width / 2,
                                             self.bullet.height / 2)
 
-    def shoot_effect(self):
-        print(1)
-        self.yinxiao.play()
-        self.spr.do(self.yinxiao.action)
 
     def remove_all(self):
         if len(self.skin.actions) > 0:
@@ -698,12 +694,12 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.refresh()
         else:
             if (keyboard[key.J]):
-                self.shoot_effect()
                 if self.status != 4:
                     self.remove_all()
                     self.status = 4
                     self.change = True
-                    # self.shot.play() # Play right now
+                    bullet_sound = pygame.mixer.Sound('D:/MyCode/MyPython/BUPT_TowerDefence/sound/bullet.wav')
+                    bullet_sound.play()
                 else:
                     self.change = False
                     x, y = self.skin.position
@@ -930,6 +926,8 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         if self.life > 0:
             self.cshape.center = eu.Vector2(*self.skin.position)  # 优化其放置位置
             if self.beheat:
+                scream = pygame.mixer.Sound('D:/MyCode/MyPython/BUPT_TowerDefence/sound/beheat.wav')
+                scream.play()
                 self.remove_all()
                 self.beheat = False
                 self.status = 5
@@ -1004,6 +1002,7 @@ if __name__ == '__main__':
     block_2 = False
     block_3 = False
     img_name = ""
+    pygame.mixer.init()
     # 初始化导演
     director.init(width=1201, height=686, caption="BUPT Tower Defence")
     director.window.pop_handlers()
