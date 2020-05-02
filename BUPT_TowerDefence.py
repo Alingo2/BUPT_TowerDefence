@@ -38,8 +38,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -326,6 +326,8 @@ class Level_choose(cocos.menu.Menu):
         block_1 = False
         block_1_R = False
         block_2 = False
+        self.addable = False
+        self.auto_new = 0
         block_3 = False
         global scroller
         scroller = cocos.layer.ScrollingManager()
@@ -378,6 +380,19 @@ class Level_choose(cocos.menu.Menu):
     def update(self, dt):
         # print(self.add_e_count)
         global scroller
+        if self.addable==False:
+            self.auto_new+=1
+        if self.auto_new>=400:
+            self.addable=True
+            self.auto_new=0
+            if len(self.e_list) < 5:
+                a = Enemy_1()
+                self.e_list.append([a, False, 0])
+                self.coll_manager.add(a)
+                self.scene_3.schedule_interval(a.update_position, 1 / 80)
+                self.scene_3.schedule_interval(a.status_detect, 1 / 30)
+                scroller.add(a)
+                self.addable=False
         if self.add_e_count == 0:
             if keyboard[key.P]:
                 a = Enemy_1()
@@ -698,7 +713,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                     self.remove_all()
                     self.status = 4
                     self.change = True
-                    bullet_sound = pygame.mixer.Sound('D:/MyCode/MyPython/BUPT_TowerDefence/sound/bullet.wav')
+                    bullet_sound = pygame.mixer.Sound(address_2+'/sound/bullet.wav')
                     bullet_sound.play()
                 else:
                     self.change = False
@@ -875,7 +890,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.skin = skeleton.BitmapSkin(animation.test_skeleton.skeleton, animation.test_skin.skin)
         self.add(self.skin)
 
-        self.skin.position = 700, 60
+        self.skin.position = 2300, 60
         self.position = self.skin.position
         self.life = 100
 
@@ -926,7 +941,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         if self.life > 0:
             self.cshape.center = eu.Vector2(*self.skin.position)  # 优化其放置位置
             if self.beheat:
-                scream = pygame.mixer.Sound('D:/MyCode/MyPython/BUPT_TowerDefence/sound/beheat.wav')
+                scream = pygame.mixer.Sound(address_2+'/sound/beheat.wav')
                 scream.play()
                 self.remove_all()
                 self.beheat = False
