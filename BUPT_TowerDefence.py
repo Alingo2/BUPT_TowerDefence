@@ -38,8 +38,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -336,7 +336,7 @@ class Level_choose(cocos.menu.Menu):
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         # self.player_2 = Player_2()
-        self.e_list.append([Enemy_1(), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
+        self.e_list.append([Enemy_1(), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中） 第四个是block
         # self.enemy_1 = Enemy_1()
         self.enemy_1_dead = False
         self.add_e_count=0
@@ -373,8 +373,16 @@ class Level_choose(cocos.menu.Menu):
         # os.system("python D:/MyCode/MyPython/BUPT_TowerDefence/draw.py")
         global img_name
         img_name = draw.Draw()
+
         your_char = Your_char()
+        player_1 = Player_1() 
         self.scene_4 = cocos.scene.Scene(your_char)
+        global scroller
+        scroller = cocos.layer.ScrollingManager()
+        scroller.add(player_1)
+        self.scene_4.schedule_interval(player_1.status_detect, 1 / 30)
+        self.scene_4.schedule_interval(player_1.update_position, 1 / 80)
+        self.scene_4.add(scroller)
         director.replace(self.scene_4)
 
     def update(self, dt):
@@ -617,7 +625,6 @@ class Player_1(cocos.layer.ScrollableLayer):
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
         self.add(self.skin)
-        self.yinxiao=Effect(address_2 + r"/sound/bullet.mp3") #音效
         # self.width,self.height = 0,0        #可能有bug
         self.position = 100, 100
         self.skin.position = 100, 100

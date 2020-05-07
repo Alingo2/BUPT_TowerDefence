@@ -5,7 +5,7 @@ def nothing(x):
     pass
 #赋值命令
 drawing = False
-mode = True
+mode = False
 ix,iy = -1,-1
 
 # 创建回调函数
@@ -53,6 +53,10 @@ def Draw():
             pic_name = input("Enter your input: ")
             print("Received input is : ", pic_name)
             cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
+            file.write(pic_name + ".png")
+
             print("successfully saved")
             return(pic_name)
         elif k==27:
