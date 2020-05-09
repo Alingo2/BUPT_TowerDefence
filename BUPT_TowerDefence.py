@@ -2,6 +2,7 @@ import cocos
 import pyglet
 import math
 import pygame
+import time
 from cocos.actions import *
 from cocos.layer import Layer
 from cocos.particle_systems import *
@@ -38,8 +39,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -376,7 +377,7 @@ class Level_choose(cocos.menu.Menu):
 
         your_char = Your_char()
         player_1 = Player_1() 
-        self.scene_4 = cocos.scene.Scene(your_char)
+        self.scene_4 = cocos.scene.Scene()
         global scroller
         scroller = cocos.layer.ScrollingManager()
         scroller.add(player_1)
@@ -623,6 +624,8 @@ class Player_1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Player_1, self).__init__()
         # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
+
+        animation.model2_skin.refresh()
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
         self.add(self.skin)
         # self.width,self.height = 0,0        #可能有bug

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import cv2
 import numpy as np
+import time
 def nothing(x):
     pass
 #赋值命令
@@ -52,10 +53,15 @@ def Draw():
         elif k==ord('s'):
             pic_name = input("Enter your input: ")
             print("Received input is : ", pic_name)
-            cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
-            cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
+            cv2.imwrite(r"D:/CSHE/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            cv2.imencode('.png', img)[1].tofile(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            file = open("C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources//data.txt",'w')
+            #cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            #cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            #file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
             file.write(pic_name + ".png")
+            time.sleep(5)
+            file.close()
 
             print("successfully saved")
             return(pic_name)
