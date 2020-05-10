@@ -39,8 +39,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -246,16 +246,16 @@ class Game_menu_f(cocos.menu.Menu):
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
 
-class Your_char(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super().__init__()
-        global img_name
-        img = pyglet.image.load(address + "/" + img_name + ".png")
-        self.spr = cocos.sprite.Sprite(img)
-        self.spr.position = 450,450
-        self.spr.velocity = (0,0)
-        self.spr.do(Mover_2())
-        self.add(self.spr)
+# class Your_char(cocos.layer.ScrollableLayer):
+#     def __init__(self):
+#         super().__init__()
+#         global img_name
+#         img = pyglet.image.load(address + "/" + img_name + ".png")
+#         self.spr = cocos.sprite.Sprite(img)
+#         self.spr.position = 450,450
+#         self.spr.velocity = (0,0)
+#         self.spr.do(Mover_2())
+#         self.add(self.spr)
 
 
 class Drag(cocos.layer.Layer):
@@ -374,17 +374,7 @@ class Level_choose(cocos.menu.Menu):
         # os.system("python D:/MyCode/MyPython/BUPT_TowerDefence/draw.py")
         global img_name
         img_name = draw.Draw()
-
-        your_char = Your_char()
-        player_1 = Player_1() 
-        self.scene_4 = cocos.scene.Scene()
-        global scroller
-        scroller = cocos.layer.ScrollingManager()
-        scroller.add(player_1)
-        self.scene_4.schedule_interval(player_1.status_detect, 1 / 30)
-        self.scene_4.schedule_interval(player_1.update_position, 1 / 80)
-        self.scene_4.add(scroller)
-        director.replace(self.scene_4)
+        self.level_1_callback()
 
     def update(self, dt):
         # print(self.add_e_count)

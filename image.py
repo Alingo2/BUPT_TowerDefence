@@ -97,6 +97,8 @@ for i in range(min(I),max(I),3):
         if img_full[i][j]==1:
             img_full[i-1][j-1]=img_full[i-1][j]=img_full[i-1][j+1]=img_full[i][j-1]=img_full[i][j+1]=img_full[i+1][j-1]=img_full[i+1][j]=img_full[i+1][j+1]=1
 
+
+
 skeleton =morphology.skeletonize(img_full)
 guanjies=[]
 img_skeleton=np.zeros((rows,cols))

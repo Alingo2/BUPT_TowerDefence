@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import time
+from PIL import Image
 def nothing(x):
     pass
 #赋值命令
@@ -36,7 +37,8 @@ def draw_circle(event,x,y,flags,param):
         # cv2.rectangle(img,(ix,iy),(x,y),(0,255,0),-1)
         # else:
         # cv2.circle(img,(x,y),5,(0,0,255),-1)
-img = np.zeros((512,512,3),np.uint8)
+img = np.ones((512,512,3),np.uint8)
+img = img*255
 
 def Draw():
     cv2.namedWindow('image')
@@ -53,15 +55,24 @@ def Draw():
         elif k==ord('s'):
             pic_name = input("Enter your input: ")
             print("Received input is : ", pic_name)
-            cv2.imwrite(r"D:/CSHE/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
-            cv2.imencode('.png', img)[1].tofile(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            file = open("C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources//data.txt",'w')
-            #cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
-            #cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            #file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
+            # cv2.imwrite(r"D:/CSHE/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            # cv2.imencode('.png', img)[1].tofile(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            # file = open("C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources//data.txt",'w')
+            cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
             file.write(pic_name + ".png")
-            time.sleep(5)
             file.close()
+
+            img2 = Image.open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            img2 = img2.convert('RGBA')
+            pixdata = img2.load()
+            for y in range(img2.size[1]):
+                for x in range(img2.size[0]):
+                    if pixdata[x,y][0]==255 and pixdata[x,y][1]==255 and pixdata[x,y][2]==255:
+                        pixdata[x, y] = (255, 255, 255,0)
+            # img2.show()
+            img2.save(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
 
             print("successfully saved")
             return(pic_name)
