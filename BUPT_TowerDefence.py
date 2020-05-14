@@ -332,7 +332,12 @@ class Level_choose(cocos.menu.Menu):
         global scroller
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
+
         self.skill = [[True,0],[True,0]]
+        global speed_1
+        speed_1 = 1
+        self.player_damage = 5
+
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
@@ -376,14 +381,18 @@ class Level_choose(cocos.menu.Menu):
         self.level_1_callback()
 
     def update(self, dt):
+        global speed_1
         if(self.skill[0][0]):
             if(keyboard[key._1]):
                 self.skill_1.color = (125,125,125)
                 self.skill[0][0] = False
                 self.skill[0][1] = 0
+                self.player_damage = 50
         else:
-            if (self.skill[0][1] <= 150):
+            if (self.skill[0][1] <= 200):
                 self.skill[0][1] += 1
+                if(self.skill[0][1] == 100):
+                    self.player_damage = 5
             else:
                 self.skill_1.color = (255,255,255)
                 self.skill[0][0] = True
@@ -392,8 +401,11 @@ class Level_choose(cocos.menu.Menu):
                 self.skill_2.color = (125,125,125)
                 self.skill[1][0] = False
                 self.skill[1][1] = 0
+                speed_1 = 2.5
         else:
-            if (self.skill[1][1] <= 150):
+            if (self.skill[1][1] <= 200):
+                if (self.skill[1][1] == 100):
+                    speed_1 = 1
                 self.skill[1][1] += 1
             else:
                 self.skill_2.color = (255,255,255)
@@ -439,7 +451,7 @@ class Level_choose(cocos.menu.Menu):
                     self.m_layer.enemy_base.dead = True
 
                 else:
-                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - 5
+                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - self.player_damage
 
         for enemy in self.e_list:
             if not enemy[1]:
@@ -476,7 +488,7 @@ class Level_choose(cocos.menu.Menu):
                             self.scene_3.unschedule(enemy[0].status_detect)
                             self.e_list.remove(enemy)
                         else:
-                            enemy[0].life = enemy[0].life - 5
+                            enemy[0].life = enemy[0].life - self.player_damage
                             enemy[0].beheat = True
             else:
                 block_1_R = False
@@ -548,7 +560,8 @@ class Mover_1(cocos.actions.BoundedMove):
     def step(self, dt):  # add block
         if not block_1:
             super().step(dt)
-            vel_x = (keyboard[key.D] - keyboard[key.A]) * 400
+            global speed_1
+            vel_x = (keyboard[key.D] - keyboard[key.A]) * 400 * speed_1
             if block_1_R and vel_x > 0:
                 vel_x = 0
             vel_y = 0
