@@ -1,6 +1,6 @@
 from __future__ import division, print_function, unicode_literals
-#with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
-with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
+with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
+# with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
     weapen = f.read()
 print(weapen)
 skin = [
@@ -16,8 +16,8 @@ skin = [
   ]
 
 def refresh():
-    with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt","r") as f:  # 打开文件
-    #with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
+    # with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt","r") as f:  # 打开文件
+    with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
         weapen = f.read()
         print(weapen)
         global  skin
@@ -30,7 +30,7 @@ def refresh():
             ('cabeza', (31, 44), 'gil-peluca.png', True, True, 0.5),
             ('torso', (25, 91), 'gil-cuerpo.png', True, True, 0.5),
             ('cabeza', (16, 18), 'gil-cara.png', True, True, 0.5),
-            ('antebrazo der', (33, 5), 'pistal1.png', False, False, 0.4),
+            ('antebrazo der', (33, 5), weapen, False, False, 0.4),
             ('brazo der', (8, 50), 'gil-mano1.png', False, False, 0.5),
             ('muslo der', (10, 70), 'gil-bota1.png', False, False, 0.5),
             # ('pierna der', (15, 67), 'gil-bota1.png', False, False, 0.5),

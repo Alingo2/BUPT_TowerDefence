@@ -40,8 +40,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -191,6 +191,7 @@ class Game_menu(cocos.menu.Menu):
         items.append(cocos.menu.ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS))
         items.append(cocos.menu.ImageMenuItem('img/quit.png', self.on_quit))
 
+
         items[0].position = 250, -390
         items[1].position = -400, 300
         items[2].position = 350, -300
@@ -246,17 +247,6 @@ class Game_menu_f(cocos.menu.Menu):
 
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
-
-# class Your_char(cocos.layer.ScrollableLayer):
-#     def __init__(self):
-#         super().__init__()
-#         global img_name
-#         img = pyglet.image.load(address + "/" + img_name + ".png")
-#         self.spr = cocos.sprite.Sprite(img)
-#         self.spr.position = 450,450
-#         self.spr.velocity = (0,0)
-#         self.spr.do(Mover_2())
-#         self.add(self.spr)
 
 
 class Drag(cocos.layer.Layer):
@@ -322,7 +312,15 @@ class Level_choose(cocos.menu.Menu):
         print("第一关")
         # 这次创建的窗口带调整大小的功能
         self.game_menu = Game_menu()
-        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu)
+
+        img = pyglet.image.load(address + "\skill_1.png")
+        self.skill_1 = cocos.sprite.Sprite(img)
+        self.skill_1.position = (100,620)
+        img = pyglet.image.load(address + "\skill_2.png")
+        self.skill_2 = cocos.sprite.Sprite(img)
+        self.skill_2.position = (220,620)
+
+        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2)
 
         global block_1, block_1_R, block_2, block_3
         block_1 = False
@@ -334,6 +332,7 @@ class Level_choose(cocos.menu.Menu):
         global scroller
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
+        self.skill = [[True,0],[True,0]]
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
@@ -372,13 +371,34 @@ class Level_choose(cocos.menu.Menu):
 
     def level_2_callback(self):
         print("第二关  画自己的角色")
-        # os.system("python D:/MyCode/MyPython/BUPT_TowerDefence/draw.py")
         global img_name
         img_name = draw.Draw()
         self.level_1_callback()
 
     def update(self, dt):
-        # print(self.add_e_count)
+        if(self.skill[0][0]):
+            if(keyboard[key._1]):
+                self.skill_1.color = (125,125,125)
+                self.skill[0][0] = False
+                self.skill[0][1] = 0
+        else:
+            if (self.skill[0][1] <= 150):
+                self.skill[0][1] += 1
+            else:
+                self.skill_1.color = (255,255,255)
+                self.skill[0][0] = True
+        if(self.skill[1][0]):
+            if(keyboard[key._2]):
+                self.skill_2.color = (125,125,125)
+                self.skill[1][0] = False
+                self.skill[1][1] = 0
+        else:
+            if (self.skill[1][1] <= 150):
+                self.skill[1][1] += 1
+            else:
+                self.skill_2.color = (255,255,255)
+                self.skill[1][0] = True
+
         global scroller
         if self.addable==False:
             self.auto_new+=1
@@ -469,9 +489,6 @@ class Level_choose(cocos.menu.Menu):
             scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), self.game_menu)
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
             
-            # self.m_layer.remove(self.m_layer.enemy_base)
-            #self.coll_manager.remove_tricky(self.m_layer.enemy_base)
-            #self.scene_3.unschedule(self.m_layer.enemy_base.update_position)
 
 
 class P_move(Driver):

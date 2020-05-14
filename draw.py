@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import time
 from PIL import Image
+address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
+# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
 def nothing(x):
     pass
 #赋值命令
@@ -55,27 +57,20 @@ def Draw():
         elif k==ord('s'):
             pic_name = input("Enter your input: ")
             print("Received input is : ", pic_name)
-            cv2.imwrite(r"D:/CSHE/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
-            cv2.imencode('.png', img)[1].tofile(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            file = open("C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources//data.txt",'w')
-            #cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
-            #cv2.imencode('.png', img)[1].tofile(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            #file = open("D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt",'w')
+            # cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
+            cv2.imencode('.png', img)[1].tofile(address+ pic_name + ".png")
+            file = open(address+"data.txt",'w')
             file.write(pic_name + ".png")
             file.close()
 
-            #img2 = Image.open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-            #img2 = img2.convert('RGBA')
-            img2 = Image.open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
+            img2 = Image.open(address+ pic_name + ".png")
             img2 = img2.convert('RGBA')
             pixdata = img2.load()
             for y in range(img2.size[1]):
                 for x in range(img2.size[0]):
                     if pixdata[x,y][0]==255 and pixdata[x,y][1]==255 and pixdata[x,y][2]==255:
                         pixdata[x, y] = (255, 255, 255,0)
-            # img2.show()
-            img2.save(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"+ pic_name + ".png")
-
+            img2.save(address+ pic_name + ".png")
             print("successfully saved")
             return(pic_name)
         elif k==27:
