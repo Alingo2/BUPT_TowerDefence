@@ -15,7 +15,7 @@ def cul(m,q):
     y=[]
     y1=[]
     p1=10
-    p2=5000
+    p2=250
     s=50
     for i in range (0,m+1):
         x.append(i)

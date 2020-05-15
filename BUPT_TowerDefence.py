@@ -27,6 +27,8 @@ import root_bone
 import root_skin
 import animation
 import animation.my_walk_skeleton
+import animation.myE_skeleton
+import animation.myE_skin
 import animation.turn_my_walk_skeleton
 import animation.turn_my_walk_skin
 import animation.my_walk_skin
@@ -40,8 +42,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -400,6 +402,7 @@ class Level_choose(cocos.menu.Menu):
                 self.skill[1][0] = True
 
         global scroller
+        scroller.add(Teammate())
         if self.addable==False:
             self.auto_new+=1
         if self.auto_new>=400:
@@ -582,6 +585,16 @@ class Mover_3(cocos.actions.BoundedMove):
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
 
+class Mover_4(cocos.actions.BoundedMove):
+    def __init__(self):
+        super().__init__(5000, 1430)  # it should be bigger than the size of the picture
+
+    def step(self, dt):  # add block
+        if not block_3:
+            super().step(dt)
+            vel_x = 100
+            vel_y = 0
+            self.target.velocity = (vel_x, vel_y)
 
 class Sprite1(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -901,6 +914,23 @@ class Player_2(cocos.layer.ScrollableLayer):
                     block_2 = self.block
             self.change = False
 
+class Teammate(cocos.layer.ScrollableLayer):
+    def __init__(self):
+        super(Teammate,self).__init__()
+        self.skin=skeleton.BitmapSkin(animation.myE_skeleton.skeleton, animation.myE_skin.skin)
+        self.add(self.skin)
+        self.skin.position=50,60
+        self.position=self.skin.position
+        self.life=100
+        img=pyglet.image.load(address + "\dot.png")
+        self.spr=cocos.sprite.Sprite(img, opacity=0)  # hide the dot
+        self.spr.position=self.skin.position
+        self.spr.velocity=(0,0)
+        self.spr.do(Mover_4())
+        self.life_bar=Life_bar()
+        fp_0=open((address_2 + "/animation/q.anim"), "rb+")
+        self.walk = cPickle.load(fp_0)
+        self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
 
 class Enemy_1(cocos.layer.ScrollableLayer):
     def __init__(self):

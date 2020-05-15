@@ -6,7 +6,7 @@ skin = [
     ('torso', (25, 91), 'turn_t_body.png', True, True, 0.5),
     #('pierna izq', (10, 75), 'gil-bota2.png', False, False, 0.5),
     ('armor', (0, 0), 'turn_suit_2.png', False, False, 0.74),
-    ('cabeza', (31, 44), 'turn_t_head.png', True, True, 0.5),
+    ('cabeza', (23, 50), 'turn_t_head.png', True, True, 0.5),
     ('helmet', (0, 0), 'turn_helmet_2.png', False, False, 0.65),
     ('antebrazo der', (33, 5), 'turn_t_sword.png', False, False, 0.4),
 
