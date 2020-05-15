@@ -25,11 +25,12 @@ from cocos.audio.effect import Effect
 import draw
 import root_bone
 import root_skin
-import animation
 import animation.my_walk_skeleton
 import animation.myE_skeleton
 import animation.myE_skin
 import animation.turn_my_walk_skeleton
+import animation.myE_skin
+import animation.myE_skeleton
 import animation.turn_my_walk_skin
 import animation.my_walk_skin
 import animation.model1_skeleton
@@ -334,7 +335,12 @@ class Level_choose(cocos.menu.Menu):
         global scroller
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
+
         self.skill = [[True,0],[True,0]]
+        global speed_1
+        speed_1 = 1
+        self.player_damage = 5
+
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
@@ -378,14 +384,18 @@ class Level_choose(cocos.menu.Menu):
         self.level_1_callback()
 
     def update(self, dt):
+        global speed_1
         if(self.skill[0][0]):
             if(keyboard[key._1]):
                 self.skill_1.color = (125,125,125)
                 self.skill[0][0] = False
                 self.skill[0][1] = 0
+                self.player_damage = 50
         else:
-            if (self.skill[0][1] <= 150):
+            if (self.skill[0][1] <= 200):
                 self.skill[0][1] += 1
+                if(self.skill[0][1] == 100):
+                    self.player_damage = 5
             else:
                 self.skill_1.color = (255,255,255)
                 self.skill[0][0] = True
@@ -394,8 +404,11 @@ class Level_choose(cocos.menu.Menu):
                 self.skill_2.color = (125,125,125)
                 self.skill[1][0] = False
                 self.skill[1][1] = 0
+                speed_1 = 2.5
         else:
-            if (self.skill[1][1] <= 150):
+            if (self.skill[1][1] <= 200):
+                if (self.skill[1][1] == 100):
+                    speed_1 = 1
                 self.skill[1][1] += 1
             else:
                 self.skill_2.color = (255,255,255)
@@ -442,7 +455,7 @@ class Level_choose(cocos.menu.Menu):
                     self.m_layer.enemy_base.dead = True
 
                 else:
-                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - 5
+                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - self.player_damage
 
         for enemy in self.e_list:
             if not enemy[1]:
@@ -479,7 +492,7 @@ class Level_choose(cocos.menu.Menu):
                             self.scene_3.unschedule(enemy[0].status_detect)
                             self.e_list.remove(enemy)
                         else:
-                            enemy[0].life = enemy[0].life - 5
+                            enemy[0].life = enemy[0].life - self.player_damage
                             enemy[0].beheat = True
             else:
                 block_1_R = False
@@ -551,7 +564,8 @@ class Mover_1(cocos.actions.BoundedMove):
     def step(self, dt):  # add block
         if not block_1:
             super().step(dt)
-            vel_x = (keyboard[key.D] - keyboard[key.A]) * 400
+            global speed_1
+            vel_x = (keyboard[key.D] - keyboard[key.A]) * 400 * speed_1
             if block_1_R and vel_x > 0:
                 vel_x = 0
             vel_y = 0
@@ -936,6 +950,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Enemy_1, self).__init__()
         self.skin = skeleton.BitmapSkin(animation.test_skeleton.skeleton, animation.test_skin.skin)
+        # self.skin = skeleton.BitmapSkin(animation.myE_skeleton.skeleton, animation.myE_skin.skin)
         self.add(self.skin)
 
         self.skin.position = 2300, 60
@@ -964,6 +979,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)  # 136不够
 
         fp_1 = open((address_2 + "/animation/2t.anim"), "rb+")
+        # fp_1 = open((address_2 + "/animation/q.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
 
         fp_2 = open((address_2 + "/animation/E_attack.anim"), "rb+")
@@ -1078,9 +1094,9 @@ if __name__ == '__main__':
     people_layer = PeopleLayer()
     spr1_layer = Sprite1()
     scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
-    scene_1.add(mr_cai, 1)
-    scene_1.add(people_layer, 1)
-    scene_1.add(spr1_layer, 1)
+    # scene_1.add(mr_cai, 1)
+    # scene_1.add(people_layer, 1)
+    # scene_1.add(spr1_layer, 1)
     scene_1_menu = Main_menu()
     scene_1.add(scene_1_menu)  # 4.把按钮加入到scene
     director.run(scene_1)  # 5.启动场景

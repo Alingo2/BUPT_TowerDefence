@@ -44,9 +44,9 @@ img = img*255
 
 def Draw():
     cv2.namedWindow('image')
-    cv2.createTrackbar('R', 'image', 0, 255, nothing)
-    cv2.createTrackbar('G', 'image', 0, 255, nothing)
-    cv2.createTrackbar('B', 'image', 0, 255, nothing)
+    # cv2.createTrackbar('R', 'image', 0, 255, nothing)
+    # cv2.createTrackbar('G', 'image', 0, 255, nothing)
+    # cv2.createTrackbar('B', 'image', 0, 255, nothing)
     cv2.setMouseCallback('image', draw_circle)
     global ix,iy,drawing,mode
     while(1):
