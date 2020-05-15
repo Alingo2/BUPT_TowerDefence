@@ -25,9 +25,10 @@ from cocos.audio.effect import Effect
 import draw
 import root_bone
 import root_skin
-import animation
 import animation.my_walk_skeleton
 import animation.turn_my_walk_skeleton
+import animation.myE_skin
+import animation.myE_skeleton
 import animation.turn_my_walk_skin
 import animation.my_walk_skin
 import animation.model1_skeleton
@@ -919,6 +920,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Enemy_1, self).__init__()
         self.skin = skeleton.BitmapSkin(animation.test_skeleton.skeleton, animation.test_skin.skin)
+        # self.skin = skeleton.BitmapSkin(animation.myE_skeleton.skeleton, animation.myE_skin.skin)
         self.add(self.skin)
 
         self.skin.position = 2300, 60
@@ -947,6 +949,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)  # 136不够
 
         fp_1 = open((address_2 + "/animation/2t.anim"), "rb+")
+        # fp_1 = open((address_2 + "/animation/q.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
 
         fp_2 = open((address_2 + "/animation/E_attack.anim"), "rb+")
@@ -1061,9 +1064,9 @@ if __name__ == '__main__':
     people_layer = PeopleLayer()
     spr1_layer = Sprite1()
     scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
-    scene_1.add(mr_cai, 1)
-    scene_1.add(people_layer, 1)
-    scene_1.add(spr1_layer, 1)
+    # scene_1.add(mr_cai, 1)
+    # scene_1.add(people_layer, 1)
+    # scene_1.add(spr1_layer, 1)
     scene_1_menu = Main_menu()
     scene_1.add(scene_1_menu)  # 4.把按钮加入到scene
     director.run(scene_1)  # 5.启动场景
