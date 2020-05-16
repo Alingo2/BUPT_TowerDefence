@@ -1,5 +1,4 @@
 import cocos
-import cocos
 import pyglet
 import math
 import pygame
@@ -21,7 +20,6 @@ from cocos.collision_model import *
 from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
 from cocos.audio.pygame import mixer, music
-from cocos.audio.effect import Effect
 import draw
 import root_bone
 import root_skin
@@ -597,7 +595,7 @@ class Mover_3(cocos.actions.BoundedMove):
             self.target.velocity = (vel_x, vel_y)
 
 
-class Sprite1(cocos.layer.ScrollableLayer):
+class Spirite1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
 
@@ -1062,7 +1060,7 @@ if __name__ == '__main__':
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
     mr_cai = Mr_cai()
     people_layer = PeopleLayer()
-    spr1_layer = Sprite1()
+    spr1_layer = Spirite1()
     scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
     # scene_1.add(mr_cai, 1)
     # scene_1.add(people_layer, 1)
