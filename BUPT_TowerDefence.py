@@ -41,8 +41,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -338,24 +338,26 @@ class Level_choose(cocos.menu.Menu):
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
-        self.teammate = Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim")
+        self.te_list=[]
+        self.te_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim"))
         # self.player_2 = Player_2()
         self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim"), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中） 第四个是block
         self.enemy_1_dead = False
         self.add_e_count=0
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
-
+        self.coll_manager.add(self.te_list[0])
         # self.coll_manager.add(self.player_2)
         self.coll_manager.add(self.e_list[0][0])
         self.coll_manager.add(self.player_1.bullet)
         self.coll_manager.add(self.m_layer.enemy_base)
 
+
         scroller.add(self.m_layer)
         # scroller.add(self.player_2)
         scroller.add(self.e_list[0][0])
         scroller.add(self.player_1)
-        scroller.add(self.teammate)
+        scroller.add(self.te_list[0])
 
         self.scene_3.schedule_interval(self.player_1.status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
@@ -365,8 +367,8 @@ class Level_choose(cocos.menu.Menu):
         if not self.e_list[0][1]:
             self.scene_3.schedule_interval(self.e_list[0][0].update_position, 1 / 80)
             self.scene_3.schedule_interval(self.e_list[0][0].status_detect, 1 / 30)
-        self.scene_3.schedule_interval(self.teammate.update_position, 1 / 80)
-        self.scene_3.schedule_interval(self.teammate.status_detect, 1 / 30)
+        self.scene_3.schedule_interval(self.te_list[0].update_position, 1 / 80)
+        self.scene_3.schedule_interval(self.te_list[0].status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.update, 1 / 80)
 
         self.scene_3.add(scroller, 0)
@@ -410,8 +412,21 @@ class Level_choose(cocos.menu.Menu):
                 self.skill_2.color = (255,255,255)
                 self.skill[1][0] = True
 
-    def update(self, dt):
-        self.skill_detect()
+    def ebase_detect(self):
+        if self.eb_count != 0:
+            self.eb_count += 1
+        if self.eb_count >= 7:
+            self.eb_count = 0
+        if self.coll_manager.they_collide(self.player_1.bullet, self.m_layer.enemy_base):
+            if self.eb_count == 0:
+                self.eb_count += 1
+                self.player_1.refresh()
+                if self.m_layer.enemy_base.life <= 10:
+                    self.m_layer.enemy_base.life = 0
+                    self.m_layer.enemy_base.dead = True
+                else:
+                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - self.player_damage
+    def add_enemy(self):
         if self.addable==False:
             self.auto_new+=1
         if self.auto_new>=400:
@@ -438,20 +453,8 @@ class Level_choose(cocos.menu.Menu):
             self.add_e_count += 1
             if self.add_e_count>40:
                 self.add_e_count=0
-        if self.eb_count != 0:
-            self.eb_count += 1
-        if self.eb_count >= 7:
-            self.eb_count = 0
-        if self.coll_manager.they_collide(self.player_1.bullet, self.m_layer.enemy_base):
-            if self.eb_count == 0:
-                self.eb_count += 1
-                self.player_1.refresh()
-                if self.m_layer.enemy_base.life <= 10:
-                    self.m_layer.enemy_base.life = 0
-                    self.m_layer.enemy_base.dead = True
-                else:
-                    self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - self.player_damage
 
+    def enemy_detect(self):
         for enemy in self.e_list:
             if not enemy[1]:
                 if self.coll_manager.they_collide(self.player_1, enemy[0]):
@@ -467,6 +470,25 @@ class Level_choose(cocos.menu.Menu):
                             self.player_1.beheat = True
                     else:
                         block_1 = False
+                for teammate in self.te_list:
+                    if self.coll_manager.they_collide(teammate, enemy[0]):
+                        block_1_R = True
+                        enemy[0].auto_attack = True
+                        if enemy[0].near_attack:
+                            block_1 = True
+                            if teammate.life < 2:
+                                teammate.life = 0
+                                scroller.remove(teammate)
+                                # self.coll_manager.remove_tricky(enemy[0])  #加了 好像也remove不掉 还无法切场景
+                                self.scene_3.unschedule(teammate.update_position)
+                                self.scene_3.unschedule(teammate.status_detect)
+                                self.te_list.remove(teammate)
+                            else:
+                                teammate.life -= 1
+                                teammate.beheat = True
+                        else:
+                            block_1 = False
+
                 else:
                     block_1_R = False
                     block_1 = False
@@ -492,6 +514,12 @@ class Level_choose(cocos.menu.Menu):
             else:
                 block_1_R = False
                 block_1 = False
+    def update(self, dt):
+        self.skill_detect()
+        self.add_enemy()
+        self.ebase_detect()
+        self.enemy_detect()
+
         
         if self.m_layer.enemy_base.dead:
             self.m_layer.enemy_base.dead = False
