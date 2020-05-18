@@ -1,6 +1,7 @@
 from __future__ import division, print_function, unicode_literals
-#with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
-with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
+address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
+# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+with open(address+"data.txt", "r") as f:  # 打开文件
     weapen = f.read()
 print(weapen)
 skin = [
@@ -16,8 +17,7 @@ skin = [
   ]
 
 def refresh():
-    with open(r"C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/data.txt","r") as f:  # 打开文件
-    #with open(r"D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/data.txt", "r") as f:  # 打开文件
+    with open(address+"data.txt", "r") as f:  # 打开文件
         weapen = f.read()
         print(weapen)
         global  skin
