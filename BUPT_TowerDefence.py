@@ -3,6 +3,7 @@ import pyglet
 import math
 import pygame
 import time
+import threading
 from cocos.actions import *
 from cocos.layer import Layer
 from cocos.particle_systems import *
@@ -41,8 +42,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -319,13 +320,8 @@ class Level_choose(cocos.menu.Menu):
 
         self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2)
 
-        global block_1, block_1_R, block_2, block_3
-        block_1 = False
-        block_1_R = False
-        block_2 = False
         self.addable = False
         self.auto_new = 0
-        block_3 = False
         global scroller
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
@@ -338,15 +334,15 @@ class Level_choose(cocos.menu.Menu):
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
-        self.te_list=[]
-        self.te_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim"))
+        self.t_list=[]
+        self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim"))
         # self.player_2 = Player_2()
-        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim"), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中） 第四个是block
+        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim"), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
         self.enemy_1_dead = False
         self.add_e_count=0
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
-        self.coll_manager.add(self.te_list[0])
+        self.coll_manager.add(self.t_list[0])
         # self.coll_manager.add(self.player_2)
         self.coll_manager.add(self.e_list[0][0])
         self.coll_manager.add(self.player_1.bullet)
@@ -357,7 +353,7 @@ class Level_choose(cocos.menu.Menu):
         # scroller.add(self.player_2)
         scroller.add(self.e_list[0][0])
         scroller.add(self.player_1)
-        scroller.add(self.te_list[0])
+        scroller.add(self.t_list[0])
 
         self.scene_3.schedule_interval(self.player_1.status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
@@ -367,8 +363,8 @@ class Level_choose(cocos.menu.Menu):
         if not self.e_list[0][1]:
             self.scene_3.schedule_interval(self.e_list[0][0].update_position, 1 / 80)
             self.scene_3.schedule_interval(self.e_list[0][0].status_detect, 1 / 30)
-        self.scene_3.schedule_interval(self.te_list[0].update_position, 1 / 80)
-        self.scene_3.schedule_interval(self.te_list[0].status_detect, 1 / 30)
+        self.scene_3.schedule_interval(self.t_list[0].update_position, 1 / 80)
+        self.scene_3.schedule_interval(self.t_list[0].status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.update, 1 / 80)
 
         self.scene_3.add(scroller, 0)
@@ -426,6 +422,7 @@ class Level_choose(cocos.menu.Menu):
                     self.m_layer.enemy_base.dead = True
                 else:
                     self.m_layer.enemy_base.life = self.m_layer.enemy_base.life - self.player_damage
+
     def add_enemy(self):
         if self.addable==False:
             self.auto_new+=1
@@ -456,42 +453,42 @@ class Level_choose(cocos.menu.Menu):
 
     def enemy_detect(self):
         for enemy in self.e_list:
-            if not enemy[1]:
-                if self.coll_manager.they_collide(self.player_1, enemy[0]):
-                    global block_1, block_1_R
-                    block_1_R = True
-                    enemy[0].auto_attack = True
-                    if enemy[0].near_attack:
-                        block_1 = True
+            if not enemy[1]:           #没死的话
+                if self.coll_manager.they_collide(self.player_1, enemy[0]):     #主角和enemy检测
+                    self.player_1.mover.block_R = True
+                    if enemy[0].status == 1:
+                        enemy[0].Attack = True
+                    if enemy[0].status == 5:
+                        self.player_1.mover.block = True
                         if self.player_1.life < 2:
                             self.player_1.life = 0
                         else:
                             self.player_1.life -= 1
                             self.player_1.beheat = True
                     else:
-                        block_1 = False
-                for teammate in self.te_list:
+                        self.player_1.mover.block = False
+                else:
+                    self.player_1.mover.block_R = False
+                    self.player_1.mover.block = False
+
+                for teammate in self.t_list:                                #主角和小弟检测
                     if self.coll_manager.they_collide(teammate, enemy[0]):
-                        block_1_R = True
-                        enemy[0].auto_attack = True
-                        if enemy[0].near_attack:
-                            block_1 = True
+                        teammate.mover.block_R = True
+                        if enemy[0].status == 1:
+                            enemy[0].Attack = True
+                        if enemy[0].status == 5:
+                            teammate.mover.block = True
                             if teammate.life < 2:
                                 teammate.life = 0
                                 scroller.remove(teammate)
-                                # self.coll_manager.remove_tricky(enemy[0])  #加了 好像也remove不掉 还无法切场景
                                 self.scene_3.unschedule(teammate.update_position)
                                 self.scene_3.unschedule(teammate.status_detect)
-                                self.te_list.remove(teammate)
+                                self.t_list.remove(teammate)
                             else:
                                 teammate.life -= 1
                                 teammate.beheat = True
                         else:
-                            block_1 = False
-
-                else:
-                    block_1_R = False
-                    block_1 = False
+                            teammate.mover.block = False
                 if enemy[2] != 0:
                     enemy[2] += 1
                 if enemy[2] >= 7:
@@ -512,8 +509,9 @@ class Level_choose(cocos.menu.Menu):
                             enemy[0].life = enemy[0].life - self.player_damage
                             enemy[0].beheat = True
             else:
-                block_1_R = False
-                block_1 = False
+                self.player_1.mover.block_R = False
+                self.player_1.mover.block = False
+
     def update(self, dt):
         self.skill_detect()
         self.add_enemy()
@@ -576,13 +574,15 @@ class draw_rec(cocos.layer.util_layers.ColorLayer):
 class Mover_1(cocos.actions.BoundedMove):
     def __init__(self):
         super().__init__(2300, 1430)  # it should be bigger than the size of the picture
+        self.block = False
+        self.block_R = False
 
     def step(self, dt):  # add block
-        if not block_1:
+        if not self.block:
             super().step(dt)
             global speed_1
             vel_x = (keyboard[key.D] - keyboard[key.A]) * 400 * speed_1
-            if block_1_R and vel_x > 0:
+            if self.block_R and vel_x > 0:
                 vel_x = 0
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
@@ -593,7 +593,7 @@ class Mover_1(cocos.actions.BoundedMove):
 class Mover_2(cocos.actions.BoundedMove):
     def __init__(self):
         super().__init__(2300, 1430)  # it should be bigger than the size of the picture
-
+    
     def step(self, dt):  # add block
         if not block_2:
             super().step(dt)
@@ -607,9 +607,13 @@ class Mover_2(cocos.actions.BoundedMove):
 class Mover_3(cocos.actions.BoundedMove):
     def __init__(self):
         super().__init__(2300, 1430)  # it should be bigger than the size of the picture
-
+        self.block = False
+    def Block(self):
+        self.block = True
+    def release(self):
+        self.block = False
     def step(self, dt):  # add block
-        if not block_3:
+        if not self.block:
             super().step(dt)
             vel_x = -100
             vel_y = 0
@@ -617,7 +621,7 @@ class Mover_3(cocos.actions.BoundedMove):
 
 class Mover_4(Mover_3):
     def step(self, dt):  # add block
-        if not block_4:
+        if not self.block:
             super().step(dt)
             vel_x = 100
             vel_y = 0
@@ -685,18 +689,17 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.spr = cocos.sprite.Sprite(img, opacity=0)
         self.spr.position = 100, 100
         self.spr.velocity = (0, 0)
-        self.spr.do(Mover_1())
+        self.mover = Mover_1()
+        self.spr.do(self.mover)
         self.add(self.spr)
         self.life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
         self.add(self.life_bar)
 
-        self.status = 3  # 1:walk left 2:walk right 3:stop 4:attack
+        self.status = 1  # 1:stop 2:walk 3:保持态 4:attack
         self.change = False
-        self.block = False  # True means the character is having a continuous movement
+        self.bullet_move = False
         self.count = 0
         self.beheat = False
-
-        global block_1
 
         fp_1 = open((address_2 + "/animation/MOOOOVE1.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
@@ -726,7 +729,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.skin.remove_action(self.skin.actions[0])
 
     def update_position(self, dt):
-        if not block_1:
+        if not self.mover.block:
             self.skin.position = self.spr.position  # !!!!!!! self.position = -(self.skin.position-600)
             x, y = self.skin.position
             self.life_bar.position = (x, y + 160)
@@ -736,87 +739,63 @@ class Player_1(cocos.layer.ScrollableLayer):
 
     def fire(self):  # 有个bug
         self.bullet = cocos.sprite.Sprite("img/bullet.png")
-        # x,y = self.skin.position
         self.bullet.position = -100, -100  # 初始在屏幕外
-
         self.add(self.bullet)
-    def __del__(self):
-        return
 
     def refresh(self):
-        global block_1
         self.count = 0
         self.bullet.position = -100,-100
-        self.block = False
-        block_1 = self.block
+        self.mover.block = False
+        self.bullet_move = False
+
+    def recover(self):
+        self.status = 1
+        self.remove_all()
+        self.mover.block = False
 
     def status_detect(self, dt):
         self.bullet.cshape.center = self.bullet.position
-        if self.block:
+        if self.bullet_move:
             if self.count <= 4:
                 self.count += 1
                 x, y = self.bullet.position
                 self.bullet.position = x + 40, y
             else:
-                global block_1
                 self.refresh()
-        else:
+        elif self.status == 1:
             if (keyboard[key.J]):
-                if self.status != 4:
-                    self.remove_all()
-                    self.status = 4
-                    self.change = True
-                    bullet_sound = pygame.mixer.Sound(address_2+'/sound/bullet.wav')
-                    bullet_sound.play()
-                else:
-                    self.change = False
-                    x, y = self.skin.position
-                    self.bullet.position = x + 110, y + 70
-                    self.block = True
-                    block_1 = self.block
-            elif (keyboard[key.D] and not block_1_R):  # key right and not attack
-                if self.status != 2 and self.status != 1:
-                    self.remove_all()
-                    self.status = 2
-                    self.change = True
-                else:
-                    self.change = False
-            elif (keyboard[key.A]):  # key right and not attack
-                if self.status != 1:
-                    self.remove_all()
-                    self.status = 1
-                    self.change = True
-                else:
-                    self.change = False
-            elif self.beheat:
                 self.remove_all()
-                self.status = 3
-                self.beheat = False
-                self.block = True
-                global block_3
-                block_3 = self.block
-                self.skin.do(skeleton.Animate(self.frozen))
-            else:
+                self.status = 4
+                self.mover.block = True
+                self.skin.do(skeleton.Animate(self.attack))
+                timer = threading.Timer(0.2, self.recover)
+                timer.start()
+                bullet_sound = pygame.mixer.Sound(address_2+'/sound/bullet.wav')
+                bullet_sound.set_volume(0.5)
+                bullet_sound.play()
+                x, y = self.skin.position
+                self.bullet.position = x + 110, y + 70
+                self.bullet_move = True
+            elif (keyboard[key.D] and not self.mover.block_R):  # key right and not attack  得改成状态保持
                 self.remove_all()
-                if self.status != 3:
-                    self.status = 3
-                    self.change = True
-                else:
-                    self.change = False
-        if self.change:
-            if self.status == 1:
+                self.status = 2
                 self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-            else:
-                if self.status == 2:
-                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-                elif self.status == 4:
-                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))  # there is a bug:return attack
-                    x, y = self.skin.position
-                    self.bullet.position = x + 110, y + 70  # 并没有重复
-                    # self.fire()
-                    self.block = True
-                    block_1 = self.block
-            self.change = False
+            elif (keyboard[key.A]):  # key right and not attack
+                self.remove_all()
+                self.status = 2
+                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
+        if(self.status == 2 and not(keyboard[key.D] or keyboard[key.A])):
+                self.remove_all()
+                self.status = 1
+        if self.beheat:
+            self.remove_all()
+            self.status = 3
+            self.beheat = False
+            self.mover.block = True
+            self.skin.do(skeleton.Animate(self.frozen))
+            timer = threading.Timer(0.7, self.recover)
+            timer.start()
+                
         if self.life<=0:
             del self
             bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
@@ -866,8 +845,6 @@ class Player_2(cocos.layer.ScrollableLayer):
             for i in range(0, len((self.skin.actions))):
                 self.skin.remove_action(self.skin.actions[0])
 
-    def __del__(self):
-        return
     def update_position(self, dt):
         if not block_2:
             self.skin.position = self.spr.position
@@ -954,11 +931,9 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.add(self.spr)
         self.add(self.life_bar)
 
-        self.status = 3  # 1:walk left 2:walk right 3:stop 4:attack 5：beheat
-        self.change = False
-        self.block = False  # True means the character is having a continuous movement
-        self.near_attack = False
-        self.auto_attack = False
+        self.status = 1  # 1:walk left 2:walk right 3:保持态 4:attack 5：beheat
+        self.Attack = False         #表示判定开始攻击这一瞬间
+        self.auto_attack = False        #表示处于攻击这一整个状态  包括僵直
         self.dead = False
         self.count = 0
         self.beheat = False
@@ -978,15 +953,19 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.skin.position = 2300, 60
         self.position = self.skin.position
         self.spr.position = self.skin.position
-        self.spr.do(Mover_3())
+        self.mover = Mover_3()
+        self.spr.do(self.mover)
 
     def remove_all(self):
         if len(self.skin.actions) > 0:
             for i in range(0, len((self.skin.actions))):
                 self.skin.remove_action(self.skin.actions[0])
 
-    def update_position(self, dt):
-        if not block_3:
+    def recover(self):
+        self.status = 1
+
+    def update_position(self, dt):          #同步隐藏点的坐标到皮肤上
+        if not self.mover.block:
             self.skin.position = self.spr.position
             x, y = self.skin.position
             self.life_bar.position = (x, y + 160)
@@ -997,65 +976,38 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         if self.life > 0:
             self.cshape.center = eu.Vector2(*self.skin.position)  # 优化其放置位置
             if self.beheat:
-                scream = pygame.mixer.Sound(address_2+'/sound/beheat.wav')
-                scream.play()
                 self.remove_all()
+                self.skin.do(skeleton.Animate(self.frozen))
+                self.mover.Block()
+                scream = pygame.mixer.Sound(address_2+'/sound/beheat.wav')
+                scream.set_volume(1)
+                scream.play()
                 self.beheat = False
                 self.status = 5
-                self.block = True
-                global block_3
-                block_3 = self.block
-                self.skin.do(skeleton.Animate(self.frozen))
-            if self.block:
-                if self.count <= 8:
-                    self.count += 1
-                    self.near_attack = True
-                elif self.count > 8 and self.count <= 15:  # 砍完的延迟
-                    self.count += 1
-                    self.near_attack = False
-                    self.status = 3
-                    self.remove_all()
-                else:
-                    self.count = 0
-                    # self.near_attack = False
-                    self.block = False
-                    block_3 = self.block
-                    self.auto_attack = False
-            else:
-                if self.auto_attack:
-                    if self.status != 4:
-                        self.remove_all()
-                        self.status = 4
-                        self.change = True
-                    else:
-                        self.change = False
-                        self.block = True
-                        block_3 = self.block
-                else:
-                    if self.status != 1:
-                        self.remove_all()
-                        self.status = 1
-                        self.change = True
-                    else:
-                        self.change = False
-            if self.change:
-                if self.status == 1 or self.status == 2:
-                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
-                elif self.status == 4:
-                    self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.attack)))  # there is a bug:return attack
-                    self.block = True
-                    block_3 = self.block
-                self.change = False
-        else:
-            block_3 = True
-            self.remove_all()
+                timer = threading.Timer(1, self.recover)
+                timer.start()
+            elif self.Attack:
+                self.mover.Block()
+                self.remove_all()
+                self.skin.do(skeleton.Animate(self.attack))
+                self.status = 4
+                self.Attack = False
+                timer = threading.Timer(1, self.recover)
+                timer.start()
+            elif self.status == 1:
+                self.mover.release()
+                self.remove_all()
+                self.status = 3
+                self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
+
 
 class Teammate(Enemy_1):
     def private(self):
         self.skin.position = 200, 60
         self.position = self.skin.position
         self.spr.position = self.skin.position
-        self.spr.do(Mover_4())
+        self.mover = Mover_4()
+        self.spr.do(self.mover)
 
 
 class BackgroundLayer(cocos.layer.ScrollableLayer):
@@ -1071,11 +1023,7 @@ class BackgroundLayer(cocos.layer.ScrollableLayer):
 if __name__ == '__main__':
     # 全局变量
     target_x, target_y = (0, 0)
-    block_1 = False
-    block_1_R = False
     block_2 = False
-    block_3 = False
-    block_4 = False
     img_name = ""
     pygame.mixer.init()
     # 初始化导演
