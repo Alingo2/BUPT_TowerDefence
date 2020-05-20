@@ -335,9 +335,9 @@ class Level_choose(cocos.menu.Menu):
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         self.t_list=[]
-        self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim"))
+        self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
         # self.player_2 = Player_2()
-        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim"), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
+        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0), False, 0])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
         self.enemy_1_dead = False
         self.add_e_count=0
         self.coll_manager = cm.CollisionManagerBruteForce()
@@ -430,7 +430,7 @@ class Level_choose(cocos.menu.Menu):
             self.addable=True
             self.auto_new=0
             if len(self.e_list) < 5:
-                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim")
+                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",len(self.e_list))
                 self.e_list.append([a, False, 0])
                 self.coll_manager.add(a)
                 self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -439,7 +439,7 @@ class Level_choose(cocos.menu.Menu):
                 self.addable=False
         if self.add_e_count == 0:
             if keyboard[key.P]:
-                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim")
+                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",len(self.e_list))
                 self.e_list.append([a, False, 0])
                 self.coll_manager.add(a)
                 self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -605,15 +605,13 @@ class Mover_2(cocos.actions.BoundedMove):
 
 
 class Mover_3(cocos.actions.BoundedMove):
-    def __init__(self):
+    def __init__(self,num):
         super().__init__(2300, 1430)  # it should be bigger than the size of the picture
         self.block = False
-    def Block(self):
-        self.block = True
-    def release(self):
-        self.block = False
+        self.num = num
+        global block
     def step(self, dt):  # add block
-        if not self.block:
+        if not block[self.num]:
             super().step(dt)
             vel_x = -100
             vel_y = 0
@@ -621,7 +619,7 @@ class Mover_3(cocos.actions.BoundedMove):
 
 class Mover_4(Mover_3):
     def step(self, dt):  # add block
-        if not self.block:
+        if not block[self.num]:
             super().step(dt)
             vel_x = 100
             vel_y = 0
@@ -915,10 +913,13 @@ class Player_2(cocos.layer.ScrollableLayer):
 
 
 class Enemy_1(cocos.layer.ScrollableLayer):
-    def __init__(self,skele,skin,walk,attack,frozen):
+    def __init__(self,skele,skin,walk,attack,frozen,num):
         super(Enemy_1, self).__init__()
         self.skin = skeleton.BitmapSkin(skele,skin)
         self.add(self.skin)
+        self.num = num
+        global block
+        block.append(False)
 
         self.life = 100
 
@@ -953,7 +954,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.skin.position = 2300, 60
         self.position = self.skin.position
         self.spr.position = self.skin.position
-        self.mover = Mover_3()
+        self.mover = Mover_3(self.num)
         self.spr.do(self.mover)
 
     def remove_all(self):
@@ -965,7 +966,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.status = 1
 
     def update_position(self, dt):          #同步隐藏点的坐标到皮肤上
-        if not self.mover.block:
+        if not block[self.num]:
             self.skin.position = self.spr.position
             x, y = self.skin.position
             self.life_bar.position = (x, y + 160)
@@ -978,7 +979,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
             if self.beheat:
                 self.remove_all()
                 self.skin.do(skeleton.Animate(self.frozen))
-                self.mover.Block()
+                block[self.num] = True
                 scream = pygame.mixer.Sound(address_2+'/sound/beheat.wav')
                 scream.set_volume(1)
                 scream.play()
@@ -987,7 +988,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
                 timer = threading.Timer(1, self.recover)
                 timer.start()
             elif self.Attack:
-                self.mover.Block()
+                block[self.num] = True
                 self.remove_all()
                 self.skin.do(skeleton.Animate(self.attack))
                 self.status = 4
@@ -995,7 +996,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
                 timer = threading.Timer(1, self.recover)
                 timer.start()
             elif self.status == 1:
-                self.mover.release()
+                block[self.num] = False
                 self.remove_all()
                 self.status = 3
                 self.skin.do(cocos.actions.Repeat(skeleton.Animate(self.walk)))
@@ -1006,7 +1007,7 @@ class Teammate(Enemy_1):
         self.skin.position = 200, 60
         self.position = self.skin.position
         self.spr.position = self.skin.position
-        self.mover = Mover_4()
+        self.mover = Mover_4(self.num)
         self.spr.do(self.mover)
 
 
@@ -1023,6 +1024,7 @@ class BackgroundLayer(cocos.layer.ScrollableLayer):
 if __name__ == '__main__':
     # 全局变量
     target_x, target_y = (0, 0)
+    block = []
     block_2 = False
     img_name = ""
     pygame.mixer.init()
