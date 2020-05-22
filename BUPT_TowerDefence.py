@@ -162,12 +162,8 @@ class MainLayer(cocos.layer.ScrollableLayer):
 
         self.my_base = My_base()
         self.enemy_base = Enemy_base()
-        fire = Fire()  # ParticleSystem
-        fire.auto_remove_on_finish = True
-        fire.position = (50, 50)
 
         self.add(bg, 0)
-        self.add(fire, 1)
         self.add(self.my_base, 1)
         self.add(self.enemy_base, 1)
 
@@ -317,8 +313,11 @@ class Level_choose(cocos.menu.Menu):
         img = pyglet.image.load(address + "\skill_2.png")
         self.skill_2 = cocos.sprite.Sprite(img)
         self.skill_2.position = (220,620)
+        img = pyglet.image.load(address + "\skill_3.png")
+        self.skill_3 = cocos.sprite.Sprite(img)
+        self.skill_3.position = (340,620)
 
-        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2)
+        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2,self.skill_3)
 
         self.addable = False
         self.auto_new = 0
@@ -327,10 +326,9 @@ class Level_choose(cocos.menu.Menu):
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
 
-        self.skill = [[True,0],[True,0]]            #两个数组第一个是技能1 每一个有两个参数：参数1：现在是否可以释放 参数2：冷却时间计数
+        self.skill = [[True,0],[True,0],[True,0]]            #两个数组第一个是技能1 每一个有两个参数：参数1：现在是否可以释放 参数2：冷却时间计数
 
         self.player_damage = 5
-
         self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
@@ -347,6 +345,7 @@ class Level_choose(cocos.menu.Menu):
         self.coll_manager.add(self.e_list[0][0])
         self.coll_manager.add(self.player_1.bullet)
         self.coll_manager.add(self.m_layer.enemy_base)
+        self.fi = self.player_1
 
 
         scroller.add(self.m_layer)
@@ -407,6 +406,22 @@ class Level_choose(cocos.menu.Menu):
             else:
                 self.skill_2.color = (255,255,255)
                 self.skill[1][0] = True
+        if(self.skill[2][0]):
+            if(keyboard[key._3]):
+                self.skill_3.color = (125,125,125)
+                self.skill[2][0] = False
+                self.skill[2][1] = 0
+                self.player_1.add(self.player_1.fi)
+                self.player_1.protect = True
+        else:
+            if (self.skill[2][1] <= 200):
+                if (self.skill[2][1] == 100):
+                    self.player_1.remove(self.player_1.fi)
+                    self.player_1.protect = False
+                self.skill[2][1] += 1
+            else:
+                self.skill_3.color = (255,255,255)
+                self.skill[2][0] = True        
 
     def ebase_detect(self):
         if self.eb_count != 0:
@@ -478,14 +493,14 @@ class Level_choose(cocos.menu.Menu):
         global block_1,block_1_R,block
         for enemy in self.e_list:
             if not enemy[1]:           #没死的话
-                if self.coll_manager.they_collide(self.player_1, enemy[0]):     #主角和enemy检测
+                if (not self.player_1.protect) and (self.coll_manager.they_collide(self.player_1, enemy[0])):     #主角和enemy检测
                     block_1_R = True
                     if enemy[0].status == 1 or enemy[0].status == 3:        #enemy可以进行攻击
                         enemy[0].Attack = True
                         self.player_1.beheat = True
                     if enemy[0].status == 4:        #enemy攻击态
                         block_1 = True
-                        self.player_1.life -= 1
+                        self.player_1.life -= 0.5
                         self.player_1.beheat = True
                     else:
                         block_1 = False
@@ -498,12 +513,12 @@ class Level_choose(cocos.menu.Menu):
                             enemy[0].Attack = True
                             teammate.beheat = True
                         elif enemy[0].status == 5:
-                            enemy[0].life -= 2   
+                            enemy[0].life -= 0.5  
                         if teammate.status == 1:
                             teammate.Attack = True
                             enemy[0].beheat = True 
                         elif teammate.status == 5:
-                            teammate.life -= 2
+                            teammate.life -= 0.5
 
                 if self.coll_manager.they_collide(self.player_1.bullet, enemy[0]):  #子弹和敌人检测
                     enemy[0].beheat = True
@@ -670,11 +685,12 @@ class Player_1(cocos.layer.ScrollableLayer):
 
         animation.model2_skin.refresh()
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
-        self.add(self.skin)
+        self.add(self.skin,1)
         # self.width,self.height = 0,0        #可能有bug
         self.position = 100, 100
         self.skin.position = 100, 100
         self.life = 100
+        self.protect = False
 
         img = pyglet.image.load(address + "\dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)
@@ -685,6 +701,9 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.add(self.spr)
         self.life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
         self.add(self.life_bar)
+        self.fi = Fire()  # ParticleSystem 
+        self.fi.auto_remove_on_finish = True
+        self.fi.position = (100, 50)
 
         self.status = 1  # 1:stop 2:walk 3:保持态 4:attack
         self.change = False
@@ -713,7 +732,6 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.bullet.cshape = cm.AARectShape(eu.Vector2(*self.bullet.position), self.bullet.width / 2,
                                             self.bullet.height / 2)
 
-
     def remove_all(self):
         if len(self.skin.actions) > 0:
             for i in range(0, len((self.skin.actions))):
@@ -724,6 +742,7 @@ class Player_1(cocos.layer.ScrollableLayer):
             self.skin.position = self.spr.position  # !!!!!!! self.position = -(self.skin.position-600)
             x, y = self.skin.position
             self.life_bar.position = (x, y + 160)
+            self.fi.position = (x,y-50)
             self.life_bar.scale_x = self.life / 100
             self.cshape.center = eu.Vector2(*self.skin.position)
             self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)
