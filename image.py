@@ -3,10 +3,15 @@ import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as pg
-img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
+address=('D:\\CSHE\BUPT_TowerDefence\image\\my_man2.png')
+#img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
 
-img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
-img_four=pg.imread('C:\\Users\MA\Desktop\image\\15.png')
+#img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
+#img_four=pg.imread('C:\\Users\MA\Desktop\image\\15.png')
+img0=io.imread(address)
+
+img=color.rgb2gray(io.imread(address,as_gray='True'))
+img_four=pg.imread(address)
 img2=img
 rows=img0.shape[0]
 cols=img0.shape[1]

@@ -4,7 +4,7 @@ import numpy as np
 import time
 from PIL import Image
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
-# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
 def nothing(x):
     pass
 #赋值命令
@@ -75,3 +75,4 @@ def Draw():
             return(pic_name)
         elif k==27:
             break
+#Draw()
