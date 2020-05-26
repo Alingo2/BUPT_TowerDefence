@@ -26,6 +26,8 @@ import root_bone
 import root_skin
 import animation.my_walk_skeleton
 import animation.myE_skeleton
+import animation.diy_skeleton
+import animation.diy_skin
 import animation.myE_skin
 import animation.turn_my_walk_skeleton
 import animation.myE_skin
@@ -43,18 +45,15 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
 class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动就有问题
-
     is_event_handler = True
-
     def __init__(self):
         super(MouseDisplay, self).__init__()
-
         self.text = cocos.text.Label('Mouse @', font_size=18,
                                      x=100, y=240)
         self.add(self.text)
@@ -106,25 +105,10 @@ class Main_menu(cocos.menu.Menu):
         print('help')
 
 
-class My_base(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super().__init__()
-
-        img = pyglet.image.load(address + "/base.png")
-        spr = cocos.sprite.Sprite(img)
-        spr.position = 50, 100
-        self.add(spr)
-
-        life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
-        life_bar.position = 50, 220
-        self.add(life_bar)
-
-
-class VF_Layer(Layer):
+class VF_Layer(cocos.layer.Layer):
     def __init__(self,fail):
         super(VF_Layer, self).__init__()
-        print(fail,"asfhgekghklsg")
-        if fail == True:
+        if fail:
             self.count = 0
             self.bg = BG(bg_name="img/fail_bg.jpg")
             self.fail_window=Sprite("img/f_window.png")
@@ -135,8 +119,6 @@ class VF_Layer(Layer):
             self.lable2.position = 900, 170
             self.add(self.bg)
             self.add(self.fail_window)
-            #self.add(self.lable2)
-            #self.add(self.lable1)
 
         else:
             self.count=0
@@ -151,23 +133,23 @@ class VF_Layer(Layer):
             self.add(self.A_word)
 
 
-
-class Enemy_base(cocos.layer.ScrollableLayer):
-    def __init__(self):
+class Base(cocos.layer.ScrollableLayer):
+    def __init__(self,filename,position):
         super().__init__()
         self.dead = False
-        img = pyglet.image.load(address + "/base.png")
+        img = pyglet.image.load(address + filename)
         spr = cocos.sprite.Sprite(img)
-        spr.position = 2300, 100
+        spr.position = position[0], position[1]
         self.add(spr)
-        self.life=10
+        self.life = 100
         self.life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
-        self.life_bar.position = 2300, 220
+        self.life_bar.position = position[0], position[1]+70
         self.add(self.life_bar)
-        self.cshape = cm.AARectShape(eu.Vector2(*spr.position),spr.width/2,spr.height/2)
+        self.cshape = cm.AARectShape(eu.Vector2(*spr.position),65,136)
 
     def update_position(self, dt):
         self.life_bar.scale_x = self.life / 100
+
 
 class MainLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
@@ -181,8 +163,8 @@ class MainLayer(cocos.layer.ScrollableLayer):
 
         self.enemy_num = 1
 
-        self.my_base = My_base()
-        self.enemy_base = Enemy_base()
+        self.my_base = Base("/base.png",[100, 70])
+        self.enemy_base = Base("/enemy_base.png",[4650, 70])
 
         self.add(bg, 0)
         self.add(self.my_base, 1)
@@ -213,40 +195,6 @@ class Game_menu(cocos.menu.Menu):
         items[0].position = 250, -390
         items[1].position = -400, 300
         items[2].position = 350, -300
-
-        self.create_menu(items, cocos.menu.shake(), cocos.menu.shake_back())
-
-    def on_back(self):  # 有点Bug
-        print("back")
-        bg_2 = BG(bg_name="img/bg_2.png")
-        scene_2 = cocos.scene.Scene(MouseDisplay(),bg_2)
-        level_choose = Level_choose()
-        car = p_layer()
-        scene_2.add(level_choose)
-        scene_2.add(car, 2)
-        director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
-
-    def on_quit(self):
-        director.window.close()
-
-    def on_show_fps(self, show_fps):
-        director.show_FPS = show_fps
-
-class Game_menu_f(cocos.menu.Menu):             #需要精简
-    def __init__(self):
-        super(Game_menu_f, self).__init__()
-
-        items = []
-
-        items.append(cocos.menu.ImageMenuItem('img/return.png', self.on_back))
-        items.append(cocos.menu.ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS))
-        items.append(cocos.menu.ImageMenuItem('img/quit.png', self.on_quit))
-
-        items[0].position = 20, -235
-        items[1].position = -400, 300
-        items[2].position = 350, -300
-        items[0].scale_x=3
-        items[0].scale_y = 3
 
         self.create_menu(items, cocos.menu.shake(), cocos.menu.shake_back())
 
@@ -354,7 +302,8 @@ class Level_choose(cocos.menu.Menu):
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         self.t_list=[]
-        self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
+        # self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
+        self.t_list.append(Teammate(animation.diy_skeleton.skeleton,animation.diy_skin.skin,"/animation/qwer.anim","/animation/gun_shot.anim","/animation/my_frozen.anim",0))
         # self.player_2 = Player_2()
         self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
         self.enemy_1_dead = False
@@ -490,8 +439,7 @@ class Level_choose(cocos.menu.Menu):
         global scroller
         if self.player_1.life <= 0:
             #bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
-            self.game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(VF_Layer(True),Drag(),MouseDisplay(), self.game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(True),Game_menu(),Drag(),MouseDisplay())
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
         for enemy in self.e_list:
             if enemy[0].life <= 0:
@@ -554,8 +502,7 @@ class Level_choose(cocos.menu.Menu):
 
         if self.m_layer.enemy_base.dead:
             self.m_layer.enemy_base.dead = False
-            self.game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(VF_Layer(False),Drag(),MouseDisplay(), self.game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(False),Game_menu(),Drag(),MouseDisplay())
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
             
 
@@ -605,7 +552,7 @@ class draw_rec(cocos.layer.util_layers.ColorLayer):
 
 class Mover_1(cocos.actions.BoundedMove):
     def __init__(self):
-        super().__init__(2300, 1430)  # it should be bigger than the size of the picture
+        super().__init__(4650, 1430)  # it should be bigger than the size of the picture
         global block_1,block_1_R,speed_1,scroller
     def step(self, dt):  # add block
         if not block_1:
@@ -620,7 +567,7 @@ class Mover_1(cocos.actions.BoundedMove):
 
 class Mover_2(cocos.actions.BoundedMove):
     def __init__(self):
-        super().__init__(2300, 1430)  # it should be bigger than the size of the picture
+        super().__init__(4650, 1430)  # it should be bigger than the size of the picture
     
     def step(self, dt):  # add block
         if not block_2:
@@ -634,7 +581,7 @@ class Mover_2(cocos.actions.BoundedMove):
 
 class Mover_3(cocos.actions.BoundedMove):
     def __init__(self,num):
-        super().__init__(2300, 1430)  # it should be bigger than the size of the picture
+        super().__init__(4650, 1430)  # it should be bigger than the size of the picture
         global block
         self.num = num
     def step(self, dt):  # add block
@@ -823,8 +770,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 
         if self.life<=0:
             del self        #这里确定没有问题？？
-            game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(VF_Layer(True),Drag(),MouseDisplay(), game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(True),Game_menu(),Drag(),MouseDisplay())
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
 
 
@@ -977,7 +923,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.frozen = cPickle.load(fp_3)
 
     def private(self):
-        self.skin.position = 2300, 60
+        self.skin.position = 4650, 60
         self.position = self.skin.position
         self.spr.position = self.skin.position
         self.mover = Mover_3(self.num)
@@ -1004,7 +950,6 @@ class Enemy_1(cocos.layer.ScrollableLayer):
             self.cshape.center = eu.Vector2(*self.skin.position)  # 优化其放置位置
             if self.beheat:
                 self.remove_all()
-                print(self.num)
                 self.skin.do(skeleton.Animate(self.frozen))
                 block[self.num] = True
                 scream = pygame.mixer.Sound(address_2+'/sound/beheat_2.wav')
@@ -1036,16 +981,6 @@ class Teammate(Enemy_1):
         self.spr.position = self.skin.position
         self.mover = Mover_4(self.num)
         self.spr.do(self.mover)
-
-
-class BackgroundLayer(cocos.layer.ScrollableLayer):
-    def __init__(self):
-        super().__init__()
-        bg = cocos.sprite.Sprite("img/bg_3.jpg")
-        bg.position = bg.width // 2, bg.height // 2
-        self.px_width = bg.width
-        self.px_height = bg.height
-        self.add(bg)
 
 
 if __name__ == '__main__':
