@@ -212,7 +212,7 @@ class Game_menu(cocos.menu.Menu):
     def on_show_fps(self, show_fps):
         director.show_FPS = show_fps
 
-class Game_menu_f(cocos.menu.Menu):
+class Game_menu_f(cocos.menu.Menu):             #需要精简
     def __init__(self):
         super(Game_menu_f, self).__init__()
 
@@ -347,7 +347,6 @@ class Level_choose(cocos.menu.Menu):
         self.coll_manager.add(self.player_1.bullet)
         self.coll_manager.add(self.m_layer.enemy_base)
         self.fi = self.player_1
-
 
         scroller.add(self.m_layer)
         # scroller.add(self.player_2)
@@ -1047,9 +1046,9 @@ if __name__ == '__main__':
     director.window.push_handlers(keyboard)
 
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
-    mr_cai = Mr_cai()
-    people_layer = PeopleLayer()
-    spr1_layer = Spirite1()
+    # mr_cai = Mr_cai()
+    # people_layer = PeopleLayer()
+    # spr1_layer = Spirite1()
     scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
     # scene_1.add(mr_cai, 1)
     # scene_1.add(people_layer, 1)
