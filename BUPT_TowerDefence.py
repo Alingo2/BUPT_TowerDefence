@@ -43,8 +43,8 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
@@ -120,16 +120,36 @@ class My_base(cocos.layer.ScrollableLayer):
         self.add(life_bar)
 
 
-class Fail_Layer(Layer):
-    def __init__(self):
-        super(Fail_Layer, self).__init__()
-        self.count = 0
-        self.lable1 = cocos.text.Label('就', font_name='Times New Roman', font_size=200)
-        self.lable1.position = 10, 170
-        self.lable2 = cocos.text.Label('这', font_name='Times New Roman', font_size=200)
-        self.lable2.position = 900, 170
-        self.add(self.lable2)
-        self.add(self.lable1)
+class VF_Layer(Layer):
+    def __init__(self,fail):
+        super(VF_Layer, self).__init__()
+        print(fail,"asfhgekghklsg")
+        if fail == True:
+            self.count = 0
+            self.bg = BG(bg_name="img/fail_bg.jpg")
+            self.fail_window=Sprite("img/f_window.png")
+            self.fail_window.position=620,350
+            self.lable1 = cocos.text.Label('就', font_name='Times New Roman', font_size=200)
+            self.lable1.position = 10, 170
+            self.lable2 = cocos.text.Label('这', font_name='Times New Roman', font_size=200)
+            self.lable2.position = 900, 170
+            self.add(self.bg)
+            self.add(self.fail_window)
+            #self.add(self.lable2)
+            #self.add(self.lable1)
+
+        else:
+            self.count=0
+            self.vic_bg=BG(bg_name="img/vic_bg.jpg")
+            self.vic_word=Sprite("img/vic_word.png")
+            self.vic_word.position=600,400
+
+            self.A_word=Sprite("img/A_word.png")
+            self.A_word.position=700,500
+            self.add(self.vic_bg)
+            self.add(self.vic_word)
+            self.add(self.A_word)
+
 
 
 class Enemy_base(cocos.layer.ScrollableLayer):
@@ -140,7 +160,7 @@ class Enemy_base(cocos.layer.ScrollableLayer):
         spr = cocos.sprite.Sprite(img)
         spr.position = 2300, 100
         self.add(spr)
-        self.life=100
+        self.life=10
         self.life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
         self.life_bar.position = 2300, 220
         self.add(self.life_bar)
@@ -222,7 +242,7 @@ class Game_menu_f(cocos.menu.Menu):
         items.append(cocos.menu.ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS))
         items.append(cocos.menu.ImageMenuItem('img/quit.png', self.on_quit))
 
-        items[0].position = 50, -235
+        items[0].position = 20, -235
         items[1].position = -400, 300
         items[2].position = 350, -300
         items[0].scale_x=3
@@ -446,7 +466,7 @@ class Level_choose(cocos.menu.Menu):
             self.addable=True
             self.auto_new=0
             if len(self.e_list) < 5:
-                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen"+str(len(self.e_list))+".anim"),len(self.e_list))
+                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list))
                 self.e_list.append([a, False, 0])
                 self.coll_manager.add(a)
                 self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -455,7 +475,7 @@ class Level_choose(cocos.menu.Menu):
                 self.addable=False
         if self.add_e_count == 0:
             if keyboard[key.P]:
-                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen"+str(len(self.e_list))+".anim"),len(self.e_list))
+                a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list))
                 self.e_list.append([a, False, 0])
                 self.coll_manager.add(a)
                 self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -470,9 +490,9 @@ class Level_choose(cocos.menu.Menu):
     def death_detect(self):
         global scroller
         if self.player_1.life <= 0:
-            bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
+            #bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
             self.game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), self.game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(True),Drag(),MouseDisplay(), self.game_menu)
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
         for enemy in self.e_list:
             if enemy[0].life <= 0:
@@ -535,9 +555,8 @@ class Level_choose(cocos.menu.Menu):
 
         if self.m_layer.enemy_base.dead:
             self.m_layer.enemy_base.dead = False
-            bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
             self.game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), self.game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(False),Drag(),MouseDisplay(), self.game_menu)
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
             
 
@@ -805,9 +824,8 @@ class Player_1(cocos.layer.ScrollableLayer):
                 
         if self.life<=0:
             del self        #这里确定没有问题？？
-            bg_1 = BG(bg_name="img/fail_bg.png")  # 1.获取背景图片路径
             game_menu = Game_menu_f()
-            scene_2 = cocos.scene.Scene(bg_1,Fail_Layer(),Drag(),MouseDisplay(), game_menu)
+            scene_2 = cocos.scene.Scene(VF_Layer(True),Drag(),MouseDisplay(), game_menu)
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
 
 
@@ -987,6 +1005,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
             self.cshape.center = eu.Vector2(*self.skin.position)  # 优化其放置位置
             if self.beheat:
                 self.remove_all()
+                print(self.num)
                 self.skin.do(skeleton.Animate(self.frozen))
                 block[self.num] = True
                 scream = pygame.mixer.Sound(address_2+'/sound/beheat_2.wav')
