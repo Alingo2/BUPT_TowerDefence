@@ -14,7 +14,7 @@ root_bone = Bone('torso', 70, -180.0, Point2(0.00, 0.00)).add(
         Bone('antebrazo der', 40, 121.203546669, Point2(-4.00, -36.00))
 )
 ).add(
-    Bone('brazo izq', 40, 222.115898576, Point2(-10.00, -70.00))    .add(
+    Bone('brazo izq', 80, 222.115898576, Point2(-10.00, -70.00))    .add(
         Bone('antebrazo izq', 40, 123.385130709, Point2(3.00, -47.00))
 )
 ).add(

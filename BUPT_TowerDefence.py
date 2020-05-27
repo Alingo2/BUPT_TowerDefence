@@ -691,12 +691,12 @@ class Player_1(cocos.layer.ScrollableLayer):
         if not block_1:
             x, y = self.spr.position
             if  self.up:
-                y = y + 10
+                y = y + 7
             if self.down:
                 if y <= 100:
                     y = 100
                     self.down = False
-                y = y - 7
+                y = y - 10
             self.spr.position = x,y
             self.skin.position = x,y  # !!!!!!! self.position = -(self.skin.position-600)
             self.life_bar.position = (x, y + 160)
@@ -762,7 +762,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.status = 6
                 self.skin.do(skeleton.Animate(self.jump))
                 self.up = True
-                timer_2 = threading.Timer(0.4, self.down_change)
+                timer_2 = threading.Timer(0.5, self.down_change)
                 timer_2.start()
             elif ((keyboard[key.D] and not block_1_R)or(keyboard[key.A])):  # key right and not attack  得改成状态保持
                 self.status = 2
