@@ -82,6 +82,7 @@ class Main_menu(cocos.menu.Menu):
         items.append(cocos.menu.ImageMenuItem('img/start.png', self.on_start))
         items.append(cocos.menu.ImageMenuItem('img/setting.png', self.on_setting))
         items.append(cocos.menu.ImageMenuItem('img/help.png', self.on_help))
+        items.append(cocos.menu.MenuItem("读取存档", self.read))
 
         for i in items:
             i.x = 550
@@ -104,6 +105,9 @@ class Main_menu(cocos.menu.Menu):
     def on_help(self):
         print('help')
 
+    def read(self):
+        print('read')
+
 
 class VF_Layer(cocos.layer.Layer):
     def __init__(self,fail):
@@ -119,7 +123,8 @@ class VF_Layer(cocos.layer.Layer):
             self.lable2.position = 900, 170
             self.add(self.bg)
             self.add(self.fail_window)
-
+            self.mr_cai = Mr_cai()
+            self.add(self.mr_cai)
         else:
             self.count=0
             self.vic_bg=BG(bg_name="img/vic_bg.jpg")
@@ -261,18 +266,23 @@ class Level_choose(cocos.menu.Menu):
         super(Level_choose, self).__init__()
         items = []
 
-        items.append(cocos.menu.ImageMenuItem('img/level_1_icon.png', self.level_1_callback))
-        items.append(cocos.menu.ImageMenuItem('img/level_2_icon.png', self.level_2_callback))
-
-        items[0].position = 100, -110
-        items[1].position = 300, -70
+        items.append(cocos.menu.MenuItem('开始闯关', self.level_1_callback))
+        items.append(cocos.menu.MenuItem('DIY你的角色', self.level_2_callback))
+        items.append(cocos.menu.MenuItem("双人游戏", self.double_callback))
 
         self.create_menu(items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
-        # self.count = 0
 
+    def double_callback(self):
+        print("2 Players")
+
+    def level_2_callback(self):
+        print("DIY角色")
+        global img_name
+        img_name = draw.Draw()
+
+        self.level_1_callback()
     def level_1_callback(self):
         print("第一关")
-        # 这次创建的窗口带调整大小的功能
         self.game_menu = Game_menu()
 
         img = pyglet.image.load(address + "\skill_1.png")
@@ -337,12 +347,6 @@ class Level_choose(cocos.menu.Menu):
         self.scene_3.add(scroller, 0)
 
         director.replace(scenes.transitions.SlideInBTransition(self.scene_3, duration=1))
-
-    def level_2_callback(self):
-        print("DIY角色")
-        global img_name
-        img_name = draw.Draw()
-        self.level_1_callback()
 
     def skill_detect(self):
         global speed_1
@@ -1009,11 +1013,9 @@ if __name__ == '__main__':
     director.window.push_handlers(keyboard)
 
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
-    # mr_cai = Mr_cai()
     # people_layer = PeopleLayer()
     # spr1_layer = Spirite1()
     scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
-    # scene_1.add(mr_cai, 1)
     # scene_1.add(people_layer, 1)
     # scene_1.add(spr1_layer, 1)
     scene_1_menu = Main_menu()
