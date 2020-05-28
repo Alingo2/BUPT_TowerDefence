@@ -57,6 +57,11 @@ class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动�
         self.text = cocos.text.Label('Mouse @', font_size=18,
                                      x=100, y=240)
         self.add(self.text)
+        cursor_img = pyglet.image.load(address + '/cursor.png')
+        cursor_img.anchor_x = cursor_img.width // 2
+        cursor_img.anchor_y = cursor_img.height //2
+        cursor = pyglet.window.ImageMouseCursor(cursor_img,0,0)   #hotx hoty
+        director.window.set_mouse_cursor(cursor)
 
     def on_mouse_motion(self, x, y, dx, dy):
         # dx,dy为向量,表示鼠标移动方向
@@ -248,39 +253,27 @@ class Drag(cocos.layer.Layer):
         if self.clicked:
             self.spr.position = (x - self.spr.width // 2, y - self.spr.height // 2)
 
-    def on_mouse_motion(self, x, y, dx, dy):
-        if self.mouse_on_sprite(x,y):
-            cursor_img = pyglet.image.load(address + '/cursor.png')
-            cursor_img.anchor_x = cursor_img.width // 2
-            cursor_img.anchor_y = cursor_img.height //2
-            cursor = pyglet.window.ImageMouseCursor(cursor_img,0,0)   #hotx hoty
-            # cursor = director.window.get_system_mouse_cursor(director.window.CURSOR_HAND)
-            director.window.set_mouse_cursor(cursor)
-        else:
-            cursor = director.window.get_system_mouse_cursor(director.window.CURSOR_DEFAULT)
-            director.window.set_mouse_cursor(cursor)
-
 
 class Level_choose(cocos.menu.Menu):
     def __init__(self):
         super(Level_choose, self).__init__()
         items = []
-
         items.append(cocos.menu.MenuItem('开始闯关', self.level_1_callback))
         items.append(cocos.menu.MenuItem('DIY你的角色', self.level_2_callback))
         items.append(cocos.menu.MenuItem("双人游戏", self.double_callback))
-
         self.create_menu(items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
+        self. double = False
 
     def double_callback(self):
-        print("2 Players")
+        self.double = True
+        self.level_1_callback()
 
     def level_2_callback(self):
         print("DIY角色")
         global img_name
         img_name = draw.Draw()
-
         self.level_1_callback()
+        
     def level_1_callback(self):
         print("第一关")
         self.game_menu = Game_menu()
@@ -302,24 +295,20 @@ class Level_choose(cocos.menu.Menu):
         speed_1 = 1
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
-
         self.skill = [[True,0],[True,0],[True,0]]            #两个数组第一个是技能1 每一个有两个参数：参数1：现在是否可以释放 参数2：冷却时间计数
 
         self.player_damage = 5
-        self.eb_count=0
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         self.t_list=[]
         # self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
-        self.t_list.append(Teammate(animation.diy_skeleton.skeleton,animation.diy_skin.skin,"/animation/qwer.anim","/animation/leg_attack.anim","/animation/leg_attack.anim",0))
+        self.t_list.append(Teammate(animation.diy_skeleton.skeleton,animation.diy_skin.skin,"/animation/qwer.anim","/animation/leg_attack.anim","/animation/my_frozen.anim",0,120))
         timer = threading.Timer(10, self.add_recover)
         timer.start()
-        # self.player_2 = Player_2()
-        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
+        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0,100), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
         self.coll_manager.add(self.t_list[0])
-        # self.coll_manager.add(self.player_2)
         self.coll_manager.add(self.e_list[0][0])
         self.coll_manager.add(self.player_1.bullet)
         self.coll_manager.add(self.m_layer.enemy_base)
@@ -327,16 +316,14 @@ class Level_choose(cocos.menu.Menu):
         self.fi = self.player_1
 
         scroller.add(self.m_layer)
-        # scroller.add(self.player_2)
         scroller.add(self.e_list[0][0])
         scroller.add(self.player_1)
         scroller.add(self.t_list[0])
 
         self.scene_3.schedule_interval(self.player_1.status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.player_1.update_position, 1 / 80)
-        self.scene_3.schedule_interval(self.m_layer.enemy_base.update_position, 1 / 80)
-        # scene_3.schedule_interval(self.player_2.status_detect, 1 / 30)
-        # scene_3.schedule_interval(self.player_2.update_position, 1 / 80)
+        self.scene_3.schedule_interval(self.m_layer.enemy_base.update_position, 1 / 30)
+
         if not self.e_list[0][1]:
             self.scene_3.schedule_interval(self.e_list[0][0].update_position, 1 / 80)
             self.scene_3.schedule_interval(self.e_list[0][0].status_detect, 1 / 30)
@@ -344,6 +331,12 @@ class Level_choose(cocos.menu.Menu):
         self.scene_3.schedule_interval(self.t_list[0].status_detect, 1 / 30)
         self.scene_3.schedule_interval(self.update, 1 / 80)
 
+        if self.double:
+            self.player_2 = Player_2()
+            self.coll_manager.add(self.player_2)
+            scroller.add(self.player_2)
+            self.scene_3.schedule_interval(self.player_2.status_detect, 1 / 30)
+            self.scene_3.schedule_interval(self.player_2.update_position, 1 / 80)
         self.scene_3.add(scroller, 0)
 
         director.replace(scenes.transitions.SlideInBTransition(self.scene_3, duration=1))
@@ -405,7 +398,7 @@ class Level_choose(cocos.menu.Menu):
 
     def add_enemy(self):
         if len(self.e_list) < 5:
-            a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list))
+            a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list),100)
             self.e_list.append([a, False, 0])
             self.coll_manager.add(a)
             self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -452,7 +445,7 @@ class Level_choose(cocos.menu.Menu):
                             enemy[0].Attack = True
                         if enemy[0].status == 4:        #enemy攻击态
                             block_1 = True
-                            self.player_1.life -= 0.5
+                            self.player_1.life -= enemy[0].damage/100
                             self.player_1.beheat = True
                         else:
                             block_1 = False
@@ -462,21 +455,22 @@ class Level_choose(cocos.menu.Menu):
                     if enemy[0].status == 1 or enemy[0].status == 3:        #enemy可以进行攻击
                         enemy[0].Attack = True
                     if enemy[0].status == 4:        #enemy攻击态
-                        self.m_layer.my_base.life -= 2
+                        self.m_layer.my_base.life -= enemy[0].damage/50
 
                 for teammate in self.t_list:                                #敌人和小弟检测
                     if self.coll_manager.they_collide(teammate, enemy[0]):      #得random或者怎样 调整怪物先手顺序 或者用speed判断
-                        if enemy[0].status == 1 or enemy[0].status == 3:
-                            enemy[0].Attack = True
-                            teammate.beheat = True
-                        elif enemy[0].status == 5:
-                            enemy[0].life -= 0.5  
-                        if teammate.status == 1:
-                            teammate.Attack = True
-                            enemy[0].beheat = True 
-                        elif teammate.status == 5:
-                            teammate.life -= 0.5
-
+                        if enemy[0].speed > teammate.speed :
+                            if enemy[0].status == 1 or enemy[0].status == 3:
+                                enemy[0].beheat = True
+                                teammate.beheat = True
+                            elif enemy[0].status == 5:
+                                teammate.life -= enemy[0].damage/100
+                        else:
+                            if teammate.status == 1 or teammate.status == 3:
+                                teammate.Attack = True
+                                enemy[0].beheat = True 
+                            elif teammate.status == 5:
+                                enemy[0].life -= teammate.damage/100
                 if self.coll_manager.they_collide(self.player_1.bullet, enemy[0]):  #子弹和敌人检测
                     enemy[0].beheat = True
                     enemy[0].life = enemy[0].life - self.player_damage
@@ -570,12 +564,12 @@ class Mover_2(cocos.actions.BoundedMove):
 class Mover_3(cocos.actions.BoundedMove):
     def __init__(self,num):
         super().__init__(4650, 1430)  # it should be bigger than the size of the picture
-        global block
+        global block,speed_2
         self.num = num
     def step(self, dt):  # add block
         if not block[self.num]:
             super().step(dt)
-            vel_x = -100
+            vel_x = -1*speed_2
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
 
@@ -607,9 +601,7 @@ class PeopleLayer(cocos.layer.ScrollableLayer):
         super().__init__()
 
         img = pyglet.image.load(address + "\girl.png")
-
         img_grid = pyglet.image.ImageGrid(img, 4, 8, item_width=120, item_height=150)
-
         anim = pyglet.image.Animation.from_image_sequence(img_grid, 0.1, loop=True)
 
         spr = cocos.sprite.Sprite(anim)
@@ -762,7 +754,7 @@ class Player_1(cocos.layer.ScrollableLayer):
                 self.skin.do(skeleton.Animate(self.leg_attack))
                 timer = threading.Timer(0.35, self.recover)
                 timer.start()
-            elif(keyboard[key.K]):
+            elif(keyboard[key.K] and not self.down):
                 self.status = 6
                 self.skin.do(skeleton.Animate(self.jump))
                 self.up = True
@@ -820,7 +812,6 @@ class Player_2(cocos.layer.ScrollableLayer):
 
         fp_1 = open((address_2 + "/animation/MOOOOVE.anim"), "rb+")
         self.walk = cPickle.load(fp_1)
-
         fp_2 = open((address_2 + "/animation/attack.anim"), "rb+")
         self.attack = cPickle.load(fp_2)
 
@@ -899,15 +890,14 @@ class Player_2(cocos.layer.ScrollableLayer):
 
 
 class Enemy_1(cocos.layer.ScrollableLayer):
-    def __init__(self,skele,skin,walk,attack,frozen,num):
+    def __init__(self,skele,skin,walk,attack,frozen,num,speed):
         super(Enemy_1, self).__init__()
         self.skin = skeleton.BitmapSkin(skele,skin)
         self.add(self.skin)
         self.num = num
-        global block
+        global block,speed_2
         block.append(False)
-
-        self.life = 100
+        speed_2 = speed
 
         img = pyglet.image.load(address + "\dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)  # hide the dot
@@ -922,16 +912,16 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.Attack = False         #表示判定开始攻击这一瞬间
         self.auto_attack = False        #表示处于攻击这一整个状态  包括僵直
         self.count = 0
-        self.beheat = False
+        self.beheat = False     
+        self.damage = 100   #默认总属性值为300
+        self.speed = speed
+        self.life = 100
 
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)  # 136不够
-
         fp_1 = open((address_2 + walk), "rb+")
         self.walk = cPickle.load(fp_1)
-
         fp_2 = open((address_2 + attack), "rb+")
         self.attack = cPickle.load(fp_2)
-
         fp_3 = open((address_2 + frozen), "rb+")
         self.frozen = cPickle.load(fp_3)
 
