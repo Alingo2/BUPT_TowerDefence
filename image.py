@@ -3,7 +3,8 @@ import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as pg
-address=('D:\\CSHE\BUPT_TowerDefence\image\\my_man2.png')
+# address=('D:\\CSHE\BUPT_TowerDefence\image\\my_man2.png')
+address=('D:\\MyCode\\MyPython\\BUPT_TowerDefence\\image\\demo1.png')
 #img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
 
 #img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
@@ -217,7 +218,7 @@ for leg in leg123:
 print("judge_leg",judge_leg)
 j=judge_leg.index(max(judge_leg))
 leg_finish=leg123[j]
-change=20
+change=40
 leg_finish=leg_finish+change
 print("j:",j)
 print("leg123:",leg123)
@@ -238,7 +239,7 @@ for i in range(img_full.shape[0]):
         if img_full[i][j]==0:
             img_four[i][j][3]=0
 img_head=img_four[0:head_finish,:,:]
-img_body=img_four[head_finish:leg_finish,:,:]
+img_body=img_four[head_finish:leg_finish,int(temp_hand[0]):int(temp_hand[1]),:]
 img_left_leg=img_four[leg_finish:max(I),min(J):int(middle_y),:]
 img_right_leg=img_four[leg_finish:max(I),int(middle_y):max(J),:]
 img_left_hand=img_four[head_finish:leg_finish,0:int(temp_hand[0]),:]
@@ -306,18 +307,11 @@ plt.title('img_right_hand')
 plt.imshow(img_right_hand,plt.cm.gray)
 plt.axis('off')
 
-pg.imsave('img_right_leg.png',img_right_leg)
-pg.imsave('img_left_leg.png',img_left_leg)
-pg.imsave('img_left_hand.png',img_left_hand)
-pg.imsave('img_right_hand.png',img_right_hand)
-pg.imsave('img_head.png',img_head)
-pg.imsave('img_body.png',img_body)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg.png',img_right_leg)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg',img_left_leg)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg',img_left_hand)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_right_hand.png',img_right_hand)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_head.png',img_head)
+pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_body.png',img_body)
 
 plt.show()
-
-
-
-
-
-
-
