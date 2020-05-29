@@ -3,9 +3,11 @@ import skimage.morphology as sm
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as pg
-# address=('D:\\CSHE\BUPT_TowerDefence\image\\my_man2.png')
-address=('D:\\MyCode\\MyPython\\BUPT_TowerDefence\\image\\demo1.png')
+address=('D:\\CSHE\BUPT_TowerDefence\image\\demo1.png')
+#address=('D:\\MyCode\\MyPython\\BUPT_TowerDefence\\image\\demo1.png')
 #img0=io.imread('C:\\Users\MA\Desktop\image\\15.png')
+address2 = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
+address2 = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
 
 #img=color.rgb2gray(io.imread('C:\\Users\MA\Desktop\image\\15.png',as_gray='True'))
 #img_four=pg.imread('C:\\Users\MA\Desktop\image\\15.png')
@@ -307,11 +309,11 @@ plt.title('img_right_hand')
 plt.imshow(img_right_hand,plt.cm.gray)
 plt.axis('off')
 
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg.png',img_right_leg)
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg',img_left_leg)
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/img_right_leg',img_left_hand)
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_right_hand.png',img_right_hand)
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_head.png',img_head)
-pg.imsave('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos//resources/img_body.png',img_body)
+pg.imsave(address2+'img_right_leg.png',img_right_leg)
+pg.imsave(address2+'img_left_leg.png',img_left_leg)
+pg.imsave(address2+'img_left_hand.png',img_left_hand)
+pg.imsave(address2+'img_right_hand.png',img_right_hand)
+pg.imsave(address2+'img_head.png',img_head)
+pg.imsave(address2+'img_body.png',img_body)
 
 plt.show()
