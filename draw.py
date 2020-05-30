@@ -4,7 +4,8 @@ import numpy as np
 import time
 from PIL import Image
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
-address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+address2 = "D:/MyCode/MyPython/BUPT_TowerDefence/img"
+# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
 def nothing(x):
     pass
 #赋值命令
@@ -57,7 +58,6 @@ def Draw():
         elif k==ord('s'):
             pic_name = input("Enter your input: ")
             print("Received input is : ", pic_name)
-            # cv2.imwrite(r"D:/MyCode/MyPython/BUPT_TowerDefence/img/"+ pic_name + ".png", img)
             cv2.imencode('.png', img)[1].tofile(address+ pic_name + ".png")
             file = open(address+"data.txt",'w')
             file.write(pic_name + ".png")
@@ -75,4 +75,3 @@ def Draw():
             return(pic_name)
         elif k==27:
             break
-Draw()

@@ -22,12 +22,13 @@ from cocos.skeleton import Bone, Skeleton
 from cocos import skeleton
 from cocos.audio.pygame import mixer, music
 import draw
+import image
 import root_bone
 import root_skin
 import animation.my_walk_skeleton
 import animation.myE_skeleton
-import animation.diy_skeleton
-import animation.diy_skin
+import animation.diy_skeleton1
+import animation.diy_skin1
 import animation.myE_skin
 import animation.turn_my_walk_skeleton
 import animation.myE_skin
@@ -259,7 +260,8 @@ class Level_choose(cocos.menu.Menu):
         super(Level_choose, self).__init__()
         items = []
         items.append(cocos.menu.MenuItem('开始闯关', self.level_1_callback))
-        items.append(cocos.menu.MenuItem('DIY你的角色', self.level_2_callback))
+        items.append(cocos.menu.MenuItem('DIY你的武器', self.diy_weapen_callback))
+        items.append(cocos.menu.MenuItem('DIY你的角色', self.diy_char_callback))
         items.append(cocos.menu.MenuItem("双人游戏", self.double_callback))
         self.create_menu(items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
         self. double = False
@@ -268,10 +270,14 @@ class Level_choose(cocos.menu.Menu):
         self.double = True
         self.level_1_callback()
 
-    def level_2_callback(self):
-        print("DIY角色")
+    def diy_weapen_callback(self):
         global img_name
         img_name = draw.Draw()
+        self.level_1_callback()
+
+    def diy_char_callback(self):
+        img_name2 = draw.Draw()
+        image.image_process()
         self.level_1_callback()
         
     def level_1_callback(self):
@@ -302,7 +308,7 @@ class Level_choose(cocos.menu.Menu):
         self.player_1 = Player_1()
         self.t_list=[]
         # self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
-        self.t_list.append(Teammate(animation.diy_skeleton.skeleton,animation.diy_skin.skin,"/animation/qwer.anim","/animation/leg_attack.anim","/animation/my_frozen.anim",0,120))
+        self.t_list.append(Teammate(animation.diy_skeleton1.skeleton,animation.diy_skin1.skin,"/animation/diy_man_walk.anim","/animation/diy_man_attack.anim","/animation/diy_frozen.anim",0,120))
         timer = threading.Timer(10, self.add_recover)
         timer.start()
         self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0,100), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
@@ -979,7 +985,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
 
 class Teammate(Enemy_1):
     def private(self):
-        self.skin.position = 200, 60
+        self.skin.position = 200, 100
         self.position = self.skin.position
         self.spr.position = self.skin.position
         self.mover = Mover_4(self.num)
