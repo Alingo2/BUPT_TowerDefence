@@ -1,0 +1,38 @@
+{
+    "character": {
+        "cha1": {
+            "NO": 1,
+            "charactername": ""
+        },
+        "cha2": {
+            "NO": 2,
+            "charactername": ""
+        },
+        "cha3": {
+            "NO": 3,
+            "charactername": ""
+        },
+        "cha4": {
+            "NO": 4,
+            "charactername": ""
+        }
+    },
+    "weapon": {
+        "wp1": {
+            "NO": 1,
+            "wpname": "test1.png"
+        },
+        "wp2": {
+            "NO": 2,
+            "wpname": ""
+        },
+        "wp3": {
+            "NO": 3,
+            "wpname": ""
+        },
+        "wp4": {
+            "NO": 4,
+            "wpname": ""
+        }
+    }
+}

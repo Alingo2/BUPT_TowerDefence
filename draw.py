@@ -3,9 +3,12 @@ import cv2
 import numpy as np
 import time
 from PIL import Image
+from os.path import join as pjoin
+import  json
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
-address2 = "D:/MyCode/MyPython/BUPT_TowerDefence/img"
-# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+#address2 = "D:/MyCode/MyPython/BUPT_TowerDefence"
+address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+address_2="D:\CSHE\BUPT_TowerDefence"
 def nothing(x):
     pass
 #赋值命令
@@ -43,7 +46,7 @@ def draw_circle(event,x,y,flags,param):
 img = np.ones((512,512,3),np.uint8)
 img = img*255
 
-def Draw():
+def Draw():#isWeapon代表画人还是武器,doc_num代表存到哪个存档里
     cv2.namedWindow('image')
     # cv2.createTrackbar('R', 'image', 0, 255, nothing)
     # cv2.createTrackbar('G', 'image', 0, 255, nothing)
@@ -72,6 +75,8 @@ def Draw():
                         pixdata[x, y] = (255, 255, 255,0)
             img2.save(address+ pic_name + ".png")
             print("successfully saved")
+
             return(pic_name)
         elif k==27:
             break
+#Draw(True,1)

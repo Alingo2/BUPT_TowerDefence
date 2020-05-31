@@ -1,6 +1,6 @@
 from __future__ import division, print_function, unicode_literals
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
-# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
 bodylist=[]
 with open(address+"data.txt", "r") as f:  # 打开文件
     for line in f.readlines():

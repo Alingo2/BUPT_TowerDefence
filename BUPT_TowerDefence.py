@@ -11,6 +11,8 @@ from cocos.director import director
 from cocos.layer import ScrollingManager, ScrollableLayer
 from cocos.sprite import Sprite
 from cocos import scenes
+from os.path import join as pjoin
+import  json
 from pyglet.window import key
 from cocos import layer
 import cocos.collision_model as cm
@@ -46,11 +48,31 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-# address = "D:\CSHE\BUPT_TowerDefence\img"
-# address_2 = "D:\CSHE\BUPT_TowerDefence"
+address = "D:\CSHE\BUPT_TowerDefence\img"
+address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
-
+def save(pic_name,isWeapon,doc_num):
+    with open("json/my_document.json", 'r') as f:
+        model = json.load(f)
+        f.close()
+    print(model)
+    if isWeapon:
+        model["weapon"]["wp" + str(doc_num)]["wpname"] = pic_name + ".png"
+    else:
+        model["character"]["cha" + str(doc_num)]["charactername"] = pic_name + ".png"
+    model = json.dumps(model, indent=4)
+    with open(pjoin("json", 'my_document.json'), "w") as fw:
+        fw.write(model)
+        fw.close()
+def load(isWeapon,doc_num):
+    with open("json/my_document.json", 'r') as f:
+        model = json.load(f)
+        f.close()
+        if isWeapon:
+            return model["weapon"]["wp" + str(doc_num)]["wpname"]
+        else:
+            return model["character"]["cha" + str(doc_num)]["charactername"]
 class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动就有问题
     is_event_handler = True
     def __init__(self):
@@ -113,6 +135,26 @@ class Main_menu(cocos.menu.Menu):
 
     def read(self):
         print('read')
+
+class skin_choose(cocos.menu.Menu):
+    def __init__(self):
+        items=[]
+        items.append(cocos.menu.MenuItem('1', self.load(1)))
+        items.append(cocos.menu.MenuItem('2', self.load(2)))
+        items.append(cocos.menu.MenuItem('3', self.load(3)))
+        items.append(cocos.menu.MenuItem("4", self.load(4)))
+        self.lable1.position=300,400
+        self.lable2.position=700,400
+        self.lable3.position=300,200
+        self.lable4.position = 700, 200
+    def load(self,num):
+        return
+class weapon_set(skin_choose):
+    def __init__(self):
+        a=0
+    def load(self,num):
+        draw.Draw(True,num)
+
 
 
 class VF_Layer(cocos.layer.Layer):
@@ -272,14 +314,16 @@ class Level_choose(cocos.menu.Menu):
 
     def diy_weapen_callback(self):
         global img_name
+        #self.wp_set=weapon_set()
+        #self.scene_set=cocos.scene.Scene(self.wp_set,MouseDisplay())
+        #director.replace(scenes.transitions.SlideInBTransition(self.scene_set, duration=1))
+
         img_name = draw.Draw()
         self.level_1_callback()
-
     def diy_char_callback(self):
         img_name2 = draw.Draw()
         image.image_process()
         self.level_1_callback()
-        
     def level_1_callback(self):
         print("第一关")
         self.game_menu = Game_menu()
