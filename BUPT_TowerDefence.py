@@ -48,12 +48,13 @@ import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
-address = "D:\CSHE\BUPT_TowerDefence\img"
-address_2 = "D:\CSHE\BUPT_TowerDefence"
+# address = "D:\CSHE\BUPT_TowerDefence\img"
+# address_2 = "D:\CSHE\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
+
 def save(pic_name,isWeapon,doc_num):
-    with open("json/my_document.json", 'r') as f:
+    with open(address_2+"/json/my_document.json", 'r') as f:
         model = json.load(f)
         f.close()
     print(model)
@@ -62,11 +63,12 @@ def save(pic_name,isWeapon,doc_num):
     else:
         model["character"]["cha" + str(doc_num)]["charactername"] = pic_name + ".png"
     model = json.dumps(model, indent=4)
-    with open(pjoin("json", 'my_document.json'), "w") as fw:
+    with open(pjoin(address_2+"/json", 'my_document.json'), "w") as fw:
         fw.write(model)
         fw.close()
+
 def load(isWeapon,doc_num):
-    with open("json/my_document.json", 'r') as f:
+    with open(address_2+"/json/my_document.json", 'r') as f:
         model = json.load(f)
         f.close()
         if isWeapon:
@@ -105,17 +107,14 @@ class Main_menu(cocos.menu.Menu):
     def __init__(self):
         super(Main_menu, self).__init__()
 
-        items = []
+        self.items = []
 
-        items.append(cocos.menu.ImageMenuItem('img/start.png', self.on_start))
-        items.append(cocos.menu.ImageMenuItem('img/setting.png', self.on_setting))
-        items.append(cocos.menu.ImageMenuItem('img/help.png', self.on_help))
-        items.append(cocos.menu.MenuItem("读取存档", self.read))
-
-        for i in items:
-            i.x = 550
-
-        self.create_menu(items, cocos.menu.shake(), cocos.menu.shake_back())
+        self.items.append(cocos.menu.ImageMenuItem('img/start.png', self.on_start))
+        self.items.append(cocos.menu.ImageMenuItem('img/setting.png', self.on_setting))
+        self.items.append(cocos.menu.ImageMenuItem('img/help.png', self.on_help))
+        self.items.append(cocos.menu.MenuItem("读取武器存档", self.read_weapen))
+        self.items.append(cocos.menu.MenuItem("读取人物存档", self.read_char))
+        self.create_menu(self.items, cocos.menu.shake(), cocos.menu.shake_back())
 
     def on_start(self):
         print("start")
@@ -133,27 +132,52 @@ class Main_menu(cocos.menu.Menu):
     def on_help(self):
         print('help')
 
-    def read(self):
-        print('read')
+    def read_weapen(self):
+        self.items.append(cocos.menu.MenuItem('武器1',self.load1))
+        self.items.append(cocos.menu.MenuItem('武器2', self.load2))
+        self.items.append(cocos.menu.MenuItem('武器3', self.load3))
+        self.items.append(cocos.menu.MenuItem("武器4", self.load4))
+        self.create_menu(self.items, cocos.menu.shake(), cocos.menu.shake_back())
 
-class skin_choose(cocos.menu.Menu):
-    def __init__(self):
-        items=[]
-        items.append(cocos.menu.MenuItem('1', self.load(1)))
-        items.append(cocos.menu.MenuItem('2', self.load(2)))
-        items.append(cocos.menu.MenuItem('3', self.load(3)))
-        items.append(cocos.menu.MenuItem("4", self.load(4)))
-        self.lable1.position=300,400
-        self.lable2.position=700,400
-        self.lable3.position=300,200
-        self.lable4.position = 700, 200
-    def load(self,num):
-        return
-class weapon_set(skin_choose):
-    def __init__(self):
-        a=0
-    def load(self,num):
-        draw.Draw(True,num)
+    def read_char(self):
+        self.items.append(cocos.menu.MenuItem('人物1',self.load5))
+        self.items.append(cocos.menu.MenuItem('人物2', self.load6))
+        self.items.append(cocos.menu.MenuItem('人物3', self.load7))
+        self.items.append(cocos.menu.MenuItem("人物4", self.load8))
+        self.create_menu(self.items, cocos.menu.shake(), cocos.menu.shake_back())
+
+    def load1(self):
+        name = load(True,1)
+        print("读取到"+name)
+        animation.model2_skin.refresh(name)
+    def load2(self):
+        name = load(True,2)
+        print("读取到"+name)
+        animation.model2_skin.refresh(name)
+    def load3(self):
+        name = load(True,3)
+        print("读取到"+name)
+        animation.model2_skin.refresh(name)
+    def load4(self):
+        name = load(True,4)
+        print("读取到"+name)
+        animation.model2_skin.refresh(name)
+    def load5(self):
+        name = load(False,1)
+        print("读取到"+name)
+        animation.diy_skin1.refresh(name)
+    def load6(self):
+        name = load(False,2)
+        print("读取到"+name)
+        animation.diy_skin1.refresh(name)
+    def load7(self):
+        name = load(False,3)
+        print("读取到"+name)
+        animation.diy_skin1.refresh(name)
+    def load8(self):
+        name = load(False,4)
+        print("读取到"+name)
+        animation.diy_skin1.refresh(name)
 
 
 
@@ -305,29 +329,36 @@ class Level_choose(cocos.menu.Menu):
         items.append(cocos.menu.MenuItem('DIY你的武器', self.diy_weapen_callback))
         items.append(cocos.menu.MenuItem('DIY你的角色', self.diy_char_callback))
         items.append(cocos.menu.MenuItem("双人游戏", self.double_callback))
+        items.append(cocos.menu.MenuItem("返回主菜单", self.back))
         self.create_menu(items, cocos.menu.zoom_in(), cocos.menu.zoom_out())
-        self. double = False
-
+        self.double = False
+    def back(self):
+        bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
+        scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
+        scene_1_menu = Main_menu()
+        scene_1.add(scene_1_menu)  # 4.把按钮加入到scene
+        director.replace(scenes.transitions.SlideInBTransition(scene_1, duration=1))
     def double_callback(self):
         self.double = True
         self.level_1_callback()
 
     def diy_weapen_callback(self):
         global img_name
-        #self.wp_set=weapon_set()
-        #self.scene_set=cocos.scene.Scene(self.wp_set,MouseDisplay())
-        #director.replace(scenes.transitions.SlideInBTransition(self.scene_set, duration=1))
-
         img_name = draw.Draw()
+        print(img_name)
+        doc_num = input("请输入你想要保存的存档编号：(1-4):")
+        save(img_name,True,doc_num)
         self.level_1_callback()
     def diy_char_callback(self):
         img_name2 = draw.Draw()
-        image.image_process()
+        image.image_process(img_name2)
+        doc_num = input("请输入你想要保存的存档编号：(1-4):")
+        save(img_name2,False,doc_num)
+        animation.diy_skin1.refresh(load(False,doc_num))
         self.level_1_callback()
     def level_1_callback(self):
         print("第一关")
         self.game_menu = Game_menu()
-
         img = pyglet.image.load(address + "\skill_1.png")
         self.skill_1 = cocos.sprite.Sprite(img)
         self.skill_1.position = (100,620)
@@ -677,7 +708,6 @@ class Mr_cai(cocos.layer.ScrollableLayer):
 class Player_1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Player_1, self).__init__()
-        animation.model2_skin.refresh()
         self.skin = skeleton.BitmapSkin(animation.model2_skeleton.skeleton, animation.model2_skin.skin)
         self.add(self.skin,1)
         # self.width,self.height = 0,0        #可能有bug
@@ -1051,7 +1081,8 @@ if __name__ == '__main__':
     # 键盘
     keyboard = key.KeyStateHandler()
     director.window.push_handlers(keyboard)
-
+    animation.model2_skin.refresh(load(True,1))
+    animation.diy_skin1.refresh(load(False,1))
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
     # people_layer = PeopleLayer()
     # spr1_layer = Spirite1()

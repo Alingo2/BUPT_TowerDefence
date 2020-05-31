@@ -6,9 +6,9 @@ from PIL import Image
 from os.path import join as pjoin
 import  json
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
-#address2 = "D:/MyCode/MyPython/BUPT_TowerDefence"
-address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
-address_2="D:\CSHE\BUPT_TowerDefence"
+address2 = "D:/MyCode/MyPython/BUPT_TowerDefence"
+# address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+# address_2="D:\CSHE\BUPT_TowerDefence"
 def nothing(x):
     pass
 #赋值命令

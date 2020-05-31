@@ -2,11 +2,11 @@
     "character": {
         "cha1": {
             "NO": 1,
-            "charactername": ""
+            "charactername": "aguy.png"
         },
         "cha2": {
             "NO": 2,
-            "charactername": ""
+            "charactername": "fat.png"
         },
         "cha3": {
             "NO": 3,
@@ -20,15 +20,15 @@
     "weapon": {
         "wp1": {
             "NO": 1,
-            "wpname": "test1.png"
+            "wpname": "agun.png"
         },
         "wp2": {
             "NO": 2,
-            "wpname": ""
+            "wpname": "gunzi.png"
         },
         "wp3": {
             "NO": 3,
-            "wpname": ""
+            "wpname": "agun.png"
         },
         "wp4": {
             "NO": 4,

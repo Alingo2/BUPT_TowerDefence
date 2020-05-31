@@ -6,7 +6,7 @@ import matplotlib.image as pg
 
 # diy = newman.png
 # image_process()
-def image_process():
+def image_process(name):
     # address=('D:\\CSHE\BUPT_TowerDefence\image')
     address=('D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/')
     with open(address + "data.txt", "r") as f:  # 打开文件
@@ -317,11 +317,11 @@ def image_process():
     plt.imshow(img_right_hand,plt.cm.gray)
     plt.axis('off')
 
-    pg.imsave(address2+'img_right_leg.png',img_right_leg)
-    pg.imsave(address2+'img_left_leg.png',img_left_leg)
-    pg.imsave(address2+'img_left_hand.png',img_left_hand)
-    pg.imsave(address2+'img_right_hand.png',img_right_hand)
-    pg.imsave(address2+'img_head.png',img_head)
-    pg.imsave(address2+'img_body.png',img_body)
+    pg.imsave(address2+name +'_right_leg.png',img_right_leg)
+    pg.imsave(address2+name +'_left_leg.png',img_left_leg)
+    pg.imsave(address2+name +'_left_hand.png',img_left_hand)
+    pg.imsave(address2+name +'_right_hand.png',img_right_hand)
+    pg.imsave(address2+name +'_head.png',img_head)
+    pg.imsave(address2+name +'_body.png',img_body)
 
     plt.show()
