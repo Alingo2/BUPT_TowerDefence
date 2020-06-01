@@ -370,6 +370,7 @@ class Level_choose(cocos.menu.Menu):
         print(img_name)
         doc_num = input("请输入你想要保存的存档编号：(1-4):")
         save(img_name,True,doc_num)
+        animation.model2_skin.refresh(load(True,doc_num)[0])
         self.level_1_callback()
 
     def diy_char_callback(self):

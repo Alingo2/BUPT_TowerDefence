@@ -1,9 +1,10 @@
 from __future__ import division, print_function, unicode_literals
 address = "D:/代码编辑器/SoulOfPython/Lib/site-packages/cocos/resources/"
 # address = "C:/Users/张帅帅/AppData/Local/Programs/Python/Python37/Lib/site-packages/cocos/resources/"
+skin = []
 def refresh(weapen):
-    weapen = weapen
     global  skin
+    print(weapen)
     skin = [
         ('brazo izq', (10, 49), 'gil-mano2.png', False, False, 0.5),
         #('antebrazo izq', (10, 10), weapen, False, False, 0.4),

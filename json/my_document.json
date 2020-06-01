@@ -24,9 +24,9 @@
         "cha4": {
             "NO": 4,
             "charactername": "abc.png",
-            "damage": "80",
-            "life": "100",
-            "speed": 120
+            "damage": "100",
+            "life": "70",
+            "speed": 130
         }
     },
     "weapon": {
@@ -44,7 +44,7 @@
         },
         "wp4": {
             "NO": 4,
-            "wpname": "newgun.png"
+            "wpname": "gun29.png"
         }
     }
 }
