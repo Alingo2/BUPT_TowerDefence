@@ -44,6 +44,10 @@ import animation.model2_skin
 import animation.test_skeleton
 import animation.test_skin
 import animation.test_skin1
+import animation.myanimal_skeleton
+import animation.myanimal_skin
+import animation.mybird_skeleton
+import animation.mybird_skin
 import _pickle as cPickle
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
@@ -53,7 +57,7 @@ address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
 # address = "*****\BUPT_TowerDefence\img"
 # address_2 = "***\BUPT_TowerDefence"
 
-def save(pic_name,isWeapon,doc_num):
+def save(pic_name,isWeapon,doc_num,damage=0,life=0,speed=0):
     with open(address_2+"/json/my_document.json", 'r') as f:
         model = json.load(f)
         f.close()
@@ -62,6 +66,9 @@ def save(pic_name,isWeapon,doc_num):
         model["weapon"]["wp" + str(doc_num)]["wpname"] = pic_name + ".png"
     else:
         model["character"]["cha" + str(doc_num)]["charactername"] = pic_name + ".png"
+        model["character"]["cha" + str(doc_num)]["damage"]= damage
+        model["character"]["cha" + str(doc_num)]["life"]= life
+        model["character"]["cha" + str(doc_num)]["speed"]= speed
     model = json.dumps(model, indent=4)
     with open(pjoin(address_2+"/json", 'my_document.json'), "w") as fw:
         fw.write(model)
@@ -72,9 +79,9 @@ def load(isWeapon,doc_num):
         model = json.load(f)
         f.close()
         if isWeapon:
-            return model["weapon"]["wp" + str(doc_num)]["wpname"]
+            return [model["weapon"]["wp" + str(doc_num)]["wpname"]]
         else:
-            return model["character"]["cha" + str(doc_num)]["charactername"]
+            return[model["character"]["cha" + str(doc_num)]["charactername"],model["character"]["cha" + str(doc_num)]["damage"],model["character"]["cha" + str(doc_num)]["life"],model["character"]["cha" + str(doc_num)]["speed"]]
 class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动就有问题
     is_event_handler = True
     def __init__(self):
@@ -106,15 +113,17 @@ class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动�
 class Main_menu(cocos.menu.Menu):
     def __init__(self):
         super(Main_menu, self).__init__()
-
         self.items = []
-
         self.items.append(cocos.menu.ImageMenuItem('img/start.png', self.on_start))
         self.items.append(cocos.menu.ImageMenuItem('img/setting.png', self.on_setting))
         self.items.append(cocos.menu.ImageMenuItem('img/help.png', self.on_help))
         self.items.append(cocos.menu.MenuItem("读取武器存档", self.read_weapen))
         self.items.append(cocos.menu.MenuItem("读取人物存档", self.read_char))
         self.create_menu(self.items, cocos.menu.shake(), cocos.menu.shake_back())
+        mixer.init()
+        music.load((address_2 + r"/sound/happy_bgm.mp3").encode())
+        music.play()
+        music.set_volume(0.5)
 
     def on_start(self):
         print("start")
@@ -148,37 +157,44 @@ class Main_menu(cocos.menu.Menu):
 
     def load1(self):
         name = load(True,1)
-        print("读取到"+name)
-        animation.model2_skin.refresh(name)
+        print(name)
+        animation.model2_skin.refresh(name[0])
     def load2(self):
         name = load(True,2)
-        print("读取到"+name)
-        animation.model2_skin.refresh(name)
+        print(name)
+        animation.model2_skin.refresh(name[0])
     def load3(self):
         name = load(True,3)
-        print("读取到"+name)
-        animation.model2_skin.refresh(name)
+        print(name)
+        animation.model2_skin.refresh(name[0])
     def load4(self):
         name = load(True,4)
-        print("读取到"+name)
-        animation.model2_skin.refresh(name)
+        print(name)
+        animation.model2_skin.refresh(name[0])
     def load5(self):
         name = load(False,1)
-        print("读取到"+name)
-        animation.diy_skin1.refresh(name)
+        print(name)
+        animation.diy_skin1.refresh(name[0])
+        global diy_data
+        diy_data = [name[1],name[2],name[3]]
     def load6(self):
         name = load(False,2)
-        print("读取到"+name)
-        animation.diy_skin1.refresh(name)
+        print(name)
+        animation.diy_skin1.refresh(name[0])
+        global diy_data
+        diy_data = [name[1],name[2],name[3]]
     def load7(self):
         name = load(False,3)
-        print("读取到"+name)
-        animation.diy_skin1.refresh(name)
+        print(name)
+        animation.diy_skin1.refresh(name[0])
+        global diy_data
+        diy_data = [name[1],name[2],name[3]]
     def load8(self):
         name = load(False,4)
-        print("读取到"+name)
-        animation.diy_skin1.refresh(name)
-
+        print(name)
+        animation.diy_skin1.refresh(name[0])
+        global diy_data
+        diy_data = [name[1],name[2],name[3]]
 
 
 class VF_Layer(cocos.layer.Layer):
@@ -195,19 +211,26 @@ class VF_Layer(cocos.layer.Layer):
             self.lable2.position = 900, 170
             self.add(self.bg)
             self.add(self.fail_window)
-            self.mr_cai = Mr_cai()
-            self.add(self.mr_cai)
+            mixer.init()
+            music.load((address_2 + r"/sound/fail.mp3").encode())
+            music.play()
+            music.set_volume(1.5)
         else:
             self.count=0
             self.vic_bg=BG(bg_name="img/vic_bg.jpg")
             self.vic_word=Sprite("img/vic_word.png")
             self.vic_word.position=600,400
-
             self.A_word=Sprite("img/A_word.png")
             self.A_word.position=700,500
             self.add(self.vic_bg)
             self.add(self.vic_word)
             self.add(self.A_word)
+            self.mr_cai = Mr_cai()
+            self.add(self.mr_cai)
+            mixer.init()
+            music.load((address_2 + r"/sound/happy_bgm.mp3").encode())
+            music.play()
+            music.set_volume(0.5)
 
 
 class Base(cocos.layer.ScrollableLayer):
@@ -271,7 +294,6 @@ class Game_menu(cocos.menu.Menu):
         items[0].position = 250, -390
         items[1].position = -400, 300
         items[2].position = 350, -300
-
         self.create_menu(items, cocos.menu.shake(), cocos.menu.shake_back())
 
     def on_back(self):  # 有点Bug
@@ -349,13 +371,19 @@ class Level_choose(cocos.menu.Menu):
         doc_num = input("请输入你想要保存的存档编号：(1-4):")
         save(img_name,True,doc_num)
         self.level_1_callback()
+
     def diy_char_callback(self):
         img_name2 = draw.Draw()
         image.image_process(img_name2)
+        damage = input("请分配你创建角色的攻击值：（攻击+生命+速度=300）")
+        life = input("请分配你创建角色的生命值：（攻击+生命+速度=300）")
+        speed = 300 - eval(damage) - eval(life)
+        print("damage,life,speed",damage,life,speed)
         doc_num = input("请输入你想要保存的存档编号：(1-4):")
-        save(img_name2,False,doc_num)
-        animation.diy_skin1.refresh(load(False,doc_num))
+        save(img_name2,False,doc_num,damage,life,speed)
+        animation.diy_skin1.refresh(load(False,doc_num)[0])
         self.level_1_callback()
+
     def level_1_callback(self):
         print("第一关")
         self.game_menu = Game_menu()
@@ -368,25 +396,33 @@ class Level_choose(cocos.menu.Menu):
         img = pyglet.image.load(address + "\skill_3.png")
         self.skill_3 = cocos.sprite.Sprite(img)
         self.skill_3.position = (340,620)
+        img = pyglet.image.load(address + "\skill_4.png")
+        self.skill_4 = cocos.sprite.Sprite(img)
+        self.skill_4.position = (460,620)
+        img = pyglet.image.load(address + "\skill_5.png")
+        self.skill_5 = cocos.sprite.Sprite(img)
+        self.skill_5.position = (580,620)
 
-        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2,self.skill_3)
+        self.scene_3 = cocos.scene.Scene(MouseDisplay(),self.game_menu,self.skill_1,self.skill_2,self.skill_3,self.skill_4,self.skill_5)
 
         self.addable = False
         global scroller,speed_1,block_1,block_1_R
         speed_1 = 1
         scroller = cocos.layer.ScrollingManager()
         self.e_list = []
-        self.skill = [[True,0],[True,0],[True,0]]            #两个数组第一个是技能1 每一个有两个参数：参数1：现在是否可以释放 参数2：冷却时间计数
+        self.skill = [[True,0],[True,0],[True,0],[True,0],[True,0]]            #两个数组第一个是技能1 每一个有两个参数：参数1：现在是否可以释放 参数2：冷却时间计数
 
         self.player_damage = 5
         self.m_layer = MainLayer()
         self.player_1 = Player_1()
         self.t_list=[]
-        # self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0))
-        self.t_list.append(Teammate(animation.diy_skeleton1.skeleton,animation.diy_skin1.skin,"/animation/diy_man_walk.anim","/animation/diy_man_attack.anim","/animation/diy_frozen.anim",0,120))
+        # self.t_list.append(Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0,120,200,100,'/sound/beheat_2.wav'))
+        self.t_list.append(Teammate(animation.diy_skeleton1.skeleton,animation.diy_skin1.skin,"/animation/diy_man_walk.anim","/animation/diy_man_attack.anim","/animation/diy_frozen.anim",0,diy_data[2],200,100,'/sound/beheat_2.wav'))
+        # self.t_list.append(Teammate(animation.myanimal_skeleton.skeleton,animation.myanimal_skin.skin,"/animation/crawl.anim","/animation/animal_attack.anim","/animation/animal_beheat.anim",0,80,200,100,'/sound/cow_beheat.wav'))
         timer = threading.Timer(10, self.add_recover)
         timer.start()
-        self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0,100), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
+        # self.e_list.append([Enemy_1(animation.test_skeleton.skeleton,animation.test_skin.skin,"/animation/2t.anim","/animation/E_attack.anim","/animation/frozen.anim",0,100,4650,60,'/sound/beheat_2.wav'), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
+        self.e_list.append([Enemy_1(animation.mybird_skeleton.skeleton,animation.mybird_skin.skin,"/animation/turn_fly.anim","/animation/bird_attack.anim","/animation/bird_beheat.anim",0,100,4650,350,'/sound/bird_beheat.wav'), False])   #第一个是对象 第二个是是否死亡 第三个是count（子弹击中）
         self.coll_manager = cm.CollisionManagerBruteForce()
         self.coll_manager.add(self.player_1)
         self.coll_manager.add(self.t_list[0])
@@ -467,7 +503,31 @@ class Level_choose(cocos.menu.Menu):
                 self.skill[2][1] += 1
             else:
                 self.skill_3.color = (255,255,255)
-                self.skill[2][0] = True        
+                self.skill[2][0] = True
+        if(self.skill[3][0]):
+            if(keyboard[key._4]):
+                self.skill_4.color = (125,125,125)
+                self.skill[3][0] = False
+                self.skill[3][1] = 0
+                self.add_teammate(1)
+        else:
+            if (self.skill[3][1] <= 1000):
+                self.skill[3][1] += 1
+            else:
+                self.skill_4.color = (255,255,255)
+                self.skill[3][0] = True    
+        if(self.skill[4][0]):
+            if(keyboard[key._5]):
+                self.skill_5.color = (125,125,125)
+                self.skill[4][0] = False
+                self.skill[4][1] = 0
+                self.add_teammate(2)
+        else:
+            if (self.skill[4][1] <= 1200):
+                self.skill[4][1] += 1
+            else:
+                self.skill_5.color = (255,255,255)
+                self.skill[4][0] = True      
 
     def ebase_detect(self):
         if self.coll_manager.they_collide(self.player_1.bullet, self.m_layer.enemy_base):
@@ -479,7 +539,7 @@ class Level_choose(cocos.menu.Menu):
 
     def add_enemy(self):
         if len(self.e_list) < 5:
-            a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list),100)
+            a = Enemy_1(animation.test_skeleton.skeleton,animation.test_skin1.skin,"/animation/2t.anim","/animation/E_attack.anim",("/animation/frozen.anim"),len(self.e_list),100,4650,60,'/sound/beheat_2.wav')
             self.e_list.append([a, False, 0])
             self.coll_manager.add(a)
             self.scene_3.schedule_interval(a.update_position, 1 / 80)
@@ -488,6 +548,18 @@ class Level_choose(cocos.menu.Menu):
             self.addable=False
             timer = threading.Timer(10, self.add_recover)
             timer.start()
+
+    def add_teammate(self,num):
+        if len(self.t_list) < 5:
+            if num == 1:
+                a = Teammate(animation.myE_skeleton.skeleton,animation.myE_skin.skin,"/animation/q.anim","/animation/E_attack.anim","/animation/frozen.anim",0,120,200,60,'/sound/beheat_2.wav')
+            elif num ==2:
+                a = Teammate(animation.myanimal_skeleton.skeleton,animation.myanimal_skin.skin,"/animation/crawl.anim","/animation/animal_attack.anim","/animation/animal_beheat.anim",0,80,200,100,'/sound/cow_beheat.wav')
+            self.t_list.append(a)
+            self.coll_manager.add(a)
+            self.scene_3.schedule_interval(a.update_position, 1 / 80)
+            self.scene_3.schedule_interval(a.status_detect, 1 / 30)
+            scroller.add(a)
 
     def death_detect(self):
         global scroller
@@ -658,7 +730,8 @@ class Mover_4(Mover_3):
     def step(self, dt):  # add block
         if not block[self.num]:
             super().step(dt)
-            vel_x = 100
+            global speed_3
+            vel_x = speed_3
             vel_y = 0
             self.target.velocity = (vel_x, vel_y)
 
@@ -860,11 +933,9 @@ class Player_1(cocos.layer.ScrollableLayer):
             director.replace(scenes.transitions.SlideInBTransition(scene_2, duration=1))
 
 
-
 class Player_2(cocos.layer.ScrollableLayer):
     def __init__(self):
         super(Player_2, self).__init__()
-        # self.do(Repeat(MoveTo((600, 200), 5) + MoveTo((100, 200), 5)))
         self.skin = skeleton.BitmapSkin(animation.my_walk_skeleton.skeleton, animation.my_walk_skin.skin)
         self.add(self.skin)
 
@@ -970,18 +1041,21 @@ class Player_2(cocos.layer.ScrollableLayer):
 
 
 class Enemy_1(cocos.layer.ScrollableLayer):
-    def __init__(self,skele,skin,walk,attack,frozen,num,speed):
+    def __init__(self,skele,skin,walk,attack,frozen,num,speed,x,y,sound):
         super(Enemy_1, self).__init__()
+        self.x = x
+        self.y = y
+        self.sound = sound
         self.skin = skeleton.BitmapSkin(skele,skin)
         self.add(self.skin)
         self.num = num
-        global block,speed_2
+        global block_1
         block.append(False)
-        speed_2 = speed
 
         img = pyglet.image.load(address + "\dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)  # hide the dot
         self.spr.velocity = (0, 0)
+        self.speed = speed
         self.private()              #私有函数 是它独有的部分
         self.life_bar = cocos.sprite.Sprite("img/yellow_bar.png")
 
@@ -994,7 +1068,6 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.count = 0
         self.beheat = False     
         self.damage = 100   #默认总属性值为300
-        self.speed = speed
         self.life = 100
 
         self.cshape = cm.AARectShape(eu.Vector2(*self.skin.position), 65, 136)  # 136不够
@@ -1006,7 +1079,9 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         self.frozen = cPickle.load(fp_3)
 
     def private(self):
-        self.skin.position = 4650, 60
+        global speed_2
+        speed_2 = self.speed
+        self.skin.position = self.x,self.y
         self.position = self.skin.position
         self.spr.position = self.skin.position
         self.mover = Mover_3(self.num)
@@ -1035,7 +1110,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
                 self.remove_all()
                 self.skin.do(skeleton.Animate(self.frozen))
                 block[self.num] = True
-                scream = pygame.mixer.Sound(address_2+'/sound/beheat_2.wav')
+                scream = pygame.mixer.Sound(address_2+self.sound)
                 scream.set_volume(0.5)
                 scream.play()
                 self.beheat = False
@@ -1059,7 +1134,9 @@ class Enemy_1(cocos.layer.ScrollableLayer):
 
 class Teammate(Enemy_1):
     def private(self):
-        self.skin.position = 200, 100
+        global speed_3
+        speed_3 = self.speed
+        self.skin.position = self.x,self.y
         self.position = self.skin.position
         self.spr.position = self.skin.position
         self.mover = Mover_4(self.num)
@@ -1073,6 +1150,7 @@ if __name__ == '__main__':
     block_1 = False
     block_1_R = False
     block_2 = False
+    speed_3 =100
     img_name = ""
     pygame.mixer.init()
     # 初始化导演
@@ -1081,8 +1159,10 @@ if __name__ == '__main__':
     # 键盘
     keyboard = key.KeyStateHandler()
     director.window.push_handlers(keyboard)
-    animation.model2_skin.refresh(load(True,1))
-    animation.diy_skin1.refresh(load(False,1))
+    animation.model2_skin.refresh(load(True,1)[0])
+    diy_info = load(False,1)
+    animation.diy_skin1.refresh(diy_info[0])
+    diy_data = [diy_info[1],diy_info[2],diy_info[3]]
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
     # people_layer = PeopleLayer()
     # spr1_layer = Spirite1()

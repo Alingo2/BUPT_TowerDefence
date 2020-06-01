@@ -2,19 +2,31 @@
     "character": {
         "cha1": {
             "NO": 1,
-            "charactername": "aguy.png"
+            "charactername": "aguy.png",
+            "damage": 100,
+            "life": 100,
+            "speed": 100
         },
         "cha2": {
             "NO": 2,
-            "charactername": "fat.png"
+            "charactername": "fat.png",
+            "damage": 100,
+            "life": 100,
+            "speed": 100
         },
         "cha3": {
             "NO": 3,
-            "charactername": ""
+            "charactername": "",
+            "damage": 100,
+            "life": 100,
+            "speed": 100
         },
         "cha4": {
             "NO": 4,
-            "charactername": ""
+            "charactername": "abc.png",
+            "damage": "80",
+            "life": "100",
+            "speed": 120
         }
     },
     "weapon": {
@@ -28,11 +40,11 @@
         },
         "wp3": {
             "NO": 3,
-            "wpname": "agun.png"
+            "wpname": "newgun.png"
         },
         "wp4": {
             "NO": 4,
-            "wpname": ""
+            "wpname": "newgun.png"
         }
     }
 }
