@@ -49,6 +49,8 @@ import animation.myanimal_skin
 import animation.mybird_skeleton
 import animation.mybird_skin
 import _pickle as cPickle
+import os,sys
+APP_FOLDER = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 address = "D:\MyCode\MyPython\BUPT_TowerDefence\img"
 address_2 = "D:\MyCode\MyPython\BUPT_TowerDefence"
@@ -89,7 +91,7 @@ class MouseDisplay(cocos.layer.Layer):  # 现在有bug 超出虚拟屏幕移动�
         self.text = cocos.text.Label('Mouse @', font_size=18,
                                      x=100, y=240)
         self.add(self.text)
-        cursor_img = pyglet.image.load(address + '/cursor.png')
+        cursor_img = pyglet.resource.image('img/cursor.png')
         cursor_img.anchor_x = cursor_img.width // 2
         cursor_img.anchor_y = cursor_img.height //2
         cursor = pyglet.window.ImageMouseCursor(cursor_img,0,0)   #hotx hoty
@@ -236,7 +238,7 @@ class VF_Layer(cocos.layer.Layer):
 class Base(cocos.layer.ScrollableLayer):
     def __init__(self,filename,position):
         super().__init__()
-        img = pyglet.image.load(address + filename)
+        img = pyglet.resource.image("img"+filename)
         spr = cocos.sprite.Sprite(img)
         spr.position = position[0], position[1]
         self.add(spr)
@@ -388,19 +390,19 @@ class Level_choose(cocos.menu.Menu):
     def level_1_callback(self):
         print("第一关")
         self.game_menu = Game_menu()
-        img = pyglet.image.load(address + "\skill_1.png")
+        img = pyglet.resource.image("img/skill_1.png")
         self.skill_1 = cocos.sprite.Sprite(img)
         self.skill_1.position = (100,620)
-        img = pyglet.image.load(address + "\skill_2.png")
+        img = pyglet.resource.image("img/skill_2.png")
         self.skill_2 = cocos.sprite.Sprite(img)
         self.skill_2.position = (220,620)
-        img = pyglet.image.load(address + "\skill_3.png")
+        img = pyglet.resource.image("img/skill_3.png")
         self.skill_3 = cocos.sprite.Sprite(img)
         self.skill_3.position = (340,620)
-        img = pyglet.image.load(address + "\skill_4.png")
+        img = pyglet.resource.image("img/skill_4.png")
         self.skill_4 = cocos.sprite.Sprite(img)
         self.skill_4.position = (460,620)
-        img = pyglet.image.load(address + "\skill_5.png")
+        img = pyglet.resource.image("img/skill_5.png")
         self.skill_5 = cocos.sprite.Sprite(img)
         self.skill_5.position = (580,620)
 
@@ -740,7 +742,7 @@ class Spirite1(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(address + "/man.png")
+        img = pyglet.resource.image("img/man.png")
         img_grid = pyglet.image.ImageGrid(img, 1, 4, item_width=100, item_height=100)  # 1row 4col each one is 100*100
 
         anim = pyglet.image.Animation.from_image_sequence(img_grid[0:], 0.2,
@@ -755,7 +757,7 @@ class PeopleLayer(cocos.layer.ScrollableLayer):
     def __init__(self):
         super().__init__()
 
-        img = pyglet.image.load(address + "\girl.png")
+        img = pyglet.resource.image("img/girl.png")
         img_grid = pyglet.image.ImageGrid(img, 4, 8, item_width=120, item_height=150)
         anim = pyglet.image.Animation.from_image_sequence(img_grid, 0.1, loop=True)
 
@@ -774,6 +776,10 @@ class Mr_cai(cocos.layer.ScrollableLayer):
         self.add(self.skin)
         x, y = director.get_window_size()
         self.skin.position = 300, 150
+        
+        # full_path=os.path.join(APP_FOLDER,"/animation/Mr_cai.anim")
+        # fp0 = open(full_path, "rb+")
+
         fp0 = open((address_2 + "/animation/Mr_cai.anim"), "rb+")
         anim = cPickle.load(fp0)
         self.skin.do(cocos.actions.Repeat(skeleton.Animate(anim)))
@@ -790,7 +796,7 @@ class Player_1(cocos.layer.ScrollableLayer):
         self.life = 100
         self.protect = False
 
-        img = pyglet.image.load(address + "\dot.png")
+        img = pyglet.resource.image("img/dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)
         self.spr.position = 100, 100
         self.spr.velocity = (0, 0)
@@ -944,7 +950,7 @@ class Player_2(cocos.layer.ScrollableLayer):
         self.position = 500, 100
         self.life = 100
 
-        img = pyglet.image.load(address + "\dot.png")
+        img = pyglet.resource.image("img/dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)  # hide the dot
         self.spr.position = 500, 100
         self.spr.velocity = (0, 0)
@@ -1053,7 +1059,7 @@ class Enemy_1(cocos.layer.ScrollableLayer):
         global block_1
         block.append(False)
 
-        img = pyglet.image.load(address + "\dot.png")
+        img = pyglet.resource.image("img/dot.png")
         self.spr = cocos.sprite.Sprite(img, opacity=0)  # hide the dot
         self.spr.velocity = (0, 0)
         self.speed = speed
@@ -1167,9 +1173,9 @@ if __name__ == '__main__':
     bg_1 = BG(bg_name="img/start_bg.png")  # 1.获取背景图片路径
     # people_layer = PeopleLayer()
     # spr1_layer = Spirite1()
-    scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
     # scene_1.add(people_layer, 1)
     # scene_1.add(spr1_layer, 1)
+    scene_1 = cocos.scene.Scene(bg_1)  # 2.把背景图片生成scene
     scene_1_menu = Main_menu()
     scene_1.add(scene_1_menu)  # 4.把按钮加入到scene
     director.run(scene_1)  # 5.启动场景
